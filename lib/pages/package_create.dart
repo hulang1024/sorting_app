@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sorting/api/http_api.dart';
 import 'package:sorting/widgets/message.dart';
 
 class PackageCreatePage extends StatefulWidget {
@@ -82,7 +83,17 @@ class PackageCreatePageState extends State<PackageCreatePage> {
     );
   }
 
-  void submit() {
-    Messager.ok('假装提交成功');
+  void submit() async {
+    var form = formKey.currentState;
+    if (form.validate()) {
+      form.save();
+      var ret = await api.post('/package', data: formData);
+      if (ret.data['code'] == 0) {
+        Messager.ok('创建包成功');
+      } else {
+        Messager.error(ret.data['msg']);
+      }
+    }
+
   }
 }
