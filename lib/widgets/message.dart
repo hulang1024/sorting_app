@@ -9,6 +9,15 @@ class Messager {
         textColor: Colors.green
     );
   }
+
+  static void info(msg) {
+    Fluttertoast.showToast(
+        msg: msg,
+        gravity: ToastGravity.CENTER,
+        textColor: Colors.black
+    );
+  }
+
   static void error(msg) {
     Fluttertoast.showToast(
         msg: msg,

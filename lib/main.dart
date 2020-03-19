@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sorting/routes.dart';
+import 'package:sorting/pages/user/login.dart';
 
 void main() => runApp(MyApp());
 
@@ -10,8 +10,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.deepOrange,
       ),
-      routes: routes,
-      initialRoute: '/login',
+      home: new LoginPage()
     );
   }
 }

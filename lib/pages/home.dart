@@ -1,6 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../api/http_api.dart';
+import 'item/search.dart';
+import 'package/create.dart';
+import 'package/delete.dart';
+import 'package/item_alloc.dart';
+import 'package/search.dart';
+import 'package/smart_create.dart';
+import 'user/login.dart';
+import 'user/profile.dart';
 
 class HomePage extends StatelessWidget {
   @override
@@ -18,7 +26,7 @@ class HomePage extends StatelessWidget {
                     child: new Text('我的')
                 ),
                 new PopupMenuItem(
-                    value: 'config',
+                    value: 'setting',
                     child: new Text('配置')
                 ),
                 new PopupMenuItem(
@@ -32,11 +40,13 @@ class HomePage extends StatelessWidget {
               ],
               onSelected: (String value){
                 switch(value) {
-                  case 'config':
-                    Navigator.pushNamed(context, '/config');
+                  case 'profile':
+                    Navigator.push(context, new MaterialPageRoute(builder: (_) => ProfilePage()));
+                    break;
+                  case 'setting':
                     break;
                   case 'logout':
-                    Navigator.pushReplacementNamed(context, '/login');
+                    Navigator.pushReplacement(context, new MaterialPageRoute(builder: (_) => LoginPage()));
                     api.post('/user/logout');
                     break;
                   case 'exit':
@@ -50,7 +60,9 @@ class HomePage extends StatelessWidget {
       floatingActionButtonLocation:FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.pushNamed(context, '/package_create');
+          Navigator.push(context, new MaterialPageRoute(
+              builder: (context) => PackageCreatePage()
+          ));
         },
         child: new Icon(Icons.add)
       ),
@@ -70,8 +82,11 @@ class HomePage extends StatelessWidget {
                     color: Colors.white,
                     shape: new RoundedRectangleBorder(),
                     onPressed: () {
+                      Navigator.push(context, new MaterialPageRoute(
+                        builder: (context) => PackageSearchPage()
+                      ));
                     },
-                    child: Text('查询包裹')
+                    child: Text('查询包裹', style: TextStyle(fontSize: 16))
                   )
               ),
               Container(
@@ -79,8 +94,11 @@ class HomePage extends StatelessWidget {
                     color: Colors.white,
                     shape: new RoundedRectangleBorder(),
                     onPressed: () {
+                      Navigator.push(context, new MaterialPageRoute(
+                          builder: (_) => ItemSearchPage()
+                      ));
                     },
-                    child: Text('查询快件')
+                    child: Text('查询快件', style: TextStyle(fontSize: 16))
                   )
               ),
               Container(
@@ -88,9 +106,11 @@ class HomePage extends StatelessWidget {
                     color: Colors.white,
                     shape: new RoundedRectangleBorder(),
                     onPressed: () {
-                      Navigator.pushNamed(context, '/package_create');
+                      Navigator.push(context, new MaterialPageRoute(
+                          builder: (context) => PackageCreatePage()
+                      ));
                     },
-                    child: Text('手动建包')
+                    child: Text('手动建包', style: TextStyle(fontSize: 16))
                   )
               ),
               Container(
@@ -98,8 +118,11 @@ class HomePage extends StatelessWidget {
                     color: Colors.white,
                     shape: new RoundedRectangleBorder(),
                     onPressed: () {
+                      Navigator.push(context, new MaterialPageRoute(
+                          builder: (context) => PackageSmartCreatePage()
+                      ));
                     },
-                    child: Text('智能建包')
+                    child: Text('智能建包', style: TextStyle(fontSize: 16))
                   )
               ),
               Container(
@@ -107,8 +130,11 @@ class HomePage extends StatelessWidget {
                     color: Colors.white,
                     shape: new RoundedRectangleBorder(),
                     onPressed: () {
+                      Navigator.push(context, new MaterialPageRoute(
+                          builder: (context) => ItemAllocPage()
+                      ));
                     },
-                    child: Text('加减快件')
+                    child: Text('加减快件', style: TextStyle(fontSize: 16))
                   )
               ),
               Container(
@@ -116,8 +142,11 @@ class HomePage extends StatelessWidget {
                     color: Colors.white,
                     shape: new RoundedRectangleBorder(),
                     onPressed: () {
+                      Navigator.push(context, new MaterialPageRoute(
+                          builder: (context) => PackageDeletePage()
+                      ));
                     },
-                    child: Text('删除包裹')
+                    child: Text('删除包裹', style: TextStyle(fontSize: 16))
                   )
               ),
             ]
