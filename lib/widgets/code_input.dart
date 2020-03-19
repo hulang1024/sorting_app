@@ -2,25 +2,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import '../utils/key_utils.dart';
 
 class CodeInput extends StatefulWidget {
-  CodeInput({Key key, this.labelText, this.onDone}) : super(key: key);
+  CodeInput({Key key, this.labelText, this.onDone, this.autofocus = true}) : super(key: key);
 
   final String labelText;
   final CodeInputDoneCallback onDone;
+  final bool autofocus;
 
   @override
   State<StatefulWidget> createState() =>
-      CodeInputState(labelText: labelText, onDone: onDone);
+      CodeInputState(labelText: labelText, onDone: onDone, autofocus: autofocus);
 }
 
 typedef CodeInputDoneCallback = void Function(String);
 
 class CodeInputState extends State<CodeInput> {
-  CodeInputState({this.labelText, this.onDone});
+  CodeInputState({this.labelText, this.onDone, this.autofocus});
 
   final String labelText;
   final CodeInputDoneCallback onDone;
+  final bool autofocus;
   TextEditingController controller = new TextEditingController();
   final FocusNode focusNode = new FocusNode();
 
@@ -36,16 +39,25 @@ class CodeInputState extends State<CodeInput> {
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
-      controller: controller,
-      focusNode: focusNode,
-      keyboardType: TextInputType.number,
-      decoration: InputDecoration(
-        labelText: this.labelText,
-      ),
-      onEditingComplete: () {
-        FocusScope.of(context).requestFocus(new FocusNode());
-      }
+    return RawKeyboardListener(
+      focusNode: FocusNode(),// 焦点
+      onKey: (RawKeyEvent event){
+        if(isOKKey(event)) {
+          onDone(controller.text);
+        }
+      },
+      child: TextField(
+        controller: controller,
+        focusNode: focusNode,
+        autofocus: autofocus,
+        keyboardType: TextInputType.number,
+        decoration: InputDecoration(
+          labelText: this.labelText,
+        ),
+        onEditingComplete: () {
+          FocusScope.of(context).requestFocus(new FocusNode());
+        }
+      )
     );
   }
 }

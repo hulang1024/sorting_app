@@ -91,6 +91,7 @@ class PackageCreatePageState extends State<PackageCreatePage> {
         Messager.ok('创建包裹成功');
         codeInputKey.currentState.controller.clear();
         destCodeController.clear();
+        formData.clear();
         packageListViewKey.currentState.query();
       } else {
         Messager.error(ret.data['msg']);

@@ -17,7 +17,8 @@ class PackageDetailsPageState extends State<PackageDetailsPage> {
   final Map package;
   final bool isDeleted;
   Map details = {
-    'package': null,
+    'package': {},
+    'destAddress': {},
     'creator': {},
     'deleteOperator': {},
     'items': []
@@ -26,7 +27,6 @@ class PackageDetailsPageState extends State<PackageDetailsPage> {
   @override
   void initState() {
     super.initState();
-
     details['package'] = package;
     api.get(isDeleted ? '/deleted_package/details' : '/package/details',
       queryParameters: {'code': package['code']}).then((ret) {
@@ -39,6 +39,7 @@ class PackageDetailsPageState extends State<PackageDetailsPage> {
   @override
   Widget build(BuildContext context) {
     var package = details['package'];
+    var destAddress = details['destAddress'] ?? {};
     var creator = details['creator'] ?? {};
     var deleteOperator = details['deleteOperator'] ?? {};
     var items = details['items'];
@@ -57,20 +58,26 @@ class PackageDetailsPageState extends State<PackageDetailsPage> {
               children: [
                 Row(
                   children: [
-                    Container(width: 100, child: Text('包裹编号')),
+                    Container(width: 90, child: Text('包裹编号')),
                     Text(package['code']),
                   ]
                 ),
                 Row(
+                    children: [
+                      Container(width: 90, child: Text('目的地')),
+                      Container(width: 200, child: Text(destAddress['address'] ?? ''))
+                    ]
+                ),
+                Row(
                   children: [
-                    Container(width: 100, child: Text('目的地编号')),
+                    Container(width: 90, child: Text('目的地编号')),
                     Text(package['destCode']),
                   ]
                 ),
                 Row(
                   children: [
-                    Container(width: 100, child: Text('创建者')),
-                    Text(creator['name'] ?? '-'),
+                    Container(width: 90, child: Text('创建者')),
+                    Text(creator['name'] ?? ''),
                     Padding(
                         padding: EdgeInsets.only(left: 8),
                         child: new Text('(手机号:${creator['phone'] ?? '-'})'))
@@ -78,23 +85,23 @@ class PackageDetailsPageState extends State<PackageDetailsPage> {
                 ),
                 Row(
                   children: [
-                    Container(width: 100, child: Text('创建时间')),
-                    Text(creator['createAt']),
+                    Container(width: 90, child: Text('创建时间')),
+                    Text(creator['createAt'] ?? ''),
                   ]
                 ),
                 isDeleted ? Row(
                   children: [
-                    Container(width: 100, child: Text('删除者')),
+                    Container(width: 90, child: Text('删除者')),
                     Text(deleteOperator['name'] ?? '-'),
                     Padding(
                       padding: EdgeInsets.only(left: 8),
-                      child: new Text('(手机号:${deleteOperator['phone'] ?? '-'})')
+                      child: new Text('(${deleteOperator['phone'] ?? '-'})')
                     )
                   ]
                 ) : SizedBox(),
                 isDeleted ? Row(
                   children: [
-                    Container(width: 100, child: Text('删除时间')),
+                    Container(width: 90, child: Text('删除时间')),
                     Text(package['deleteAt']),
                   ]
                 ) : SizedBox()
@@ -118,7 +125,7 @@ class PackageDetailsPageState extends State<PackageDetailsPage> {
               Column(
                 children: [
                   SizedBox(
-                    height: 230,
+                    height: 150,
                     child: new ListView.builder(
                       itemCount: items.length,
                       padding: EdgeInsets.fromLTRB(8, 0, 8, 0),
