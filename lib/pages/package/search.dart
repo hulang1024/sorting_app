@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:sorting/pages/package/list.dart';
 import '../../widgets/code_input.dart';
+import 'details.dart';
 
 class PackageSearchPage extends StatelessWidget {
-  final GlobalKey<PackageListViewState> packageListViewKey = new GlobalKey();
+  final GlobalKey<PackageListViewState> packageListViewKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
@@ -20,15 +21,19 @@ class PackageSearchPage extends StatelessWidget {
               labelText: '包裹编号',
               onDone: (code) {
                 packageListViewKey.currentState.query({'code': code});
-              }
+              },
             ),
             PackageListView(
-              key: packageListViewKey,
-              queryParams: {'fromAll': '1'}
-            )
+                key: packageListViewKey,
+                queryParams: {'fromAll': '1'},
+                onData: (data) {
+                  if (data['content'].length == 1) {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => PackageDetailsPage(data['content'][0])));
+                  }
+                }),
           ],
-        )
-      )
+        ),
+      ),
     );
   }
 }

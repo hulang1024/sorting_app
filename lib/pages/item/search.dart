@@ -4,7 +4,7 @@ import '../../widgets/code_input.dart';
 import 'details.dart';
 
 class ItemSearchPage extends StatelessWidget {
-  final GlobalKey<NetworkDataListState> networkDataListKey = new GlobalKey();
+  final GlobalKey<NetworkDataListState> networkDataListKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
@@ -21,11 +21,11 @@ class ItemSearchPage extends StatelessWidget {
               labelText: '快件编号',
               onDone: (code) {
                 networkDataListKey.currentState.query({'code': code});
-              }
+              },
             ),
             NetworkDataList(
               key: networkDataListKey,
-              options: new Options(
+              options: Options(
                 url: '/item/page',
                 noData: Text('未查询到快件'),
                 rowBuilder: (item, [index, context]) {
@@ -36,18 +36,16 @@ class ItemSearchPage extends StatelessWidget {
                     trailing: RaisedButton(
                       child: Text('详情'),
                       onPressed: () {
-                        Navigator.push(context, new MaterialPageRoute(
-                            builder: (context) => ItemDetailsPage(item)
-                        ));
-                      }
-                      )
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => ItemDetailsPage(item)));
+                      },
+                    ),
                   );
-                }
-              )
-            )
+                },
+              ),
+            ),
           ],
-        )
-      )
+        ),
+      ),
     );
   }
 }

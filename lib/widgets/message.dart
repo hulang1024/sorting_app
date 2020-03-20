@@ -2,27 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class Messager {
-  static void ok(msg) {
-    Fluttertoast.showToast(
-        msg: msg,
-        gravity: ToastGravity.CENTER,
-        textColor: Colors.green
-    );
+  static Future ok(msg) {
+    return _showMsg(msg, Colors.green);
   }
 
-  static void info(msg) {
-    Fluttertoast.showToast(
-        msg: msg,
-        gravity: ToastGravity.CENTER,
-        textColor: Colors.black
-    );
+  static Future info(msg) {
+    return _showMsg(msg, Colors.black87);
   }
 
-  static void error(msg) {
-    Fluttertoast.showToast(
-        msg: msg,
-        gravity: ToastGravity.CENTER,
-        textColor: Colors.red
+  static Future error(msg) {
+    return _showMsg(msg, Colors.red);
+  }
+
+  static Future _showMsg(msg, textColor) {
+    return Fluttertoast.showToast(
+      msg: msg,
+      gravity: ToastGravity.CENTER,
+      textColor: textColor,
+      fontSize: 16,
+      backgroundColor: Color.fromRGBO(240, 240, 240, 1),
     );
   }
 }

@@ -11,35 +11,33 @@ class ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text('我的'),
-          centerTitle: true,
-        ),
-        body: Column(
-            children: [
-              Container(
-                  padding: EdgeInsets.fromLTRB(8, 16, 8, 0),
-                  child: Column(
-                    children: [
-                      Row(
-                          children: [
-                            Container(width: 100, child: Text('姓名')),
-                            Text(user['name']),
-                          ]
-                      ),
-                      Row(
-                          children: [
-                            Container(width: 100, child: Text('手机号')),
-                            Text(user['phone']),
-                          ]
-                      ),
-                    ],
-                  )
-              )
-            ]
-        )
+      appBar: AppBar(
+        title: Text('我的'),
+        centerTitle: true,
+      ),
+      body: Column(
+        children: [
+          Container(
+            padding: EdgeInsets.fromLTRB(24, 16, 24, 0),
+            child: Column(
+              children: [
+                Row(children: [
+                  Container(width: 90, child: Text('姓名')),
+                  Text(user['name']),
+                ]),
+                Row(children: [
+                  Container(width: 90, child: Text('手机号')),
+                  Text(user['phone']),
+                ]),
+                Row(children: [
+                  Container(width: 90, child: Text('编号')),
+                  Text(user['code']),
+                ]),
+              ],
+            ),
+          )
+        ],
+      ),
     );
   }
-
-
 }

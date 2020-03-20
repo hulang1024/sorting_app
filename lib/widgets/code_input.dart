@@ -12,27 +12,21 @@ class CodeInput extends StatefulWidget {
   final bool autofocus;
 
   @override
-  State<StatefulWidget> createState() =>
-      CodeInputState(labelText: labelText, onDone: onDone, autofocus: autofocus);
+  State<StatefulWidget> createState() => CodeInputState();
 }
 
 typedef CodeInputDoneCallback = void Function(String);
 
 class CodeInputState extends State<CodeInput> {
-  CodeInputState({this.labelText, this.onDone, this.autofocus});
-
-  final String labelText;
-  final CodeInputDoneCallback onDone;
-  final bool autofocus;
-  TextEditingController controller = new TextEditingController();
-  final FocusNode focusNode = new FocusNode();
+  TextEditingController controller = TextEditingController();
+  final FocusNode focusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
     focusNode.addListener(() {
       if (!focusNode.hasFocus) {
-        onDone(controller.text);
+        widget.onDone(controller.text);
       }
     });
   }
@@ -40,24 +34,24 @@ class CodeInputState extends State<CodeInput> {
   @override
   Widget build(BuildContext context) {
     return RawKeyboardListener(
-      focusNode: FocusNode(),// 焦点
-      onKey: (RawKeyEvent event){
-        if(isOKKey(event)) {
-          onDone(controller.text);
+      focusNode: FocusNode(), // 焦点
+      onKey: (RawKeyEvent event) {
+        if (isOKKey(event)) {
+          widget.onDone(controller.text);
         }
       },
       child: TextField(
         controller: controller,
         focusNode: focusNode,
-        autofocus: autofocus,
+        autofocus: widget.autofocus,
         keyboardType: TextInputType.number,
         decoration: InputDecoration(
-          labelText: this.labelText,
+          labelText: widget.labelText,
         ),
         onEditingComplete: () {
-          FocusScope.of(context).requestFocus(new FocusNode());
-        }
-      )
+          FocusScope.of(context).requestFocus(FocusNode());
+        },
+      ),
     );
   }
 }

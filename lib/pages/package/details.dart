@@ -21,15 +21,17 @@ class PackageDetailsPageState extends State<PackageDetailsPage> {
     'destAddress': {},
     'creator': {},
     'deleteOperator': {},
-    'items': []
+    'items': [],
   };
 
   @override
   void initState() {
     super.initState();
     details['package'] = package;
-    api.get(isDeleted ? '/deleted_package/details' : '/package/details',
-      queryParameters: {'code': package['code']}).then((ret) {
+    api.get(
+      isDeleted ? '/deleted_package/details' : '/package/details',
+      queryParameters: {'code': package['code']},
+    ).then((ret) {
       setState(() {
         details = ret.data;
       });
@@ -49,111 +51,100 @@ class PackageDetailsPageState extends State<PackageDetailsPage> {
         title: Text('包裹详情'),
         centerTitle: true,
       ),
-      body: Column(
+      body: ListView(
         children: [
           Divider(),
           Container(
             padding: EdgeInsets.fromLTRB(8, 0, 8, 0),
             child: Column(
               children: [
-                Row(
-                  children: [
-                    Container(width: 90, child: Text('包裹编号')),
-                    Text(package['code']),
-                  ]
-                ),
-                Row(
-                    children: [
-                      Container(width: 90, child: Text('目的地')),
-                      Container(width: 200, child: Text(destAddress['address'] ?? ''))
-                    ]
-                ),
-                Row(
-                  children: [
-                    Container(width: 90, child: Text('目的地编号')),
-                    Text(package['destCode']),
-                  ]
-                ),
-                Row(
-                  children: [
-                    Container(width: 90, child: Text('创建者')),
-                    Text(creator['name'] ?? ''),
-                    Padding(
-                        padding: EdgeInsets.only(left: 8),
-                        child: new Text('(手机号:${creator['phone'] ?? '-'})'))
-                  ]
-                ),
-                Row(
-                  children: [
-                    Container(width: 90, child: Text('创建时间')),
-                    Text(creator['createAt'] ?? ''),
-                  ]
-                ),
-                isDeleted ? Row(
-                  children: [
-                    Container(width: 90, child: Text('删除者')),
-                    Text(deleteOperator['name'] ?? '-'),
-                    Padding(
-                      padding: EdgeInsets.only(left: 8),
-                      child: new Text('(${deleteOperator['phone'] ?? '-'})')
-                    )
-                  ]
-                ) : SizedBox(),
-                isDeleted ? Row(
-                  children: [
-                    Container(width: 90, child: Text('删除时间')),
-                    Text(package['deleteAt']),
-                  ]
-                ) : SizedBox()
-              ],
-            )
-          ),
-          isDeleted ? SizedBox() : Column(
-            children: [
-              Divider(),
-              Container(
-                alignment: Alignment.centerLeft,
-                padding: const EdgeInsets.fromLTRB(8, 8, 0, 0),
-                child: Text(
-                  '快件 （${items.length}个）',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              Divider(),
-              Column(
-                children: [
-                  SizedBox(
-                    height: 150,
-                    child: new ListView.builder(
-                      itemCount: items.length,
-                      padding: EdgeInsets.fromLTRB(8, 0, 8, 0),
-                      itemBuilder: (BuildContext context, int index) {
-                        var item = items[index];
-                        return new ListTile(
-                          title: new Text(item['code']),
-                          contentPadding: EdgeInsets.fromLTRB(0, 0, 2, 0),
-                          trailing: RaisedButton(
-                            child: Text('详情'),
-                            onPressed: () {
-                              Navigator.push(context, new MaterialPageRoute(
-                                  builder: (context) => ItemDetailsPage(item)
-                              ));
-                            }
-                          )
-                        );
-                      }
-                    )
+                Row(children: [
+                  Container(width: 90, child: Text('包裹编号')),
+                  Text(package['code']),
+                ]),
+                Row(children: [
+                  Container(width: 90, child: Text('目的地')),
+                  Container(width: 200, child: Text(destAddress['address'] ?? '')),
+                ]),
+                Row(children: [
+                  Container(width: 90, child: Text('目的地编号')),
+                  Text(package['destCode']),
+                ]),
+                Row(children: [
+                  Container(width: 90, child: Text('创建者')),
+                  Text(creator['name'] ?? ''),
+                  Padding(
+                    padding: EdgeInsets.only(left: 8),
+                    child: Text('(手机号:${creator['phone'] ?? '-'})'),
                   )
-                ]
-              )
-            ]
-          )
-        ]
-      )
+                ]),
+                Row(children: [
+                  Container(width: 90, child: Text('创建时间')),
+                  Text(creator['createAt'] ?? ''),
+                ]),
+                isDeleted
+                    ? Row(children: [
+                        Container(width: 90, child: Text('删除者')),
+                        Text(deleteOperator['name'] ?? '-'),
+                        Padding(
+                          padding: EdgeInsets.only(left: 8),
+                          child: Text('(手机号:${deleteOperator['phone'] ?? '-'})'),
+                        ),
+                      ])
+                    : SizedBox(),
+                isDeleted
+                    ? Row(children: [
+                        Container(width: 90, child: Text('删除时间')),
+                        Text(package['deleteAt']),
+                      ])
+                    : SizedBox()
+              ],
+            ),
+          ),
+          isDeleted
+              ? SizedBox()
+              : Column(
+                  children: [
+                    Divider(),
+                    Container(
+                      alignment: Alignment.centerLeft,
+                      padding: const EdgeInsets.fromLTRB(8, 8, 0, 0),
+                      child: Text(
+                        '快件 （${items.length}个）',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    Divider(),
+                    Column(
+                      children: [
+                        SizedBox(
+                          height: 150,
+                          child: ListView.builder(
+                            itemCount: items.length,
+                            padding: EdgeInsets.fromLTRB(8, 0, 8, 0),
+                            itemBuilder: (BuildContext context, int index) {
+                              var item = items[index];
+                              return ListTile(
+                                title: Text(item['code']),
+                                contentPadding: EdgeInsets.fromLTRB(0, 0, 2, 0),
+                                trailing: RaisedButton(
+                                  child: Text('详情'),
+                                  onPressed: () {
+                                    Navigator.push(context, MaterialPageRoute(builder: (context) => ItemDetailsPage(item)));
+                                  },
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+        ],
+      ),
     );
   }
-
-
 }

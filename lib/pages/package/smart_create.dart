@@ -10,12 +10,12 @@ class PackageSmartCreatePageState extends State<PackageSmartCreatePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-      title: Text('智能建包'),
-      centerTitle: true
+        title: Text('智能建包'),
+        centerTitle: true,
       ),
       body: Container(
-        child: Text('待开发')
-      )
+        child: Text('待开发'),
+      ),
     );
   }
 }

@@ -8,25 +8,35 @@ import 'list.dart';
 
 class PackageCreatePage extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() => new PackageCreatePageState();
+  State<StatefulWidget> createState() => PackageCreatePageState();
 }
 
 class PackageCreatePageState extends State<PackageCreatePage> {
-  GlobalKey<PackageListViewState> packageListViewKey = new GlobalKey();
-  GlobalKey<CodeInputState> codeInputKey = new GlobalKey();
-  TextEditingController destCodeController = new TextEditingController();
+  GlobalKey<PackageListViewState> packageListViewKey = GlobalKey();
+  GlobalKey<CodeInputState> codeInputKey = GlobalKey();
+  TextEditingController destCodeController = TextEditingController();
   var formData = {'code': '', 'destCode': ''};
   var focusNodes = {
-    'code': new FocusNode(),
-    'destCode': new FocusNode(),
+    'code': FocusNode(),
+    'destCode': FocusNode(),
   };
+  String address = '';
+  bool querying = false;
 
   @override
   Widget build(BuildContext context) {
+    Widget queryResult = Align(
+      child: querying
+          ? Text('查询中...', style: TextStyle(color: Colors.grey))
+          : destCodeController.text.isNotEmpty
+              ? address.isNotEmpty ? Text('地址：' + address) : Text('未查询到地址', style: TextStyle(color: Colors.red))
+              : Text(''),
+      alignment: Alignment.centerLeft,
+    );
     return Scaffold(
       appBar: AppBar(
         title: Text('手动建包'),
-        centerTitle: true
+        centerTitle: true,
       ),
       body: Container(
         padding: EdgeInsets.fromLTRB(24, 0, 24, 8),
@@ -40,12 +50,12 @@ class PackageCreatePageState extends State<PackageCreatePage> {
                   onDone: (code) {
                     formData['code'] = code;
                     FocusScope.of(context).requestFocus(focusNodes['destCode']);
-                  }
+                  },
                 ),
                 Padding(
                   padding: EdgeInsets.fromLTRB(0, 0, 0, 8),
                   child: RawKeyboardListener(
-                    focusNode: new FocusNode(),
+                    focusNode: FocusNode(),
                     onKey: (RawKeyEvent event) {
                       if (isOKKey(event)) {
                         focusNodes['destCode'].unfocus();
@@ -59,31 +69,48 @@ class PackageCreatePageState extends State<PackageCreatePage> {
                       decoration: InputDecoration(
                         labelText: '目的地编号',
                       ),
-                    )
-                  )
-                )
-              ]
+                      onChanged: (value) {
+                        setState(() {});
+                        queryAddress();
+                      },
+                      onEditingComplete: () => queryAddress(),
+                    ),
+                  ),
+                ),
+                queryResult,
+              ],
             ),
             RaisedButton(
               color: Theme.of(context).primaryColor,
               textColor: Colors.white,
               onPressed: () {
-                FocusScope.of(context).requestFocus(new FocusNode());
+                FocusScope.of(context).requestFocus(FocusNode());
                 submit();
               },
-              child: Text('创建')
+              child: Text('创建'),
             ),
             PackageListView(
               key: packageListViewKey,
-              height: 200
+              height: 200,
             )
-          ]
-        )
-      )
+          ],
+        ),
+      ),
     );
   }
 
+  queryAddress() {
+    querying = true;
+    api.get('/coded_address', queryParameters: {'code': destCodeController.text}).then((ret) {
+      setState(() {
+        address = ret.data.toString();
+        querying = false;
+      });
+    });
+  }
+
   void submit() async {
+    queryAddress();
     formData['destCode'] = destCodeController.text;
     if (formData['code'].isNotEmpty && formData['destCode'].isNotEmpty) {
       var ret = await api.post('/package', data: formData);
