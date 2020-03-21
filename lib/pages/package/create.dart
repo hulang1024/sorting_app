@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../widgets/code_input.dart';
 import '../../api/http_api.dart';
-import '../../utils/key_utils.dart';
 import '../../widgets/message.dart';
 import 'list.dart';
 
@@ -15,11 +14,12 @@ class PackageCreatePageState extends State<PackageCreatePage> {
   GlobalKey<PackageListViewState> packageListViewKey = GlobalKey();
   GlobalKey<CodeInputState> codeInputKey = GlobalKey();
   TextEditingController destCodeController = TextEditingController();
-  var formData = {'code': '', 'destCode': ''};
   var focusNodes = {
     'code': FocusNode(),
     'destCode': FocusNode(),
+    'destCodeKeyboard': FocusNode(),
   };
+  Map<String, dynamic> formData = {};
   String address = '';
   bool querying = false;
 
@@ -35,7 +35,7 @@ class PackageCreatePageState extends State<PackageCreatePage> {
     );
     return Scaffold(
       appBar: AppBar(
-        title: Text('手动建包'),
+        title: Text('创建包裹'),
         centerTitle: true,
       ),
       body: Container(
@@ -57,8 +57,8 @@ class PackageCreatePageState extends State<PackageCreatePage> {
                   child: RawKeyboardListener(
                     focusNode: FocusNode(),
                     onKey: (RawKeyEvent event) {
-                      if (isOKKey(event)) {
-                        focusNodes['destCode'].unfocus();
+                      if (event.isKeyPressed(LogicalKeyboardKey.enter)) {
+                        //focusNodes['destCode'].unfocus();
                         submit();
                       }
                     },
@@ -70,10 +70,8 @@ class PackageCreatePageState extends State<PackageCreatePage> {
                         labelText: '目的地编号',
                       ),
                       onChanged: (value) {
-                        setState(() {});
                         queryAddress();
                       },
-                      onEditingComplete: () => queryAddress(),
                     ),
                   ),
                 ),

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dio/dio.dart';
-import '../home.dart';
-import '../user/register.dart';
-import '../../models/user.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../widgets/message.dart';
 import '../../api/http_api.dart';
+import '../user/register.dart';
+import '../setting/settings.dart';
+import '../home.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -14,16 +15,32 @@ class LoginPage extends StatefulWidget {
 
 class LoginPageState extends State<LoginPage> {
   GlobalKey<FormState> formKey = GlobalKey();
-  var focusNodes = {'username': FocusNode(), 'password': FocusNode(), 'captcha': FocusNode()};
-  FocusScopeNode focusScopeNode;
-  var formData = {'username': '', 'password': '', 'captcha': ''};
+  var configLoaded = false;
+  var focusNodes = {
+    'username': FocusNode(),
+    'password': FocusNode(),
+    'captcha': FocusNode(),
+    'keyboard': FocusNode(),
+  };
+  Map<String, dynamic> formData = {};
   var captchaImage;
-  GlobalKey<EditableTextState> key = GlobalKey();
 
   @override
   void initState() {
     super.initState();
-    flushCaptcha();
+    loadingConfig().then((_) {
+      flushCaptcha();
+    });
+  }
+
+  @override
+  void deactivate() {
+    super.deactivate();
+    if (ModalRoute.of(context).isCurrent) {
+      loadingConfig().then((_) {
+        flushCaptcha();
+      });
+    }
   }
 
   @override
@@ -43,17 +60,21 @@ class LoginPageState extends State<LoginPage> {
               ),
             ),
             Form(
-                key: formKey,
-                child: Column(children: [
+              key: formKey,
+              child: Column(
+                children: [
                   Padding(
                     padding: EdgeInsets.only(top: 0),
                     child: TextFormField(
-                      key: key,
                       keyboardType: TextInputType.number,
                       focusNode: focusNodes['username'],
                       initialValue: '',
                       autofocus: true,
-                      decoration: InputDecoration(icon: Icon(Icons.account_circle), labelText: '用户名', hintText: '手机号/编号'),
+                      decoration: InputDecoration(
+                        icon: Icon(Icons.account_circle),
+                        labelText: '用户名',
+                        hintText: '手机号/编号',
+                      ),
                       validator: (val) {
                         return val.length == 0 ? "请输入用户名" : null;
                       },
@@ -83,41 +104,40 @@ class LoginPageState extends State<LoginPage> {
                       Container(
                         padding: EdgeInsets.only(top: 8),
                         width: 112,
-                        child: TextFormField(
-                          focusNode: focusNodes['captcha'],
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            icon: Icon(Icons.picture_in_picture),
-                            labelText: '验证码',
-                          ),
-                          validator: (val) {
-                            return val.length != 4 ? "验证码长度错误" : null;
+                        child: RawKeyboardListener(
+                          focusNode: focusNodes['keyboard'],
+                          onKey: (RawKeyEvent event) {
+                            if (event.isKeyPressed(LogicalKeyboardKey.enter)) {
+                              onLoginPressed();
+                            }
                           },
-                          onSaved: (val) => formData['captcha'] = val,
+                          child: TextFormField(
+                            focusNode: focusNodes['captcha'],
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                              icon: Icon(Icons.picture_in_picture),
+                              labelText: '验证码',
+                            ),
+                            validator: (val) {
+                              return val.length != 4 ? "验证码错误" : null;
+                            },
+                            onSaved: (val) => formData['captcha'] = val,
+                          ),
                         ),
                       ),
-                      GestureDetector(
-                        onTap: () {
-                          flushCaptcha();
-                        },
-                        child: captchaImage ??
-                            FlatButton(
-                              child: null,
-                              onPressed: () {
-                                flushCaptcha();
-                              },
-                            ),
-                      ),
+                      captchaImage ?? FlatButton(child: null, onPressed: flushCaptcha),
                     ],
                   )
-                ])),
+                ],
+              ),
+            ),
             Container(
               margin: EdgeInsets.fromLTRB(0, 32, 0, 8),
               child: SizedBox(
                 width: double.infinity,
                 height: 46,
                 child: RaisedButton(
-                  elevation: 10.0,
+                  elevation: 4.0,
                   color: Theme.of(context).primaryColor,
                   textColor: Colors.white,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10))),
@@ -129,6 +149,12 @@ class LoginPageState extends State<LoginPage> {
             ButtonBar(
               alignment: MainAxisAlignment.center,
               children: [
+                FlatButton(
+                  onPressed: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => SettingsPage()));
+                  },
+                  child: Text('设置'),
+                ),
                 FlatButton(
                   onPressed: () {
                     Navigator.push(context, MaterialPageRoute(builder: (_) => RegisterPage()));
@@ -149,34 +175,48 @@ class LoginPageState extends State<LoginPage> {
     );
   }
 
-  void flushCaptcha() async {
+  void flushCaptcha() {
     //不能直接使用NetworkImage，因为NetworkImage和dio将产生不同的session
-    var resp = await api.get(
+    api
+        .get(
       '/user/login_captcha?width=150&height=50&v=${DateTime.now().millisecondsSinceEpoch}',
       options: Options(responseType: ResponseType.bytes),
-    );
-    setState(() {
-      captchaImage = Image.memory(resp.data);
+    )
+        .then((resp) {
+      setState(() {
+        captchaImage = Image.memory(resp.data);
+      });
     });
   }
 
-  void onLoginPressed() async {
+  Future loadingConfig() {
+    return new Future(() async {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      if (prefs.getBool('existsSetting') != null) {
+        api.options.baseUrl = 'http://${prefs.get('server.hostname')}:${prefs.get('server.port')}';
+        configLoaded = true;
+        return;
+      } else {
+        Messager.info('请先进行初始设置');
+        Navigator.push(context, MaterialPageRoute(builder: (_) => SettingsPage()));
+      }
+    });
+  }
+
+  void onLoginPressed() {
+    if (!configLoaded) return;
     var form = formKey.currentState;
     if (form.validate()) {
       form.save();
-      var ret = await api.post(
-        '/user/login',
-        data: formData,
-        options: Options(contentType: 'application/x-www-form-urlencoded'),
-      );
-      if (ret.data['code'] == 0) {
-        var qUser = ret.data['data'];
-        user.clear();
-        user.addAll(qUser);
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => HomePage()));
-      } else {
-        Messager.error(ret.data['msg']);
-      }
+      api.post('/user/login', queryParameters: formData).then((ret) {
+        if (ret.data['code'] == 0) {
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => HomePage()));
+        } else {
+          Messager.error(ret.data['msg']);
+        }
+      }).catchError((_) {
+        Messager.error('连接服务器失败');
+      }, test: (error) => true);
     }
   }
 }

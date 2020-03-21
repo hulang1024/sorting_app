@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import '../api/http_api.dart';
 
@@ -39,8 +39,8 @@ class NetworkDataListState extends State<NetworkDataList> {
   @override
   void initState() {
     super.initState();
-    _fetch();
     queryParams = widget.options.queryParams ?? {};
+    _fetch();
     listController.addListener(() {
       if (listController.position.pixels == listController.position.maxScrollExtent && !loading && more) {
         pageNo++;
@@ -116,6 +116,9 @@ class NetworkDataListState extends State<NetworkDataList> {
     queryParams.addAll(this.queryParams);
     queryParams.addAll({'page': pageNo, 'size': pageSize});
     var ret = await api.get(widget.options.url, queryParameters: queryParams);
+    if (widget.options.onData != null) {
+      widget.options.onData(ret.data);
+    }
     setState(() {
       List retList = (ret.data['content'] as List);
       retList.forEach((e) => list.add(e));
@@ -125,6 +128,5 @@ class NetworkDataListState extends State<NetworkDataList> {
       }
       loading = false;
     });
-    widget.options.onData(ret.data);
   }
 }

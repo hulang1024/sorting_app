@@ -31,7 +31,7 @@ class ItemSearchPage extends StatelessWidget {
                 rowBuilder: (item, [index, context]) {
                   return ListTile(
                     title: Text(item['code']),
-                    subtitle: Text(item['createAt']),
+                    subtitle: Text(item['destAddress']),
                     contentPadding: EdgeInsets.fromLTRB(0, 0, 2, 0),
                     trailing: RaisedButton(
                       child: Text('详情'),
@@ -40,6 +40,13 @@ class ItemSearchPage extends StatelessWidget {
                       },
                     ),
                   );
+                },
+                onData: (
+                  data,
+                ) {
+                  if (data['content'].length == 1) {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => ItemDetailsPage(data['content'][0])));
+                  }
                 },
               ),
             ),

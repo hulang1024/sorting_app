@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../api/http_api.dart';
+import 'setting/settings.dart';
 import 'item/search.dart';
 import 'package/create.dart';
 import 'package/delete.dart';
@@ -22,7 +23,7 @@ class HomePage extends StatelessWidget {
             icon: Icon(Icons.more_horiz),
             itemBuilder: (BuildContext context) => [
               PopupMenuItem(value: 'profile', child: Text('我的')),
-              PopupMenuItem(value: 'setting', child: Text('配置')),
+              PopupMenuItem(value: 'setting', child: Text('设置')),
               PopupMenuItem(value: 'logout', child: Text('注销')),
               PopupMenuItem(value: 'exit', child: Text('退出')),
             ],
@@ -32,6 +33,7 @@ class HomePage extends StatelessWidget {
                   Navigator.push(context, MaterialPageRoute(builder: (_) => ProfilePage()));
                   break;
                 case 'setting':
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => SettingsPage()));
                   break;
                 case 'logout':
                   Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => LoginPage()));
@@ -90,7 +92,7 @@ class HomePage extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(context, MaterialPageRoute(builder: (_) => PackageCreatePage()));
                 },
-                child: Text('手动建包', style: TextStyle(fontSize: 16)),
+                child: Text('创建包裹', style: TextStyle(fontSize: 16)),
               ),
             ),
             Container(

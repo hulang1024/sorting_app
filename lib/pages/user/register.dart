@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import '../../api/http_api.dart';
 import '../../widgets/message.dart';
 
@@ -16,14 +16,12 @@ class RegisterPageState extends State<RegisterPage> {
     'code': FocusNode(),
     'password': FocusNode(),
   };
-  FocusScopeNode focusScopeNode;
-  var formData = {'name': '', 'phone': '', 'code': '', 'password': ''};
+  Map<String, dynamic> formData = {};
 
   @override
   void initState() {
     super.initState();
     api.get('/user/next_code').then((ret) {
-      //formData['code'] = ret.data;
       codeTextController.text = ret.data;
     });
   }
@@ -31,7 +29,10 @@ class RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('注册新用户'), centerTitle: true),
+      appBar: AppBar(
+        title: Text('注册新用户'),
+        centerTitle: true,
+      ),
       body: Container(
         padding: EdgeInsets.fromLTRB(24, 0, 24, 0),
         child: ListView(
@@ -103,7 +104,6 @@ class RegisterPageState extends State<RegisterPage> {
                 width: double.infinity,
                 height: 46,
                 child: RaisedButton(
-                  elevation: 10.0,
                   color: Theme.of(context).primaryColor,
                   textColor: Colors.white,
                   onPressed: submit,

@@ -17,7 +17,7 @@ class Messager {
   static Future _showMsg(msg, textColor) {
     return Fluttertoast.showToast(
       msg: msg,
-      gravity: ToastGravity.CENTER,
+      gravity: ToastGravity.TOP,
       textColor: textColor,
       fontSize: 16,
       backgroundColor: Color.fromRGBO(240, 240, 240, 1),

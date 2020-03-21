@@ -6,14 +6,23 @@ import 'package:sorting/widgets/message.dart';
 
 var api = () {
   var dio = Dio(BaseOptions(
-    baseUrl: 'http://192.168.1.109:9999',
     contentType: ContentType.json.toString(),
     responseType: ResponseType.json,
+    connectTimeout: 1000,
+    sendTimeout: 1000,
+    receiveTimeout: 1000,
   ));
   dio.interceptors.add(CookieManager(CookieJar()));
   dio.interceptors.add(InterceptorsWrapper(
+    onResponse: (Response response) {},
     onError: (DioError e) {
-      Messager.error(e.message);
+      if (e.type == DioErrorType.CONNECT_TIMEOUT) {
+        Messager.error('连接服务器超时');
+      } else if (e.response?.statusCode == 401) {
+        Messager.error('登录状态失效，请重新登录');
+      } else {
+        Messager.error(e.message);
+      }
     },
   ));
   return dio;
