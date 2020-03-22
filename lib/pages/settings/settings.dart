@@ -13,7 +13,11 @@ class SettingsPageState extends State<SettingsPage> {
   GlobalKey<FormState> formKey = GlobalKey();
   Map<String, TextEditingController> controllers = {};
   int schemeId;
+  bool serverSaved;
+  bool serverTested;
+  bool serverAvailable;
   List schemes = [];
+  var prefsFuture = SharedPreferences.getInstance();
 
   @override
   void initState() {
@@ -23,17 +27,16 @@ class SettingsPageState extends State<SettingsPage> {
       controllers[key] = TextEditingController();
     });
 
-    SharedPreferences.getInstance().then((prefs) {
+    serverSaved = false;
+    serverTested = false;
+    serverAvailable = false;
+    prefsFuture.then((prefs) {
       controllers.forEach((key, val) {
         controllers[key].text = prefs.getString(key);
       });
-
-      api.get('/scheme/all').then((ret) {
-        setState(() {
-          schemes = ret.data;
-          schemeId = prefs.getInt('schemeId');
-        });
-      });
+      if (controllers['server.hostname'].text.isNotEmpty && controllers['server.port'].text.isNotEmpty) {
+        querySchemes();
+      }
     });
   }
 
@@ -58,6 +61,7 @@ class SettingsPageState extends State<SettingsPage> {
                     decoration: InputDecoration(
                       labelText: '服务器地址',
                     ),
+                    onChanged: onServerChanged,
                   ),
                   TextFormField(
                     controller: controllers['server.port'],
@@ -65,6 +69,7 @@ class SettingsPageState extends State<SettingsPage> {
                     decoration: InputDecoration(
                       labelText: '服务器端口',
                     ),
+                    onChanged: onServerChanged,
                   ),
                 ],
               ),
@@ -72,8 +77,18 @@ class SettingsPageState extends State<SettingsPage> {
             Container(
               margin: EdgeInsets.fromLTRB(0, 16, 0, 0),
               child: RaisedButton(
-                onPressed: onTestPressed,
-                child: Text('测试连接'),
+                color: serverTested
+                    ? serverAvailable
+                        ? serverSaved ? Colors.green : Theme.of(context).primaryColor
+                        : Colors.redAccent
+                    : Colors.orangeAccent,
+                textColor: Colors.white,
+                onPressed: onTestOrSavePressed,
+                child: Text(serverTested
+                    ? serverAvailable
+                        ? serverSaved ? '已设置成功' : '设置'
+                        : '测试连接失败，请重试'
+                    : '测试连接'),
               ),
             ),
             Container(
@@ -84,23 +99,29 @@ class SettingsPageState extends State<SettingsPage> {
                   Container(
                     margin: EdgeInsets.fromLTRB(8, 0, 0, 0),
                     width: 136,
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton(
-                        items: schemes.map((item) => DropdownMenuItem(value: item['id'], child: Text(item['company']))).toList(),
-                        hint: Text('请选择'),
-                        onChanged: (value) {
-                          setState(() {
-                            schemeId = value;
-                          });
-                        },
-                        value: schemeId,
-                        style: TextStyle(
-                          color: Color(0xff4a4a4a),
-                          fontSize: 14,
-                        ),
-                        isDense: false,
-                      ),
-                    ),
+                    child: schemes.length == 0
+                        ? SizedBox()
+                        : DropdownButtonHideUnderline(
+                            child: DropdownButton(
+                              items: schemes.map((item) => DropdownMenuItem(value: item['id'], child: Text(item['company']))).toList(),
+                              hint: Text('请选择'),
+                              onChanged: (value) {
+                                setState(() {
+                                  schemeId = value;
+                                  prefsFuture.then((prefs) {
+                                    prefs.setInt('schemeId', schemeId);
+                                    Messager.ok("模式设置成功");
+                                  });
+                                });
+                              },
+                              value: schemeId,
+                              style: TextStyle(
+                                color: Color(0xff4a4a4a),
+                                fontSize: 14,
+                              ),
+                              isDense: false,
+                            ),
+                          ),
                   ),
                 ],
               ),
@@ -108,10 +129,8 @@ class SettingsPageState extends State<SettingsPage> {
             Container(
               margin: EdgeInsets.fromLTRB(0, 32, 0, 0),
               child: RaisedButton(
-                color: Theme.of(context).primaryColor,
-                textColor: Colors.white,
-                onPressed: submit,
-                child: Text('保存'),
+                onPressed: onResetPressed,
+                child: Text('全部重置'),
               ),
             ),
           ],
@@ -120,9 +139,56 @@ class SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  void onTestPressed() {
+  void querySchemes() {
+    prefsFuture.then((prefs) {
+      api.get('/scheme/all').then((ret) {
+        setState(() {
+          schemes = ret.data;
+          schemeId = prefs.getInt('schemeId');
+        });
+      });
+    });
+  }
+
+  void onServerChanged(_) {
+    setState(() {
+      serverSaved = false;
+      serverTested = false;
+      serverAvailable = false;
+      if (schemeId != null) {
+        prefsFuture.then((prefs) => prefs.remove('schemeId'));
+        schemeId = null;
+      }
+      if (schemes.length > 0) {
+        schemes.clear();
+      }
+    });
+  }
+
+  void onTestOrSavePressed() {
+    FocusScope.of(context).requestFocus(FocusNode());
+    if (serverAvailable) {
+      prefsFuture.then((prefs) {
+        if (prefs.get('existsSetting') == null) {
+          prefs.setBool('existsSetting', true);
+        }
+        controllers.forEach((key, ctrl) async {
+          prefs.setString(key, ctrl.text);
+        });
+        setState(() {
+          serverSaved = true;
+        });
+        Messager.ok('服务器设置成功');
+        querySchemes();
+      });
+      return;
+    }
+
     var hostname = controllers['server.hostname'].text;
     var port = controllers['server.port'].text;
+    if (hostname.isEmpty || port.isEmpty) {
+      return;
+    }
     Dio(BaseOptions(
       baseUrl: 'http://$hostname:$port',
       responseType: ResponseType.json,
@@ -132,6 +198,10 @@ class SettingsPageState extends State<SettingsPage> {
     )).get('/user/ping').then((ret) {
       if (ret.data == 'pong') {
         Messager.ok('连接成功');
+        setState(() {
+          serverTested = true;
+          serverAvailable = true;
+        });
       }
     }).catchError((Object obj) {
       DioError e = obj as DioError;
@@ -140,25 +210,26 @@ class SettingsPageState extends State<SettingsPage> {
           '\n  服务器未正常运行'
           '\n  未连接到服务器所在网络'
           '\n\n  错误消息：${e.message}');
+      setState(() {
+        serverTested = true;
+        serverAvailable = false;
+      });
     }, test: (error) => true);
   }
 
-  void submit() async {
-    if (!formKey.currentState.validate()) {
-      return;
-    }
-
-    if (schemeId == null) {
-      Messager.error('请设置扫描模式');
-      return;
-    }
-
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setBool('existsSetting', true);
-    controllers.forEach((key, ctrl) async {
-      prefs.setString(key, ctrl.text);
+  void onResetPressed() {
+    prefsFuture.then((prefs) {
+      prefs.clear();
     });
-    prefs.setInt('schemeId', schemeId);
-    Messager.ok('保存成功');
+    controllers.forEach((key, ctrl) {
+      ctrl.text = '';
+    });
+    setState(() {
+      serverSaved = false;
+      serverTested = false;
+      serverAvailable = false;
+      schemes.clear();
+      schemeId = null;
+    });
   }
 }

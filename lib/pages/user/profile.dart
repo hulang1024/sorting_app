@@ -14,10 +14,10 @@ class ProfilePageState extends State<ProfilePage> {
   void initState() {
     super.initState();
     api.get('/user/session').then((ret) => {
-      setState(() {
-        user = ret.data['user'];
-      })
-    });
+          setState(() {
+            user = ret.data['user'];
+          })
+        });
   }
 
   @override

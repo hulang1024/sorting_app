@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../settings/settings.dart';
 import '../../widgets/network_data_list.dart';
 import '../../api/http_api.dart';
 import '../../widgets/code_input.dart';
@@ -105,6 +106,11 @@ class PackageItemAllocPageState extends State<PackageItemAllocPage> {
     if (opType == 1) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       formData['schemeId'] = prefs.getInt('schemeId');
+      if (formData['schemeId'] == null) {
+        Messager.error('请先设置模式');
+        Navigator.push(context, MaterialPageRoute(builder: (_) => SettingsPage()));
+        return;
+      }
     }
     codeInputKeys.forEach((k, key) => formData[k] = key.currentState.controller.text);
     if (formData['packageCode'].isNotEmpty && formData['itemCode'].isNotEmpty) {

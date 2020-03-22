@@ -125,7 +125,9 @@ class LoginPageState extends State<LoginPage> {
                           ),
                         ),
                       ),
-                      captchaImage ?? FlatButton(child: null, onPressed: flushCaptcha),
+                      captchaImage != null
+                          ? GestureDetector(onTap: flushCaptcha, child: captchaImage)
+                          : FlatButton(child: null, onPressed: flushCaptcha),
                     ],
                   ),
                 ],
