@@ -13,7 +13,11 @@ class ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    api.get('/user/session').then((ret) => user = ret.data['user']);
+    api.get('/user/session').then((ret) => {
+      setState(() {
+        user = ret.data['user'];
+      })
+    });
   }
 
   @override
@@ -26,24 +30,24 @@ class ProfilePageState extends State<ProfilePage> {
       body: Column(
         children: [
           Container(
-            padding: EdgeInsets.fromLTRB(24, 16, 24, 0),
+            padding: EdgeInsets.fromLTRB(8, 8, 8, 0),
             child: Column(
               children: [
                 Row(children: [
-                  Container(width: 90, child: Text('姓名')),
+                  Container(width: 80, child: Text('姓名')),
                   Text(user['name'] ?? ''),
                 ]),
                 Row(children: [
-                  Container(width: 90, child: Text('手机号')),
+                  Container(width: 80, child: Text('手机号')),
                   Text(user['phone'] ?? ''),
                 ]),
                 Row(children: [
-                  Container(width: 90, child: Text('编号')),
+                  Container(width: 80, child: Text('编号')),
                   Text(user['code'] ?? ''),
                 ]),
               ],
             ),
-          )
+          ),
         ],
       ),
     );

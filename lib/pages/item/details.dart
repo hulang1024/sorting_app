@@ -65,7 +65,13 @@ class ItemDetailsPageState extends State<ItemDetailsPage> {
                     : Row(children: [
                         Container(width: 90, child: Text('打包时间')),
                         Text(item['packTime']),
-                      ])
+                      ]),
+                item['packTime'] == null
+                    ? SizedBox()
+                    : Row(children: [
+                        Container(width: 90, child: Text('包裹编号')),
+                        Text(details['packageCode'] ?? ''),
+                      ]),
               ],
             ),
           ),

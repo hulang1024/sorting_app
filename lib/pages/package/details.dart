@@ -53,9 +53,8 @@ class PackageDetailsPageState extends State<PackageDetailsPage> {
       ),
       body: ListView(
         children: [
-          Divider(),
           Container(
-            padding: EdgeInsets.fromLTRB(8, 0, 8, 0),
+            padding: EdgeInsets.fromLTRB(8, 8, 8, 0),
             child: Column(
               children: [
                 Row(children: [
@@ -116,7 +115,6 @@ class PackageDetailsPageState extends State<PackageDetailsPage> {
                         ),
                       ),
                     ),
-                    Divider(),
                     Column(
                       children: [
                         SizedBox(

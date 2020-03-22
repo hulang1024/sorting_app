@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../widgets/message.dart';
 import '../../api/http_api.dart';
 import '../user/register.dart';
-import '../setting/settings.dart';
+import '../settings/settings.dart';
 import '../home.dart';
 
 class LoginPage extends StatefulWidget {
@@ -127,7 +127,7 @@ class LoginPageState extends State<LoginPage> {
                       ),
                       captchaImage ?? FlatButton(child: null, onPressed: flushCaptcha),
                     ],
-                  )
+                  ),
                 ],
               ),
             ),
@@ -190,7 +190,7 @@ class LoginPageState extends State<LoginPage> {
   }
 
   Future loadingConfig() {
-    return new Future(() async {
+    return Future(() async {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       if (prefs.getBool('existsSetting') != null) {
         api.options.baseUrl = 'http://${prefs.get('server.hostname')}:${prefs.get('server.port')}';

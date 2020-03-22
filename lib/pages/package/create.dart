@@ -6,6 +6,10 @@ import '../../widgets/message.dart';
 import 'list.dart';
 
 class PackageCreatePage extends StatefulWidget {
+  PackageCreatePage({this.smartCreate = false});
+
+  final bool smartCreate;
+
   @override
   State<StatefulWidget> createState() => PackageCreatePageState();
 }
@@ -35,7 +39,7 @@ class PackageCreatePageState extends State<PackageCreatePage> {
     );
     return Scaffold(
       appBar: AppBar(
-        title: Text('创建包裹'),
+        title: Text(widget.smartCreate ? '智能建包' : '创建包裹'),
         centerTitle: true,
       ),
       body: Container(
@@ -48,7 +52,6 @@ class PackageCreatePageState extends State<PackageCreatePage> {
                   key: codeInputKey,
                   labelText: '包裹编号',
                   onDone: (code) {
-                    formData['code'] = code;
                     FocusScope.of(context).requestFocus(focusNodes['destCode']);
                   },
                 ),
@@ -58,7 +61,7 @@ class PackageCreatePageState extends State<PackageCreatePage> {
                     focusNode: FocusNode(),
                     onKey: (RawKeyEvent event) {
                       if (event.isKeyPressed(LogicalKeyboardKey.enter)) {
-                        //focusNodes['destCode'].unfocus();
+                        FocusScope.of(context).requestFocus(FocusNode());
                         submit();
                       }
                     },
@@ -90,7 +93,7 @@ class PackageCreatePageState extends State<PackageCreatePage> {
             PackageListView(
               key: packageListViewKey,
               height: 200,
-            )
+            ),
           ],
         ),
       ),
@@ -109,9 +112,14 @@ class PackageCreatePageState extends State<PackageCreatePage> {
 
   void submit() async {
     queryAddress();
+    formData['code'] = codeInputKey.currentState.controller.text;
     formData['destCode'] = destCodeController.text;
+    Map<String, dynamic> smartCreateSepc = {};
+    if (widget.smartCreate) {
+      smartCreateSepc = {'smartCreate': widget.smartCreate, 'allocItemNumMax': 10};
+    }
     if (formData['code'].isNotEmpty && formData['destCode'].isNotEmpty) {
-      var ret = await api.post('/package', data: formData);
+      var ret = await api.post('/package', data: formData, queryParameters: smartCreateSepc);
       if (ret.data['code'] == 0) {
         Messager.ok('创建包裹成功');
         codeInputKey.currentState.controller.clear();

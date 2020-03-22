@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../api/http_api.dart';
-import 'setting/settings.dart';
+import 'settings/settings.dart';
 import 'item/search.dart';
 import 'package/create.dart';
 import 'package/delete.dart';
-import 'package/item_alloc.dart';
+import 'package_item/item_alloc.dart';
 import 'package/search.dart';
-import 'package/smart_create.dart';
 import 'user/login.dart';
 import 'user/profile.dart';
 
@@ -44,7 +43,7 @@ class HomePage extends StatelessWidget {
                   break;
               }
             },
-          )
+          ),
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -100,7 +99,7 @@ class HomePage extends StatelessWidget {
                 color: Colors.white,
                 shape: RoundedRectangleBorder(),
                 onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => PackageSmartCreatePage()));
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => PackageCreatePage(smartCreate: true)));
                 },
                 child: Text('智能建包', style: TextStyle(fontSize: 16)),
               ),
@@ -110,7 +109,7 @@ class HomePage extends StatelessWidget {
                 color: Colors.white,
                 shape: RoundedRectangleBorder(),
                 onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => ItemAllocPage()));
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => PackageItemAllocPage()));
                 },
                 child: Text('加减快件', style: TextStyle(fontSize: 16)),
               ),

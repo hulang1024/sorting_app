@@ -28,22 +28,22 @@ typedef RowBuilder = Widget Function(Map row, int index, BuildContext context);
 
 class NetworkDataListState extends State<NetworkDataList> {
   ScrollController listController = ScrollController();
-  bool loading = true;
-  bool more = true;
-  Map<String, dynamic> queryParams = {};
-  int pageNo = 1;
-  int pageSize = 5;
-  int total = 0;
-  List list = [];
+  Map<String, dynamic> _queryParams = {};
+  bool _loading = true;
+  bool _more = true;
+  int _pageNo = 1;
+  int _pageSize = 5;
+  int _total = 0;
+  List _list = [];
 
   @override
   void initState() {
     super.initState();
-    queryParams = widget.options.queryParams ?? {};
+    _queryParams = widget.options.queryParams ?? {};
     _fetch();
     listController.addListener(() {
-      if (listController.position.pixels == listController.position.maxScrollExtent && !loading && more) {
-        pageNo++;
+      if (listController.position.pixels == listController.position.maxScrollExtent && !_loading && _more) {
+        _pageNo++;
         _fetch();
       }
     });
@@ -57,7 +57,7 @@ class NetworkDataListState extends State<NetworkDataList> {
 
   @override
   Widget build(BuildContext context) {
-    if (list.length == 0 && !loading) {
+    if (_list.length == 0 && !_loading) {
       return Center(child: widget.options.noData ?? Text('未查询到数据'));
     } else {
       return listView();
@@ -71,62 +71,62 @@ class NetworkDataListState extends State<NetworkDataList> {
           height: widget.options.height ?? 300,
           child: ListView.builder(
             controller: listController,
-            itemCount: list.length + 1,
+            itemCount: _list.length + 1,
             padding: EdgeInsets.fromLTRB(0, 0, 0, 8),
             itemBuilder: (BuildContext context, int index) {
-              if (list.length == 0) return null;
-              if (index == list.length) {
-                if (!more) return null;
+              if (_list.length == 0) return null;
+              if (index == _list.length) {
+                if (!_more) return null;
                 return Center(
                   child: Container(
                     margin: EdgeInsets.only(top: 8.0),
                     width: 32.0,
                     height: 32.0,
-                    child: Opacity(opacity: loading ? 1 : 0, child: CircularProgressIndicator()),
+                    child: Opacity(opacity: _loading ? 1 : 0, child: CircularProgressIndicator()),
                   ),
                 );
               }
 
-              return widget.options.rowBuilder(list[index], index, context);
+              return widget.options.rowBuilder(_list[index], index, context);
             },
           ),
         ),
-        Text('共$total个')
+        Text('共$_total个记录'),
       ],
     );
   }
 
-  void query([queryParams]) {
-    list.clear();
-    pageNo = 1;
-    if (queryParams != null) {
-      this.queryParams.addAll(queryParams);
+  void query([_queryParams]) {
+    _list.clear();
+    _pageNo = 1;
+    if (_queryParams != null) {
+      this._queryParams.addAll(_queryParams);
     }
     setState(() {
-      more = true;
+      _more = true;
     });
     _fetch();
   }
 
   void _fetch() async {
     setState(() {
-      loading = true;
+      _loading = true;
     });
-    Map<String, dynamic> queryParams = {};
-    queryParams.addAll(this.queryParams);
-    queryParams.addAll({'page': pageNo, 'size': pageSize});
-    var ret = await api.get(widget.options.url, queryParameters: queryParams);
+    Map<String, dynamic> _queryParams = {};
+    _queryParams.addAll(this._queryParams);
+    _queryParams.addAll({'page': _pageNo, 'size': _pageSize});
+    var ret = await api.get(widget.options.url, queryParameters: _queryParams);
     if (widget.options.onData != null) {
       widget.options.onData(ret.data);
     }
     setState(() {
       List retList = (ret.data['content'] as List);
-      retList.forEach((e) => list.add(e));
-      total = ret.data['total'];
-      if (retList.length < pageSize) {
-        more = false;
+      retList.forEach((e) => _list.add(e));
+      _total = ret.data['total'];
+      if (retList.length < _pageSize) {
+        _more = false;
       }
-      loading = false;
+      _loading = false;
     });
   }
 }

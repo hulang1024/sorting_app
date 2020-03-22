@@ -20,17 +20,19 @@ class PackageSearchPage extends StatelessWidget {
             CodeInput(
               labelText: '包裹编号',
               onDone: (code) {
+                FocusScope.of(context).requestFocus(FocusNode());
                 packageListViewKey.currentState.query({'code': code});
               },
             ),
             PackageListView(
-                key: packageListViewKey,
-                queryParams: {'fromAll': '1'},
-                onData: (data) {
-                  if (data['content'].length == 1) {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => PackageDetailsPage(data['content'][0])));
-                  }
-                }),
+              key: packageListViewKey,
+              queryParams: {'fromAll': '1'},
+              onData: (data) {
+                if (data['content'].length == 1) {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => PackageDetailsPage(data['content'][0])));
+                }
+              },
+            ),
           ],
         ),
       ),

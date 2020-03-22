@@ -20,34 +20,36 @@ class ItemSearchPage extends StatelessWidget {
             CodeInput(
               labelText: '快件编号',
               onDone: (code) {
+                FocusScope.of(context).requestFocus(FocusNode());
                 networkDataListKey.currentState.query({'code': code});
               },
             ),
-            NetworkDataList(
-              key: networkDataListKey,
-              options: Options(
-                url: '/item/page',
-                noData: Text('未查询到快件'),
-                rowBuilder: (item, [index, context]) {
-                  return ListTile(
-                    title: Text(item['code']),
-                    subtitle: Text(item['destAddress']),
-                    contentPadding: EdgeInsets.fromLTRB(0, 0, 2, 0),
-                    trailing: RaisedButton(
-                      child: Text('详情'),
-                      onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => ItemDetailsPage(item)));
-                      },
-                    ),
-                  );
-                },
-                onData: (
-                  data,
-                ) {
-                  if (data['content'].length == 1) {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => ItemDetailsPage(data['content'][0])));
-                  }
-                },
+            Container(
+              margin: EdgeInsets.only(top: 8),
+              child: NetworkDataList(
+                key: networkDataListKey,
+                options: Options(
+                  url: '/item/page',
+                  noData: Text('未查询到快件'),
+                  rowBuilder: (item, index, context) {
+                    return ListTile(
+                      title: Text(item['code']),
+                      subtitle: Text(item['packTime'] == null ? '未分配' : '已分配' + '\n' + item['destAddress']),
+                      contentPadding: EdgeInsets.fromLTRB(0, 0, 2, 0),
+                      trailing: RaisedButton(
+                        child: Text('详情'),
+                        onPressed: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => ItemDetailsPage(item)));
+                        },
+                      ),
+                    );
+                  },
+                  onData: (data) {
+                    if (data['content'].length == 1) {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => ItemDetailsPage(data['content'][0])));
+                    }
+                  },
+                ),
               ),
             ),
           ],

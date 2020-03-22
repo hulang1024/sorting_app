@@ -4,11 +4,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 class CodeInput extends StatefulWidget {
-  CodeInput({Key key, this.labelText, this.onDone, this.autofocus = true}) : super(key: key);
+  CodeInput({Key key, this.labelText, this.focusNode, this.onDone, this.autofocus = true}) : super(key: key);
 
   final String labelText;
   final CodeInputDoneCallback onDone;
   final bool autofocus;
+  final FocusNode focusNode;
 
   @override
   State<StatefulWidget> createState() => CodeInputState();
@@ -21,21 +22,17 @@ class CodeInputState extends State<CodeInput> {
 
   @override
   Widget build(BuildContext context) {
-    return RawKeyboardListener(
-      focusNode: new FocusNode(),
-      onKey: (RawKeyEvent event) {
-        if (event.isKeyPressed(LogicalKeyboardKey.enter)) {
-          widget.onDone(controller.text);
-        }
-      },
-      child: TextField(
-        controller: controller,
-        autofocus: widget.autofocus,
-        keyboardType: TextInputType.number,
-        decoration: InputDecoration(
-          labelText: widget.labelText,
-        ),
+    return TextField(
+      controller: controller,
+      focusNode: widget.focusNode ?? FocusNode(),
+      autofocus: widget.autofocus,
+      keyboardType: TextInputType.number,
+      decoration: InputDecoration(
+        labelText: widget.labelText,
       ),
+      onEditingComplete: () {
+        widget.onDone(controller.text);
+      },
     );
   }
 }

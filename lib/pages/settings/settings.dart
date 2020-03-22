@@ -12,6 +12,8 @@ class SettingsPage extends StatefulWidget {
 class SettingsPageState extends State<SettingsPage> {
   GlobalKey<FormState> formKey = GlobalKey();
   Map<String, TextEditingController> controllers = {};
+  int schemeId;
+  List schemes = [];
 
   @override
   void initState() {
@@ -24,6 +26,13 @@ class SettingsPageState extends State<SettingsPage> {
     SharedPreferences.getInstance().then((prefs) {
       controllers.forEach((key, val) {
         controllers[key].text = prefs.getString(key);
+      });
+
+      api.get('/scheme/all').then((ret) {
+        setState(() {
+          schemes = ret.data;
+          schemeId = prefs.getInt('schemeId');
+        });
       });
     });
   }
@@ -61,29 +70,50 @@ class SettingsPageState extends State<SettingsPage> {
               ),
             ),
             Container(
-              margin: EdgeInsets.fromLTRB(0, 24, 0, 0),
-              child: SizedBox(
-                width: double.infinity,
-                height: 46,
-                child: RaisedButton(
-                  onPressed: onTestPressed,
-                  child: Text('测试连接'),
-                ),
+              margin: EdgeInsets.fromLTRB(0, 16, 0, 0),
+              child: RaisedButton(
+                onPressed: onTestPressed,
+                child: Text('测试连接'),
               ),
             ),
             Container(
-              margin: EdgeInsets.fromLTRB(0, 24, 0, 0),
-              child: SizedBox(
-                width: double.infinity,
-                height: 46,
-                child: RaisedButton(
-                  color: Theme.of(context).primaryColor,
-                  textColor: Colors.white,
-                  onPressed: submit,
-                  child: Text('保存'),
-                ),
+              margin: EdgeInsets.fromLTRB(0, 16, 0, 0),
+              child: Row(
+                children: [
+                  Text('模式', style: TextStyle(color: Color(0x99000000), fontSize: 13)),
+                  Container(
+                    margin: EdgeInsets.fromLTRB(8, 0, 0, 0),
+                    width: 136,
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton(
+                        items: schemes.map((item) => DropdownMenuItem(value: item['id'], child: Text(item['company']))).toList(),
+                        hint: Text('请选择'),
+                        onChanged: (value) {
+                          setState(() {
+                            schemeId = value;
+                          });
+                        },
+                        value: schemeId,
+                        style: TextStyle(
+                          color: Color(0xff4a4a4a),
+                          fontSize: 14,
+                        ),
+                        isDense: false,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            )
+            ),
+            Container(
+              margin: EdgeInsets.fromLTRB(0, 32, 0, 0),
+              child: RaisedButton(
+                color: Theme.of(context).primaryColor,
+                textColor: Colors.white,
+                onPressed: submit,
+                child: Text('保存'),
+              ),
+            ),
           ],
         ),
       ),
@@ -118,11 +148,17 @@ class SettingsPageState extends State<SettingsPage> {
       return;
     }
 
+    if (schemeId == null) {
+      Messager.error('请设置扫描模式');
+      return;
+    }
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool('existsSetting', true);
     controllers.forEach((key, ctrl) async {
       prefs.setString(key, ctrl.text);
     });
+    prefs.setInt('schemeId', schemeId);
     Messager.ok('保存成功');
   }
 }

@@ -100,17 +100,13 @@ class RegisterPageState extends State<RegisterPage> {
             ),
             Container(
               margin: EdgeInsets.fromLTRB(0, 24, 0, 0),
-              child: SizedBox(
-                width: double.infinity,
-                height: 46,
-                child: RaisedButton(
-                  color: Theme.of(context).primaryColor,
-                  textColor: Colors.white,
-                  onPressed: submit,
-                  child: Text('注册'),
-                ),
+              child: RaisedButton(
+                color: Theme.of(context).primaryColor,
+                textColor: Colors.white,
+                onPressed: submit,
+                child: Text('注册'),
               ),
-            )
+            ),
           ],
         ),
       ),
