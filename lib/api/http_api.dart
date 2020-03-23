@@ -8,7 +8,7 @@ var api = () {
   var dio = Dio(BaseOptions(
     contentType: ContentType.json.toString(),
     responseType: ResponseType.json,
-    connectTimeout: 1000,
+    connectTimeout: 2000,
     sendTimeout: 1000,
     receiveTimeout: 1000,
   ));
