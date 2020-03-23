@@ -67,22 +67,24 @@ class NetworkDataListState extends State<NetworkDataList> {
   Widget listView() {
     return Column(
       children: [
-        SizedBox(
+        Container(
           height: widget.options.height ?? 300,
           child: ListView.builder(
             controller: listController,
             itemCount: _list.length + 1,
-            padding: EdgeInsets.fromLTRB(0, 0, 0, 8),
+            padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
             itemBuilder: (BuildContext context, int index) {
-              if (_list.length == 0) return null;
-              if (index == _list.length) {
+              if (_list.length == 0 || index == _list.length) {
                 if (!_more) return null;
                 return Center(
                   child: Container(
                     margin: EdgeInsets.only(top: 8.0),
                     width: 32.0,
                     height: 32.0,
-                    child: Opacity(opacity: _loading ? 1 : 0, child: CircularProgressIndicator()),
+                    child: Opacity(
+                        opacity: _loading ? 1 : 0,
+                        child: CircularProgressIndicator(),
+                    ),
                   ),
                 );
               }
@@ -91,7 +93,7 @@ class NetworkDataListState extends State<NetworkDataList> {
             },
           ),
         ),
-        Text('共$_total个记录'),
+        Text('共 $_total 个记录', style: TextStyle(color: Colors.grey)),
       ],
     );
   }
@@ -108,25 +110,30 @@ class NetworkDataListState extends State<NetworkDataList> {
     _fetch();
   }
 
-  void _fetch() async {
+  void _fetch() {
     setState(() {
       _loading = true;
     });
     Map<String, dynamic> _queryParams = {};
     _queryParams.addAll(this._queryParams);
     _queryParams.addAll({'page': _pageNo, 'size': _pageSize});
-    var ret = await api.get(widget.options.url, queryParameters: _queryParams);
-    if (widget.options.onData != null) {
-      widget.options.onData(ret.data);
-    }
-    setState(() {
-      List retList = (ret.data['content'] as List);
-      retList.forEach((e) => _list.add(e));
-      _total = ret.data['total'];
-      if (retList.length < _pageSize) {
-        _more = false;
+    api.get(widget.options.url, queryParameters: _queryParams).then((ret) {
+      if (widget.options.onData != null) {
+        widget.options.onData(ret.data);
       }
-      _loading = false;
-    });
+      setState(() {
+        List retList = (ret.data['content'] as List);
+        retList.forEach((e) => _list.add(e));
+        _total = ret.data['total'];
+        if (retList.length < _pageSize) {
+          _more = false;
+        }
+        _loading = false;
+      });
+    }).catchError((_) {
+      setState(() {
+        _loading = false;
+      });
+    }, test: (error) => true);
   }
 }
