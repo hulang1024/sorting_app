@@ -29,6 +29,7 @@ class CodeInputState extends State<CodeInput> {
       keyboardType: TextInputType.number,
       decoration: InputDecoration(
         labelText: widget.labelText,
+        contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 0),
       ),
       onEditingComplete: () {
         widget.onDone(controller.text);
