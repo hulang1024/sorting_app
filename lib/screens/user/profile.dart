@@ -65,7 +65,7 @@ class ProfileScreenState extends ScreenState<ProfileScreen> {
             width: double.infinity,
             child: RaisedButton(
               onPressed: () {
-                pushReplacement(Login());
+                Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => Login()));
                 api.post('/user/logout');
               },
               child: Text('退出当前用户'),

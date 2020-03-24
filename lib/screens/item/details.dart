@@ -77,8 +77,7 @@ class ItemDetailsScreenState extends ScreenState<ItemDetailsScreen> {
                           style: TextStyle(color: Colors.blue),
                           recognizer: TapGestureRecognizer()
                             ..onTap = () {
-                              Navigator.push(
-                                  context, MaterialPageRoute(builder: (context) => PackageDetailsScreen({'code': details['packageCode']})));
+                              push(PackageDetailsScreen({'code': details['packageCode']}));
                             },
                         ),
                       ),

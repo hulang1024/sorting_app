@@ -11,27 +11,28 @@ abstract class Screen extends StatefulWidget {
 
 abstract class ScreenState<T extends Screen> extends State<T> {
   String _title = '';
-
   get title => _title;
   set title(str) {
     assert(mounted);
     setState(() => _title = str);
   }
 
+  EdgeInsets padding;
+
   @override
   void initState() {
     super.initState();
 
     _title = widget.title;
+
+    padding = EdgeInsets.fromLTRB(8, 8, 8, 8);
+    if (widget.addPadding != null) {
+      padding += widget.addPadding;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    EdgeInsets padding = EdgeInsets.fromLTRB(8, 8, 8, 8);
-    if (widget.addPadding != null) {
-      padding += widget.addPadding;
-    }
-
     return Scaffold(
       appBar: AppBar(
         title: Text(_title),
@@ -64,11 +65,11 @@ abstract class ScreenState<T extends Screen> extends State<T> {
     return Navigator.of(context).pop();
   }
 
-  Future push(screen) {
+  Future push(Screen screen) {
     return Navigator.of(context).push(MaterialPageRoute(builder: (_) => screen));
   }
 
-  Future pushReplacement(screen) {
+  Future pushReplacement(Screen screen) {
     return Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => screen));
   }
 }

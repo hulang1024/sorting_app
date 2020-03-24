@@ -10,6 +10,10 @@ class Messager {
     return _showMsg(msg, Colors.black87);
   }
 
+  static Future warning(msg) {
+    return _showMsg(msg, Colors.orange);
+  }
+
   static Future error(msg) {
     return _showMsg(msg, Colors.red);
   }

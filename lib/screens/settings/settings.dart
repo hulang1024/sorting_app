@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../../config.dart';
 import '../screen.dart';
 import '../../api/http_api.dart';
 import '../../widgets/message.dart';
@@ -13,33 +13,34 @@ class SettingsScreen extends Screen {
 }
 
 class SettingsScreenState extends ScreenState<SettingsScreen> {
-  GlobalKey<FormState> formKey = GlobalKey();
-  Map<String, TextEditingController> controllers = {};
-  var prefsFuture = SharedPreferences.getInstance();
-  bool serverSaved;
-  bool serverTested;
-  bool serverAvailable;
-  List schemes = [];
-  int schemeId;
+  final GlobalKey<FormState> formKey = GlobalKey();
+  final Map<String, TextEditingController> serverFieldControllers = {
+    'hostname': TextEditingController(),
+    'port': TextEditingController(),
+  };
+  bool serverTesting = false;
+  bool serverTested = false;
+  bool serverAvailable = false;
+  bool serverSaved = false;
+  List schemes = [];  // 可选择的"模式"的列表
+  int schemeId;       // 记录已选择的"模式"
 
   @override
   void initState() {
     super.initState();
 
-    ['server.hostname', 'server.port'].forEach((key) {
-      controllers[key] = TextEditingController();
-    });
-
-    serverSaved = false;
-    serverTested = false;
-    serverAvailable = false;
-    prefsFuture.then((prefs) {
-      controllers.forEach((key, val) {
-        controllers[key].text = prefs.getString(key);
+    ConfigurationManager.configuration().then((config) {
+      serverFieldControllers.forEach((key, ctrl) {
+        ctrl.text = config.getString('server.$key');
       });
-      if (controllers['server.hostname'].text.isNotEmpty && controllers['server.port'].text.isNotEmpty) {
-        querySchemes();
-      }
+      prepareHTTPAPI().then((prepared) {
+        if (prepared) {
+          fetchSchemes();
+          setState(() {
+            schemeId = config.getInt('schemeId');
+          });
+        }
+      });
     });
   }
 
@@ -52,7 +53,7 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
           child: Column(
             children: [
               TextFormField(
-                controller: controllers['server.hostname'],
+                controller: serverFieldControllers['hostname'],
                 keyboardType: TextInputType.url,
                 decoration: InputDecoration(
                   labelText: '服务器地址',
@@ -60,7 +61,7 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
                 onChanged: onServerChanged,
               ),
               TextFormField(
-                controller: controllers['server.port'],
+                controller: serverFieldControllers['port'],
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
                   labelText: '服务器端口',
@@ -73,18 +74,22 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
         Container(
           margin: EdgeInsets.fromLTRB(0, 8, 0, 0),
           child: RaisedButton(
-            color: serverTested
-                ? serverAvailable
-                    ? serverSaved ? Colors.green : Theme.of(context).primaryColor
-                    : Colors.redAccent
-                : Colors.orange,
+            color: serverTesting
+                ? Colors.orangeAccent
+                : serverTested
+                    ? serverAvailable
+                        ? serverSaved ? Colors.green : Colors.lightGreen
+                        : Colors.redAccent
+                    : Colors.orange,
             textColor: Colors.white,
             onPressed: onTestOrSavePressed,
-            child: Text(serverTested
-                ? serverAvailable
-                    ? serverSaved ? '已设置成功' : '设置'
-                    : '测试连接失败，请重试'
-                : '测试连接'),
+            child: Text(serverTesting
+                ? '连接测试中...'
+                : serverTested
+                    ? serverAvailable
+                        ? serverSaved ? '已设置成功' : '连接测试成功，点击应用新设置'
+                        : '连接测试失败，请重试'
+                    : '连接测试'),
           ),
         ),
         Container(
@@ -99,15 +104,18 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
                     ? SizedBox()
                     : DropdownButtonHideUnderline(
                         child: DropdownButton(
-                          items: schemes.map((item) => DropdownMenuItem(value: item['id'], child: Text(item['company']))).toList(),
+                          items: schemes.map((item) => DropdownMenuItem(
+                              value: item['id'],
+                              child: Text(item['company']),
+                          )).toList(),
                           hint: Text('请选择'),
                           onChanged: (value) {
+                            ConfigurationManager.configuration().then((config) {
+                              config.setInt('schemeId', schemeId);
+                              Messager.ok("模式设置成功");
+                            });
                             setState(() {
                               schemeId = value;
-                              prefsFuture.then((prefs) {
-                                prefs.setInt('schemeId', schemeId);
-                                Messager.ok("模式设置成功");
-                              });
                             });
                           },
                           value: schemeId,
@@ -144,99 +152,100 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
     );
   }
 
-  void querySchemes() {
-    prefsFuture.then((prefs) {
-      api.get('/scheme/all').then((ret) {
-        setState(() {
-          schemes = ret.data;
-          schemeId = prefs.getInt('schemeId');
-        });
-      });
+  Future fetchSchemes() async {
+    await prepareHTTPAPI();
+    var ret = await api.get('/scheme/all');
+    setState(() {
+      schemes = ret.data;
     });
   }
 
   void onServerChanged(_) {
     setState(() {
-      serverSaved = false;
       serverTested = false;
       serverAvailable = false;
-      if (schemeId != null) {
-        prefsFuture.then((prefs) => prefs.remove('schemeId'));
-        schemeId = null;
-      }
-      if (schemes.length > 0) {
-        schemes.clear();
-      }
-    });
-  }
-
-  void onTestOrSavePressed() {
-    FocusScope.of(context).requestFocus(FocusNode());
-    if (serverAvailable) {
-      prefsFuture.then((prefs) {
-        if (prefs.get('existsSetting') == null) {
-          prefs.setBool('existsSetting', true);
-        }
-        controllers.forEach((key, ctrl) async {
-          prefs.setString(key, ctrl.text);
-        });
-        setState(() {
-          serverSaved = true;
-        });
-        Messager.ok('服务器设置成功');
-        api.options.baseUrl = 'http://${prefs.get('server.hostname')}:${prefs.get('server.port')}';
-        querySchemes();
-      });
-      return;
-    }
-
-    var hostname = controllers['server.hostname'].text;
-    var port = controllers['server.port'].text;
-    if (hostname.isEmpty || port.isEmpty) {
-      return;
-    }
-    Dio(BaseOptions(
-      baseUrl: 'http://$hostname:$port',
-      responseType: ResponseType.json,
-      connectTimeout: 1000,
-      sendTimeout: 1000,
-      receiveTimeout: 1000,
-    )).get('/user/ping').then((ret) {
-      if (ret.data == 'pong') {
-        Messager.ok('连接成功');
-        setState(() {
-          serverTested = true;
-          serverAvailable = true;
-        });
-      }
-    }).catchError((Object obj) {
-      DioError e = obj as DioError;
-      Messager.error('连接失败，可能的原因：'
-          '\n  服务器配置不正确'
-          '\n  服务器未正常运行'
-          '\n  未连接到服务器所在网络'
-          '\n\n  错误消息：${e.message}');
-      setState(() {
-        serverTested = true;
-        serverAvailable = false;
-      });
-    }, test: (error) => true);
-  }
-
-  void onResetPressed() {
-    prefsFuture.then((prefs) {
-      prefs.clear();
-    });
-    controllers.forEach((key, ctrl) {
-      ctrl.text = '';
-    });
-    api.options.baseUrl = '';
-    setState(() {
       serverSaved = false;
-      serverTested = false;
-      serverAvailable = false;
-      schemes.clear();
       schemeId = null;
     });
   }
+
+  void onTestOrSavePressed() async {
+    FocusScope.of(context).requestFocus(FocusNode());
+
+    if (serverTesting) {
+      Messager.info('请稍等');
+      return;
+    }
+    if (serverTested && serverAvailable) {
+      if (serverSaved) {
+        return;
+      }
+      var config = await ConfigurationManager.configuration();
+      serverFieldControllers.forEach((field, ctrl) async {
+        config.setString('server.$field', ctrl.text);
+      });
+      prepareHTTPAPI(reload: true);
+      Messager.ok('服务器设置成功');
+      setState(() {
+        serverSaved = true;
+      });
+      fetchSchemes();
+    } else {
+      var hostname = serverFieldControllers['hostname'].text;
+      var port = serverFieldControllers['port'].text;
+      if (hostname.isEmpty || port.isEmpty) {
+        Messager.warning('请先输入服务器信息');
+        return;
+      }
+      setState(() {
+        serverTesting = true;
+      });
+      // 新建一个Dio不影响全局的http api，因为这里用户还没有确定保存新设置
+      Dio(BaseOptions(
+        baseUrl: 'http://$hostname:$port',
+        responseType: ResponseType.json,
+        connectTimeout: 3000,
+        sendTimeout: 3000,
+        receiveTimeout: 3000,
+      )).get('/user/ping').then((ret) {
+        if (ret.data == 'pong') {
+          Messager.ok('连接成功');
+          setState(() {
+            serverTesting = false;
+            serverTested = true;
+            serverAvailable = true;
+          });
+        }
+      }).catchError((Object o) {
+        final e = o as DioError;
+        Messager.error('连接失败，可能的原因：'
+            '\n  服务器配置不正确'
+            '\n  服务器未正常运行'
+            '\n  未连接到服务器所在网络'
+            '\n\n  错误消息：${e.message}');
+        setState(() {
+          serverTesting = false;
+          serverTested = true;
+          serverAvailable = false;
+        });
+      }, test: (error) => true);
+    }
+  }
+
+  void onResetPressed() {
+    ConfigurationManager.clear();
+    serverFieldControllers.forEach((key, ctrl) => ctrl.text = '');
+    ConfigurationManager.configuration().then((config) {
+      config.remove('schemeId');
+    });
+    prepareHTTPAPI(reload: true);
+    setState(() {
+      serverTesting = false;
+      serverTested = false;
+      serverAvailable = false;
+      serverSaved = false;
+      schemeId = null;
+    });
+  }
+
 }

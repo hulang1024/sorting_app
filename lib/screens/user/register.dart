@@ -23,9 +23,16 @@ class RegisterScreenState extends ScreenState<RegisterScreen> {
   @override
   void initState() {
     super.initState();
-    api.get('/user/next_code').then((ret) {
-      codeTextController.text = ret.data;
+    prepareHTTPAPI().then((prepared) {
+      if (prepared) {
+        api.get('/user/next_code').then((ret) {
+          codeTextController.text = ret.data;
+        });
+      } else {
+        Messager.warning('无法注册，请先设置服务器');
+      }
     });
+
   }
 
   @override
@@ -111,6 +118,11 @@ class RegisterScreenState extends ScreenState<RegisterScreen> {
   }
 
   void submit() async {
+    if(!await prepareHTTPAPI()) {
+      Messager.warning('无法注册，请先设置服务器');
+      return;
+    }
+
     var form = formKey.currentState;
     if (form.validate()) {
       form.save();

@@ -30,7 +30,7 @@ class PackageSearchScreenState extends ScreenState<PackageSearchScreen> {
           queryParams: {'fromAll': '1'},
           onData: (data) {
             if (data['content'].length == 1) {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => PackageDetailsScreen(data['content'][0])));
+              push(PackageDetailsScreen(data['content'][0]));
             }
           },
         ),

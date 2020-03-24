@@ -40,7 +40,7 @@ class ItemSearchScreenState extends ScreenState<ItemSearchScreen> {
               },
               onData: (data) {
                 if (data['content'].length == 1) {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => ItemDetailsScreen(data['content'][0])));
+                  push(ItemDetailsScreen(data['content'][0]));
                 }
               },
             ),

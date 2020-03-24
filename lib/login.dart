@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dio/dio.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'config.dart';
 import 'widgets/message.dart';
 import 'api/http_api.dart';
 import 'home.dart';
@@ -26,26 +26,35 @@ class LoginState extends State<Login> {
     'captcha': FocusNode(),
     'keyboard': FocusNode(),
   };
-  var prefsFuture = SharedPreferences.getInstance();
-  bool configLoaded = false;
   Map<String, dynamic> formData = {};
   var captchaImage;
 
   @override
   void initState() {
     super.initState();
-    loadingConfig().then((_) {
-      flushCaptcha();
+
+    ConfigurationManager.configuration().then((config) {
+      controllers['username'].text = config.getString('username');
+
+      prepareHTTPAPI().then((prepared) {
+        if (prepared) {
+          flushCaptcha();
+        } else {
+          Messager.warning('请先进行初始设置');
+          Navigator.of(context).push(MaterialPageRoute(builder: (_) => SettingsScreen()));
+          return;
+        }
+      });
     });
   }
 
   @override
-  void deactivate() {
+  void deactivate() async {
     super.deactivate();
     if (ModalRoute.of(context).isCurrent) {
-      loadingConfig().then((_) {
+      if(await prepareHTTPAPI()) {
         flushCaptcha();
-      });
+      }
     }
   }
 
@@ -135,8 +144,8 @@ class LoginState extends State<Login> {
                         ),
                       ),
                       captchaImage != null
-                          ? GestureDetector(onTap: flushCaptcha, child: captchaImage)
-                          : FlatButton(child: null, onPressed: flushCaptcha),
+                          ? GestureDetector(onTap: onCaptchaPressed, child: captchaImage)
+                          : FlatButton(child: null, onPressed: onCaptchaPressed),
                     ],
                   ),
                 ],
@@ -186,9 +195,16 @@ class LoginState extends State<Login> {
     );
   }
 
+  void onCaptchaPressed() async {
+    if(await prepareHTTPAPI()) {
+      flushCaptcha();
+    } else {
+      Messager.warning('无法刷新验证码，请先设置服务器');
+    }
+  }
+
   void flushCaptcha() {
-    if (!configLoaded) return;
-    //不能直接使用NetworkImage，因为NetworkImage和dio将产生不同的session
+    // 不能直接使用NetworkImage，因为NetworkImage和dio将产生不同的session
     api.get(
       '/user/login_captcha?width=150&height=50&v=${DateTime.now().millisecondsSinceEpoch}',
       options: Options(responseType: ResponseType.bytes),
@@ -196,47 +212,37 @@ class LoginState extends State<Login> {
       setState(() {
         captchaImage = Image.memory(resp.data);
       });
+      FocusScope.of(context).requestFocus(focusNodes['captcha']);
+      controllers['captcha'].text = '';
     });
   }
 
-  Future loadingConfig() {
-    return prefsFuture.then((prefs) {
-      if (prefs.getBool('existsSetting') != null) {
-        api.options.baseUrl = 'http://${prefs.get('server.hostname')}:${prefs.get('server.port')}';
-        controllers['username'].text = prefs.getString('username');
-        configLoaded = true;
-        return;
-      } else {
-        Messager.info('请先进行初始设置');
-        api.options.baseUrl = '';
-        configLoaded = false;
-        Navigator.of(context).push(MaterialPageRoute(builder: (_) => SettingsScreen()));
-      }
-    });
-  }
-
-  void onLoginPressed() {
-    if (!configLoaded) return;
-    var form = formKey.currentState;
-    if (form.validate()) {
-      form.save();
-      api.post('/user/login', queryParameters: formData).then((ret) {
-        if (ret.data['code'] == 0) {
-          prefsFuture.then((prefs) {
-            prefs.setString('username', formData['username']);
-          });
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => Home()));
-        } else {
-          Messager.error(ret.data['msg']);
-          var errorField = {'2': 'captcha', '3': 'username', '4': 'password'}[ret.data['code'].toString()];
-          if (errorField != 'username') {
-            controllers[errorField].text = '';
-          }
-          FocusScope.of(context).requestFocus(focusNodes[errorField]);
-        }
-      }).catchError((_) {
-        Messager.error('连接服务器失败');
-      }, test: (error) => true);
+  void onLoginPressed() async {
+    if(!await prepareHTTPAPI()) {
+      Messager.warning('无法登陆，请先设置服务器');
+      return;
     }
+
+    var form = formKey.currentState;
+    if (!form.validate()) return;
+    form.save();
+
+    api.post('/user/login', queryParameters: formData).then((ret) {
+      if (ret.data['code'] == 0) {
+        ConfigurationManager.configuration().then((config) {
+          config.setString('username', formData['username']);
+        });
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => Home()));
+      } else {
+        Messager.error(ret.data['msg']);
+        var errorField = {'2': 'captcha', '3': 'username', '4': 'password'}[ret.data['code'].toString()];
+        FocusScope.of(context).requestFocus(focusNodes[errorField]);
+        if (errorField != 'username') {
+          controllers[errorField].text = '';
+        }
+      }
+    }).catchError((_) {
+      Messager.error('连接服务器失败');
+    }, test: (error) => true);
   }
 }

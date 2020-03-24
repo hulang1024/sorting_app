@@ -86,6 +86,9 @@ class PackageItemAllocScreenState extends ScreenState<PackageItemAllocScreen> {
                   '操作时间 ${item['opTime']}',
                 ].join('\n')),
                 contentPadding: EdgeInsets.fromLTRB(0, 0, 2, 0),
+                onTap: () {
+                  Messager.info('没有更多操作');
+                },
               );
             },
           ),

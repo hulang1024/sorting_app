@@ -34,7 +34,9 @@ class PackageCreateScreenState extends ScreenState<PackageCreateScreen> {
       child: querying
           ? Text('查询中...', style: TextStyle(color: Colors.grey))
           : destCodeController.text.isNotEmpty
-              ? address.isNotEmpty ? Text('地址：' + address) : Text('未查询到地址', style: TextStyle(color: Colors.red))
+              ? address.isNotEmpty
+                  ? Text('地址：' + address)
+                  : Text('未查询到地址', style: TextStyle(color: Colors.red))
               : Text(''),
       alignment: Alignment.centerLeft,
     );
