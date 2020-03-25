@@ -12,16 +12,17 @@ class SettingsScreen extends Screen {
   State<StatefulWidget> createState() => SettingsScreenState();
 }
 
+enum ServerConfigureState {
+  untested, testing, unavailable, available, setup
+}
+
 class SettingsScreenState extends ScreenState<SettingsScreen> {
   final GlobalKey<FormState> formKey = GlobalKey();
   final Map<String, TextEditingController> serverFieldControllers = {
     'hostname': TextEditingController(),
     'port': TextEditingController(),
   };
-  bool serverTesting = false;
-  bool serverTested = false;
-  bool serverAvailable = false;
-  bool serverSaved = false;
+  ServerConfigureState serverConfigureState = ServerConfigureState.untested;
   List schemes = [];  // 可选择的"模式"的列表
   int schemeId;       // 记录已选择的"模式"
 
@@ -45,6 +46,14 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
   }
 
   @override
+  void deactivate() {
+    super.deactivate();
+    if (serverConfigureState == ServerConfigureState.available) {
+      Messager.warning('并未使用新服务器配置');
+    }
+  }
+
+  @override
   Widget render(BuildContext context) {
     return ListView(
       children: [
@@ -55,6 +64,7 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
               TextFormField(
                 controller: serverFieldControllers['hostname'],
                 keyboardType: TextInputType.url,
+                readOnly: serverConfigureState == ServerConfigureState.testing,
                 decoration: InputDecoration(
                   labelText: '服务器地址',
                 ),
@@ -63,6 +73,7 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
               TextFormField(
                 controller: serverFieldControllers['port'],
                 keyboardType: TextInputType.number,
+                readOnly: serverConfigureState == ServerConfigureState.testing,
                 decoration: InputDecoration(
                   labelText: '服务器端口',
                 ),
@@ -74,22 +85,22 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
         Container(
           margin: EdgeInsets.fromLTRB(0, 8, 0, 0),
           child: RaisedButton(
-            color: serverTesting
-                ? Colors.orangeAccent
-                : serverTested
-                    ? serverAvailable
-                        ? serverSaved ? Colors.green : Colors.lightGreen
-                        : Colors.redAccent
-                    : Colors.orange,
+            color: [
+              Colors.orange,
+              Colors.orangeAccent,
+              Colors.redAccent,
+              Colors.lightGreen,
+              Colors.green
+            ][serverConfigureState.index],
             textColor: Colors.white,
-            onPressed: onTestOrSavePressed,
-            child: Text(serverTesting
-                ? '连接测试中...'
-                : serverTested
-                    ? serverAvailable
-                        ? serverSaved ? '已设置成功' : '连接测试成功，点击应用新设置'
-                        : '连接测试失败，请重试'
-                    : '连接测试'),
+            onPressed: onServerConfigurePressed,
+            child: Text([
+              '连接测试',
+              '连接测试中，请稍等',
+              '连接测试失败，请重试',
+              '连接测试成功，点击使用新配置',
+              '已设置成功'
+            ][serverConfigureState.index]),
           ),
         ),
         Container(
@@ -162,73 +173,74 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
 
   void onServerChanged(_) {
     setState(() {
-      serverTested = false;
-      serverAvailable = false;
-      serverSaved = false;
+      serverConfigureState = ServerConfigureState.untested;
       schemeId = null;
     });
   }
 
-  void onTestOrSavePressed() async {
+  void onServerConfigurePressed() async {
     FocusScope.of(context).requestFocus(FocusNode());
 
-    if (serverTesting) {
-      Messager.info('请稍等');
-      return;
-    }
-    if (serverTested && serverAvailable) {
-      if (serverSaved) {
-        return;
-      }
-      var config = await ConfigurationManager.configuration();
-      serverFieldControllers.forEach((field, ctrl) async {
-        config.setString('server.$field', ctrl.text);
-      });
-      prepareHTTPAPI(reload: true);
-      Messager.ok('服务器设置成功');
-      setState(() {
-        serverSaved = true;
-      });
-      fetchSchemes();
-    } else {
-      var hostname = serverFieldControllers['hostname'].text;
-      var port = serverFieldControllers['port'].text;
-      if (hostname.isEmpty || port.isEmpty) {
-        Messager.warning('请先输入服务器信息');
-        return;
-      }
-      setState(() {
-        serverTesting = true;
-      });
-      // 新建一个Dio不影响全局的http api，因为这里用户还没有确定保存新设置
-      Dio(BaseOptions(
-        baseUrl: 'http://$hostname:$port',
-        responseType: ResponseType.json,
-        connectTimeout: 3000,
-        sendTimeout: 3000,
-        receiveTimeout: 3000,
-      )).get('/user/ping').then((ret) {
-        if (ret.data == 'pong') {
-          Messager.ok('连接成功');
-          setState(() {
-            serverTesting = false;
-            serverTested = true;
-            serverAvailable = true;
-          });
-        }
-      }).catchError((Object o) {
-        final e = o as DioError;
-        Messager.error('连接失败，可能的原因：'
-            '\n  服务器配置不正确'
-            '\n  服务器未正常运行'
-            '\n  未连接到服务器所在网络'
-            '\n\n  错误消息：${e.message}');
+    switch (serverConfigureState) {
+      case ServerConfigureState.testing:
         setState(() {
-          serverTesting = false;
-          serverTested = true;
-          serverAvailable = false;
+          serverConfigureState = ServerConfigureState.untested;
         });
-      }, test: (error) => true);
+        break;
+      case ServerConfigureState.untested:
+      case ServerConfigureState.unavailable: {
+        var hostname = serverFieldControllers['hostname'].text;
+        var port = serverFieldControllers['port'].text;
+        if (hostname.isEmpty || port.isEmpty) {
+          Messager.warning('请先输入服务器信息');
+          return;
+        }
+        setState(() {
+          serverConfigureState = ServerConfigureState.testing;
+        });
+        // 新建一个Dio不影响全局的http api，因为这里用户还没有确定保存新设置
+        Dio(BaseOptions(
+          baseUrl: 'http://$hostname:$port',
+          responseType: ResponseType.json,
+          connectTimeout: 3000,
+          sendTimeout: 3000,
+          receiveTimeout: 3000,
+        )).get('/user/ping').then((ret) {
+          if (ret.data == 'pong') {
+            Messager.ok('连接成功');
+            setState(() {
+              serverConfigureState = ServerConfigureState.available;
+            });
+          }
+        }).catchError((Object o) {
+          final e = o as DioError;
+          Messager.error('连接失败，可能的原因：'
+              '\n  服务器配置不正确'
+              '\n  服务器未正常运行'
+              '\n  未连接到服务器所在网络'
+              '\n\n  错误消息：${e.message}');
+          setState(() {
+            serverConfigureState = ServerConfigureState.unavailable;
+          });
+        }, test: (error) => true);
+        break;
+      }
+      case ServerConfigureState.available: {
+        var config = await ConfigurationManager.configuration();
+        serverFieldControllers.forEach((field, ctrl) async {
+          config.setString('server.$field', ctrl.text);
+        });
+        prepareHTTPAPI(reload: true);
+        Messager.ok('服务器设置成功');
+        setState(() {
+          serverConfigureState = ServerConfigureState.setup;
+        });
+        fetchSchemes();
+        break;
+      }
+      case ServerConfigureState.setup:
+        Messager.ok('已设置');
+        break;
     }
   }
 
@@ -240,10 +252,7 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
     });
     prepareHTTPAPI(reload: true);
     setState(() {
-      serverTesting = false;
-      serverTested = false;
-      serverAvailable = false;
-      serverSaved = false;
+      serverConfigureState = ServerConfigureState.untested;
       schemeId = null;
     });
   }
