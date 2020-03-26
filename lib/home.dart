@@ -24,17 +24,17 @@ class HomeState extends State<Home> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _screenIndex,
         items: [
-          new BottomNavigationBarItem(
-            icon: new Icon(Icons.settings),
-            title: new Text('设置'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            title: Text('设置'),
           ),
-          new BottomNavigationBarItem(
-            icon: new Icon(Icons.home),
-            title: new Text('首页'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            title: Text('首页'),
           ),
-          new BottomNavigationBarItem(
-            icon: new Icon(Icons.person),
-            title: new Text('我的'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            title: Text('我的'),
           ),
         ],
         onTap: (index) {

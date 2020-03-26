@@ -156,7 +156,7 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
             onPressed: () {
               SystemChannels.platform.invokeMethod('SystemNavigator.pop');
             },
-            child: new Text('退出程序'),
+            child: Text('退出程序'),
           ),
         ),
       ],
@@ -207,7 +207,7 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
           receiveTimeout: 3000,
         )).get('/user/ping').then((ret) {
           if (ret.data == 'pong') {
-            Messager.ok('连接成功');
+            Messager.ok('连接测试成功');
             setState(() {
               serverConfigureState = ServerConfigureState.available;
             });
