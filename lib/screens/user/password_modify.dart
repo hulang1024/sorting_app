@@ -28,8 +28,10 @@ class PasswordModifyScreenState extends ScreenState<PasswordModifyScreen> {
               TextFormField(
                 focusNode: focusNodes['oldPassword'],
                 autofocus: true,
+                maxLength: 20,
                 decoration: InputDecoration(
                   labelText: '旧密码',
+                  counterText: '',
                 ),
                 obscureText: true,
                 validator: (val) {
@@ -42,8 +44,10 @@ class PasswordModifyScreenState extends ScreenState<PasswordModifyScreen> {
               ),
               TextFormField(
                 focusNode: focusNodes['newPassword'],
+                maxLength: 20,
                 decoration: InputDecoration(
                   labelText: '新密码',
+                  counterText: '',
                 ),
                 validator: (val) {
                   return val.length < 6 ? "密码长度错误" : null;

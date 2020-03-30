@@ -3,7 +3,7 @@ import 'package:flutter/widgets.dart';
 import '../../widgets/network_data_list.dart';
 import 'details.dart';
 
-// 包裹列表
+// 集包列表
 class PackageListView extends StatefulWidget {
   PackageListView({Key key, this.height, this.queryParams, this.onData}) : super(key: key);
 
@@ -30,12 +30,18 @@ class PackageListViewState extends State<PackageListView> {
         height: widget.height,
         url: '/package/page',
         queryParams: widget.queryParams,
-        noData: Text('未查询到包裹'),
+        noData: Text('未查询到集包'),
         rowBuilder: (package, [index, context]) {
           return ListTile(
-            title: Text(package['code'], style: TextStyle(fontSize: 14)),
-            subtitle: Text(package['destAddress'] + '\n' + package['operatorName'] + '(${package['operatorPhone']})',
-                style: TextStyle(fontSize: 14)),
+            title: Text(package['code']),
+            subtitle: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('${package['destAddress']}'),
+                Text(true ? '创建成功' : '创建失败', style: TextStyle(color: true ? Colors.green : Colors.red)),
+              ],
+            ),
             contentPadding: EdgeInsets.fromLTRB(0, 4, 0, 4),
             trailing: Container(child: Icon(Icons.keyboard_arrow_right)),
             onTap: () {

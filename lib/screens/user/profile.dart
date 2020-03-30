@@ -47,30 +47,21 @@ class ProfileScreenState extends ScreenState<ProfileScreen> {
         ]),
         Container(
           margin: EdgeInsets.only(top: 120),
-          child: SizedBox(
-            width: double.infinity,
-            child: RaisedButton(
-              color: Colors.orange,
-              textColor: Colors.white,
-              onPressed: () {
-                push(PasswordModifyScreen());
-              },
-              child: Text('修改密码'),
-            ),
+          child: RaisedButton(
+            color: Colors.orange,
+            textColor: Colors.white,
+            onPressed: () {
+              push(PasswordModifyScreen());
+            },
+            child: Text('修改密码'),
           ),
         ),
-        Container(
-          margin: EdgeInsets.only(top: 8),
-          child: SizedBox(
-            width: double.infinity,
-            child: RaisedButton(
-              onPressed: () {
-                Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => Login()));
-                api.post('/user/logout');
-              },
-              child: Text('退出当前用户'),
-            ),
-          ),
+        RaisedButton(
+          onPressed: () {
+            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => Login()));
+            api.post('/user/logout');
+          },
+          child: Text('退出当前用户'),
         ),
       ],
     );

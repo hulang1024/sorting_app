@@ -7,7 +7,7 @@ import '../../widgets/message.dart';
 import 'list.dart';
 
 class PackageCreateScreen extends Screen {
-  PackageCreateScreen({this.smartCreate = false}) : super(title: smartCreate ? '智能建包' : '创建包裹');
+  PackageCreateScreen({this.smartCreate = false}) : super(title: smartCreate ? '智能建包' : '手动建包');
 
   final bool smartCreate;
 
@@ -46,7 +46,7 @@ class PackageCreateScreenState extends ScreenState<PackageCreateScreen> {
           children: [
             CodeInput(
               key: codeInputKey,
-              labelText: '包裹编号',
+              labelText: '集包编号',
               onDone: (code) {
                 FocusScope.of(context).requestFocus(focusNodes['destCode']);
               },
@@ -115,7 +115,7 @@ class PackageCreateScreenState extends ScreenState<PackageCreateScreen> {
     if (formData['code'].isNotEmpty && formData['destCode'].isNotEmpty) {
       var ret = await api.post('/package', data: formData, queryParameters: smartCreateSepc);
       if (ret.data['code'] == 0) {
-        Messager.ok('创建包裹成功');
+        Messager.ok('创建集包成功');
         codeInputKey.currentState.controller.clear();
         destCodeController.clear();
         formData.clear();

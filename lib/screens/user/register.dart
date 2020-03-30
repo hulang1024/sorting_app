@@ -1,4 +1,6 @@
 ﻿import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:sorting/config.dart';
 import '../screen.dart';
 import '../../api/http_api.dart';
 import '../../widgets/message.dart';
@@ -23,16 +25,7 @@ class RegisterScreenState extends ScreenState<RegisterScreen> {
   @override
   void initState() {
     super.initState();
-    prepareHTTPAPI().then((prepared) {
-      if (prepared) {
-        api.get('/user/next_code').then((ret) {
-          codeTextController.text = ret.data;
-        });
-      } else {
-        Messager.warning('无法注册，请先设置服务器');
-      }
-    });
-
+    init();
   }
 
   @override
@@ -47,9 +40,11 @@ class RegisterScreenState extends ScreenState<RegisterScreen> {
                 focusNode: focusNodes['name'],
                 keyboardType: TextInputType.text,
                 autofocus: true,
+                maxLength: 11,
                 decoration: InputDecoration(
                   icon: Icon(Icons.person),
                   labelText: '姓名',
+                  counterText: '',
                 ),
                 validator: (val) {
                   return val.length == 0 ? "请输入姓名" : null;
@@ -60,12 +55,15 @@ class RegisterScreenState extends ScreenState<RegisterScreen> {
                 onSaved: (val) => formData['name'] = val.trim(),
               ),
               TextFormField(
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.phone,
                 focusNode: focusNodes['phone'],
+                maxLength: 11,
+                inputFormatters: [WhitelistingTextInputFormatter.digitsOnly],
                 decoration: InputDecoration(
                   icon: Icon(Icons.smartphone),
                   labelText: '手机号',
                   helperText: '手机号可用作登录用户名',
+                  counterText: '',
                 ),
                 validator: (val) {
                   return val.length == 0 ? "请输入手机号" : null;
@@ -92,9 +90,11 @@ class RegisterScreenState extends ScreenState<RegisterScreen> {
               ),
               TextFormField(
                 focusNode: focusNodes['password'],
+                maxLength: 20,
                 decoration: InputDecoration(
                   icon: Icon(Icons.lock),
                   labelText: '密码',
+                  counterText: '',
                 ),
                 validator: (val) {
                   return val.length < 6 ? "密码长度错误" : null;
@@ -118,8 +118,7 @@ class RegisterScreenState extends ScreenState<RegisterScreen> {
   }
 
   void submit() async {
-    if(!await prepareHTTPAPI()) {
-      Messager.warning('无法注册，请先设置服务器');
+    if(!await dependentSettingsOk()) {
       return;
     }
 
@@ -134,5 +133,25 @@ class RegisterScreenState extends ScreenState<RegisterScreen> {
         Messager.error(ret.data['msg']);
       }
     }
+  }
+
+  void init() async {
+    if (await dependentSettingsOk()) {
+      api.get('/user/next_code').then((ret) {
+        codeTextController.text = ret.data;
+      });
+    }
+  }
+
+  Future<bool> dependentSettingsOk() async {
+    if (!await prepareHTTPAPI()) {
+      Messager.warning('无法注册，请先设置服务器');
+      return false;
+    }
+    if ((await ConfigurationManager.configuration()).getString('branch.code').isEmpty) {
+      Messager.warning('无法注册，请先设置网点');
+      return false;
+    }
+    return true;
   }
 }

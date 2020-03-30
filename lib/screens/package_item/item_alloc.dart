@@ -8,7 +8,9 @@ import '../../widgets/code_input.dart';
 import '../../widgets/message.dart';
 
 class PackageItemAllocScreen extends Screen {
-  PackageItemAllocScreen() : super(title: '加减快件');
+  PackageItemAllocScreen({this.opType}) : super(title: opType == 1 ? '集包加件' : '集包减件');
+  final int opType;
+
   @override
   State<StatefulWidget> createState() => PackageItemAllocScreenState();
 }
@@ -32,7 +34,7 @@ class PackageItemAllocScreenState extends ScreenState<PackageItemAllocScreen> {
           children: [
             CodeInput(
               key: codeInputKeys['packageCode'],
-              labelText: '包裹编号',
+              labelText: '集包编号',
               onDone: (code) {
                 networkDataListKey.currentState.query({'packageCode': code});
                 FocusScope.of(context).requestFocus(focusNodes['itemCode']);
@@ -48,43 +50,38 @@ class PackageItemAllocScreenState extends ScreenState<PackageItemAllocScreen> {
             ),
           ],
         ),
-        ButtonBar(
-          alignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            RaisedButton(
-              color: Colors.redAccent,
-              textColor: Colors.white,
-              onPressed: () {
-                FocusScope.of(context).requestFocus(FocusNode());
-                submit(2);
-              },
-              child: Text('减件'),
-            ),
+        Container(
+          margin: EdgeInsets.only(top: 8),
+          child:
             RaisedButton(
               color: Theme.of(context).primaryColor,
               textColor: Colors.white,
               onPressed: () {
                 FocusScope.of(context).requestFocus(FocusNode());
-                submit(1);
+                submit();
               },
-              child: Text('加件'),
+              child: Text('确定'),
             ),
-          ],
         ),
         NetworkDataList(
           key: networkDataListKey,
           options: Options(
             height: 200,
             url: '/package_item_op/page',
+            queryParams: {'opType': widget.opType},
             noData: Text('未查询到记录'),
             rowBuilder: (item, [index, context]) {
               return ListTile(
                 title: Text('${item['opType'] == 1 ? '加件' : '减件'} ${item['itemCode']}'),
-                subtitle: Text([
-                  '包裹 ${item['packageCode']}',
-                  '操作者 ${item['operatorName']}(${item['operatorPhone']})',
-                  '操作时间 ${item['opTime']}',
-                ].join('\n')),
+                subtitle: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('集包${item['packageCode']}'),
+                    Text('操作${item['opTime']} ${item['operatorName']}(${item['operatorPhone']})'),
+                    Text(true ? '操作成功' : '操作失败', style: TextStyle(color: true ? Colors.green : Colors.red)),
+                  ],
+                ),
                 contentPadding: EdgeInsets.fromLTRB(0, 0, 2, 0),
                 onTap: () {
                   Messager.info('没有更多操作');
@@ -97,7 +94,8 @@ class PackageItemAllocScreenState extends ScreenState<PackageItemAllocScreen> {
     );
   }
 
-  void submit(opType) async {
+  void submit() async {
+    int opType = widget.opType;
     Map<String, dynamic> formData = {};
     if (opType == 1) {
       SharedPreferences prefs = await SharedPreferences.getInstance();

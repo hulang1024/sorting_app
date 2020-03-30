@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:sorting/screens/settings/about.dart';
 import '../../config.dart';
 import '../screen.dart';
 import '../../api/http_api.dart';
@@ -17,11 +19,7 @@ enum ServerConfigureState {
 }
 
 class SettingsScreenState extends ScreenState<SettingsScreen> {
-  final GlobalKey<FormState> formKey = GlobalKey();
-  final Map<String, TextEditingController> serverFieldControllers = {
-    'hostname': TextEditingController(),
-    'port': TextEditingController(),
-  };
+  final Map<String, TextEditingController> fieldControllers = {};
   ServerConfigureState serverConfigureState = ServerConfigureState.untested;
   List schemes = [];  // 可选择的"模式"的列表
   int schemeId;       // 记录已选择的"模式"
@@ -30,9 +28,13 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
   void initState() {
     super.initState();
 
+    ['branch.name', 'branch.code', 'server.hostname', 'server.port'].forEach((field) {
+      fieldControllers[field] = TextEditingController();
+    });
+
     ConfigurationManager.configuration().then((config) {
-      serverFieldControllers.forEach((key, ctrl) {
-        ctrl.text = config.getString('server.$key');
+      fieldControllers.forEach((key, ctrl) {
+        ctrl.text = config.getString(key);
       });
       prepareHTTPAPI().then((prepared) {
         if (prepared) {
@@ -57,31 +59,43 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
   Widget render(BuildContext context) {
     return ListView(
       children: [
-        Form(
-          key: formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: serverFieldControllers['hostname'],
-                keyboardType: TextInputType.url,
-                readOnly: serverConfigureState == ServerConfigureState.testing,
-                decoration: InputDecoration(
-                  labelText: '服务器地址',
-                ),
-                onChanged: onServerChanged,
+        Row(children: <Widget>[
+          Expanded(child:
+            TextField(
+              controller: fieldControllers['server.hostname'],
+              keyboardType: TextInputType.number,
+              maxLength: 15,
+              inputFormatters: [WhitelistingTextInputFormatter(RegExp(r'\d{1,3}|\.'))],
+              readOnly: serverConfigureState == ServerConfigureState.testing,
+              textAlign: TextAlign.center,
+              decoration: InputDecoration(
+                labelText: '服务器地址',
+                labelStyle: TextStyle(),
+                counterText: '',
               ),
-              TextFormField(
-                controller: serverFieldControllers['port'],
-                keyboardType: TextInputType.number,
-                readOnly: serverConfigureState == ServerConfigureState.testing,
-                decoration: InputDecoration(
-                  labelText: '服务器端口',
-                ),
-                onChanged: onServerChanged,
-              ),
-            ],
+              onChanged: onServerChanged,
+            ),
           ),
-        ),
+          Padding(
+            padding: EdgeInsets.only(top: 16),
+            child: Text(':', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
+          ),
+          Expanded(child:
+            TextField(
+              controller: fieldControllers['server.port'],
+              keyboardType: TextInputType.number,
+              maxLength: 4,
+              inputFormatters: [WhitelistingTextInputFormatter.digitsOnly],
+              readOnly: serverConfigureState == ServerConfigureState.testing,
+              textAlign: TextAlign.center,
+              decoration: InputDecoration(
+                labelText: '服务器端口',
+                counterText: '',
+              ),
+              onChanged: onServerChanged,
+            ),
+          ),
+        ]),
         Container(
           margin: EdgeInsets.fromLTRB(0, 8, 0, 0),
           child: RaisedButton(
@@ -103,6 +117,31 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
             ][serverConfigureState.index]),
           ),
         ),
+        TextField(
+          controller: fieldControllers['branch.name'],
+          keyboardType: TextInputType.text,
+          decoration: InputDecoration(
+            labelText: '网点名称',
+          ),
+          onChanged: onServerChanged,
+        ),
+        TextField(
+          controller: fieldControllers['branch.code'],
+          keyboardType: TextInputType.number,
+          decoration: InputDecoration(
+            labelText: '网点编码',
+          ),
+          onChanged: onServerChanged,
+        ),
+        Container(
+          margin: EdgeInsets.fromLTRB(0, 8, 0, 0),
+          child: RaisedButton(
+            color: Theme.of(context).primaryColor,
+            textColor: Colors.white,
+            onPressed: onSaveBranchPressed,
+            child: Text('设置网点'),
+          ),
+        ),
         Container(
           margin: EdgeInsets.fromLTRB(0, 0, 0, 0),
           child: Row(
@@ -113,8 +152,8 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
                 width: 136,
                 child: schemes.length == 0
                     ? SizedBox()
-                    : DropdownButtonHideUnderline(
-                        child: DropdownButton(
+                    : DropdownButtonHideUnderline(child:
+                        DropdownButton(
                           items: schemes.map((item) => DropdownMenuItem(
                               value: item['id'],
                               child: Text(item['company']),
@@ -141,23 +180,21 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
             ],
           ),
         ),
-        Container(
-          margin: EdgeInsets.fromLTRB(0, 8, 0, 0),
-          child: RaisedButton(
-            color: Colors.redAccent,
-            textColor: Colors.white,
-            onPressed: onResetPressed,
-            child: Text('重置设置'),
-          ),
+        RaisedButton(
+          onPressed: onResetPressed,
+          child: Text('重置设置'),
         ),
-        Container(
-          margin: EdgeInsets.fromLTRB(0, 8, 0, 0),
-          child: RaisedButton(
-            onPressed: () {
-              SystemChannels.platform.invokeMethod('SystemNavigator.pop');
-            },
-            child: Text('退出程序'),
-          ),
+        RaisedButton(
+          onPressed: () {
+            push(AboutScreen());
+          },
+          child: Text('关于'),
+        ),
+        RaisedButton(
+          onPressed: () {
+            SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+          },
+          child: Text('退出程序'),
         ),
       ],
     );
@@ -169,6 +206,22 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
     setState(() {
       schemes = ret.data;
     });
+  }
+
+  void onSaveBranchPressed() async {
+    var config = await ConfigurationManager.configuration();
+    int validateOkCnt = 0;
+    fieldControllers.forEach((field, ctrl) {
+      if (field.startsWith('branch.') && ctrl.text.isNotEmpty) {
+        config.setString(field, ctrl.text);
+        validateOkCnt++;
+      }
+    });
+    if (validateOkCnt == 2) {
+      Messager.ok('保存成功');
+    } else {
+      Messager.error('保存失败');
+    }
   }
 
   void onServerChanged(_) {
@@ -189,8 +242,8 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
         break;
       case ServerConfigureState.untested:
       case ServerConfigureState.unavailable: {
-        var hostname = serverFieldControllers['hostname'].text;
-        var port = serverFieldControllers['port'].text;
+        var hostname = fieldControllers['server.hostname'].text;
+        var port = fieldControllers['server.port'].text;
         if (hostname.isEmpty || port.isEmpty) {
           Messager.warning('请先输入服务器信息');
           return;
@@ -227,8 +280,10 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
       }
       case ServerConfigureState.available: {
         var config = await ConfigurationManager.configuration();
-        serverFieldControllers.forEach((field, ctrl) async {
-          config.setString('server.$field', ctrl.text);
+        fieldControllers.forEach((field, ctrl) {
+          if (field.startsWith('server.')) {
+            config.setString(field, ctrl.text);
+          }
         });
         prepareHTTPAPI(reload: true);
         Messager.ok('服务器设置成功');
@@ -246,7 +301,7 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
 
   void onResetPressed() {
     ConfigurationManager.clear();
-    serverFieldControllers.forEach((key, ctrl) => ctrl.text = '');
+    fieldControllers.forEach((key, ctrl) => ctrl.text = '');
     ConfigurationManager.configuration().then((config) {
       config.remove('schemeId');
     });

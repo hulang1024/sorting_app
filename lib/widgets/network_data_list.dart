@@ -114,10 +114,10 @@ class NetworkDataListState extends State<NetworkDataList> {
     setState(() {
       _loading = true;
     });
-    Map<String, dynamic> _queryParams = {};
-    _queryParams.addAll(this._queryParams);
-    _queryParams.addAll({'page': _pageNo, 'size': _pageSize});
-    api.get(widget.options.url, queryParameters: _queryParams).then((ret) {
+    Map<String, dynamic> queryParams = {};
+    queryParams.addAll(this._queryParams);
+    queryParams.addAll({'page': _pageNo, 'size': _pageSize});
+    api.get(widget.options.url, queryParameters: queryParams).then((ret) {
       if (widget.options.onData != null) {
         widget.options.onData(ret.data);
       }

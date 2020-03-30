@@ -5,7 +5,7 @@ import '../../widgets/code_input.dart';
 import 'details.dart';
 
 class PackageSearchScreen extends Screen {
-  PackageSearchScreen() : super(title: '查询包裹');
+  PackageSearchScreen() : super(title: '查询集包');
   @override
   State<StatefulWidget> createState() => PackageSearchScreenState();
 }
@@ -18,7 +18,7 @@ class PackageSearchScreenState extends ScreenState<PackageSearchScreen> {
     return ListView(
       children: [
         CodeInput(
-          labelText: '包裹编号',
+          labelText: '集包编号',
           onDone: (code) {
             FocusScope.of(context).requestFocus(FocusNode());
             packageListViewKey.currentState.query({'code': code});

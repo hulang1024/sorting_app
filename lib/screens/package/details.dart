@@ -6,7 +6,7 @@ import '../item/list_tile.dart';
 import '../../api/http_api.dart';
 
 class PackageDetailsScreen extends Screen {
-  PackageDetailsScreen(this.package, [this.isDeleted = false]) : super(title: '包裹详情');
+  PackageDetailsScreen(this.package, [this.isDeleted = false]) : super(title: '集包详情');
 
   final Map package;
   final bool isDeleted;
@@ -52,7 +52,7 @@ class PackageDetailsScreenState extends ScreenState<PackageDetailsScreen> {
         Column(
           children: [
             Row(children: [
-              Container(width: 90, child: Text('包裹编号')),
+              Container(width: 90, child: Text('集包编号')),
               Text(package['code'] ?? ''),
             ]),
             Row(children: [
@@ -75,59 +75,60 @@ class PackageDetailsScreenState extends ScreenState<PackageDetailsScreen> {
               Container(width: 90, child: Text('创建时间')),
               Text(creator['createAt'] ?? ''),
             ]),
-            widget.isDeleted
-                ? Row(children: [
-                    Container(width: 90, child: Text('删除者')),
-                    Text(deleteOperator['name'] ?? '-'),
-                    Padding(
-                      padding: EdgeInsets.only(left: 8),
-                      child: Text('(手机号:${deleteOperator['phone'] ?? '-'})'),
-                    ),
-                  ])
-                : SizedBox(),
-            widget.isDeleted
-                ? Row(children: [
-                    Container(width: 90, child: Text('删除时间')),
-                    Text(package['deleteAt']),
-                  ])
-                : SizedBox()
+            if (widget.isDeleted) ...[
+              Row(children: [
+                Container(width: 90, child: Text('删除者')),
+                Text(deleteOperator['name'] ?? '-'),
+                Padding(
+                  padding: EdgeInsets.only(left: 8),
+                  child: Text('(手机号:${deleteOperator['phone'] ?? '-'})'),
+                ),
+              ]),
+              Row(children: [
+                Container(width: 90, child: Text('删除时间')),
+                Text(package['deleteAt']),
+              ]),
+            ],
           ],
         ),
-        widget.isDeleted
-            ? SizedBox()
-            : Column(
-                children: [
-                  Divider(),
-                  Container(
-                    alignment: Alignment.centerLeft,
-                    padding: const EdgeInsets.fromLTRB(8, 8, 0, 0),
-                    child: Text(
-                      '快件（$itemTotal个）',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  Container(
-                    padding: EdgeInsets.fromLTRB(8, 8, 8, 0),
-                    child: NetworkDataList(
-                      options: Options(
-                          height: 202,
-                          url: '/item/page',
-                          queryParams: {'packageCode': package['code']},
-                          noData: Text('未包含快件'),
-                          rowBuilder: (item, index, context) {
-                            return buildItemListTile(item, false, context);
-                          },
-                          onData: (data) {
-                            setState(() {
-                              itemTotal = data['total'];
-                            });
-                          }),
-                    ),
-                  ),
-                ],
-              ),
+        if (!widget.isDeleted) packageItemsView(package),
+      ],
+    );
+  }
+
+  Widget packageItemsView(package) {
+    return Column(
+      children: [
+        Divider(),
+        Container(
+          alignment: Alignment.centerLeft,
+          padding: const EdgeInsets.fromLTRB(8, 8, 0, 0),
+          child: Text(
+            '快件（$itemTotal个）',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        Container(
+          padding: EdgeInsets.fromLTRB(8, 8, 8, 0),
+          child: NetworkDataList(
+            options: Options(
+              height: 202,
+              url: '/item/page',
+              queryParams: {'packageCode': package['code']},
+              noData: Text('未包含快件'),
+              rowBuilder: (item, index, context) {
+                return buildItemListTile(item, false, context);
+              },
+              onData: (data) {
+                setState(() {
+                  itemTotal = data['total'];
+                });
+              },
+            ),
+          ),
+        ),
       ],
     );
   }

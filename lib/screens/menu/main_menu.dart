@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:sorting/screens/package_item/item_alloc_op_type.dart';
 import '../screen.dart';
 import '../item/search.dart';
 import '../package/create.dart';
 import '../package/delete.dart';
 import '../package/search.dart';
-import '../package_item/item_alloc.dart';
 
 class MainMenu extends Screen {
   MainMenu() : super(title: '首页', homeAction: false, addPadding: EdgeInsets.all(-8));
@@ -18,7 +18,7 @@ class MainMenuState extends ScreenState<MainMenu> {
   Widget render(BuildContext context) {
     return Container(
       color: Color.fromRGBO(210, 210, 210, 0.4),
-      padding: EdgeInsets.all(8),
+      padding: EdgeInsets.fromLTRB(8, 8, 8, 8),
       child: GridView(
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
@@ -27,40 +27,46 @@ class MainMenuState extends ScreenState<MainMenu> {
           crossAxisSpacing: 8.0,
         ),
         children: [
-          functionItem(
-            text: '查询包裹',
+          _functionButton(
+            icon: Icons.find_in_page,
+            text: '查询集包',
             onPressed: () {
               push(PackageSearchScreen());
             },
           ),
-          functionItem(
+          _functionButton(
+            icon: Icons.find_in_page,
             text: '查询快件',
             onPressed: () {
               push(ItemSearchScreen());
             },
           ),
-          functionItem(
+          _functionButton(
+            icon: Icons.add_box,
             text: '智能建包',
             onPressed: () {
               push(PackageCreateScreen(smartCreate: true));
             },
           ),
-          functionItem(
-            text: '创建包裹',
+          _functionButton(
+            icon: Icons.add_box,
+            text: '手动建包',
             onPressed: () {
               push(PackageCreateScreen());
             },
           ),
-          functionItem(
-            text: '删除包裹',
+          _functionButton(
+            icon: Icons.delete_forever,
+            text: '删除集包',
             onPressed: () {
               push(PackageDeleteScreen());
             },
           ),
-          functionItem(
-            text: '加减快件',
+          _functionButton(
+            icon: Icons.edit,
+            text: '加包减包',
             onPressed: () {
-              push(PackageItemAllocScreen());
+              push(PackageItemAllocOpTypeScreen());
             },
           ),
         ],
@@ -68,14 +74,23 @@ class MainMenuState extends ScreenState<MainMenu> {
     );
   }
 
-  Widget functionItem({text, onPressed}) {
-    return Container(
-      child: RaisedButton(
-        elevation: 1,
-        color: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(4))),
-        onPressed: onPressed,
-        child: Text(text, style: TextStyle(fontSize: 18)),
+
+  Widget _functionButton({
+    @required IconData icon,
+    @required String text,
+    @required VoidCallback onPressed,
+  }) {
+    return RaisedButton(
+      elevation: 0.5,
+      color: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(4))),
+      onPressed: onPressed,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: Colors.black87),
+          Text(text, style: TextStyle(fontSize: 16, color: Colors.black87)),
+        ],
       ),
     );
   }

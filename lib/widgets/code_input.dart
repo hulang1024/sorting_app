@@ -1,4 +1,4 @@
-//编号（例如包裹编号、快件编号）输入，它封装了输入细节，可以是键盘输入，或者扫码。
+//编号（例如集包编号、快件编号）输入，它封装了输入细节，可以是键盘输入，或者扫码。
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -27,8 +27,11 @@ class CodeInputState extends State<CodeInput> {
       focusNode: widget.focusNode ?? FocusNode(),
       autofocus: widget.autofocus,
       keyboardType: TextInputType.number,
+      maxLength: 10,
+      inputFormatters: [WhitelistingTextInputFormatter.digitsOnly],
       decoration: InputDecoration(
         labelText: widget.labelText,
+        counterText: '',
         contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 0),
       ),
       onEditingComplete: () {

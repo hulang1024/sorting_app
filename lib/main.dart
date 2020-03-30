@@ -9,6 +9,7 @@ class App extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        primaryColor: Colors.blueAccent,
       ),
       home: Login(),
     );

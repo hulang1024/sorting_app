@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dio/dio.dart';
 import 'config.dart';
+import 'screens/settings/version.dart';
 import 'widgets/message.dart';
 import 'api/http_api.dart';
 import 'home.dart';
@@ -13,7 +14,8 @@ class Login extends StatefulWidget {
   State<StatefulWidget> createState() => LoginState();
 }
 
-class LoginState extends State<Login> {
+class LoginState extends State<Login> with SingleTickerProviderStateMixin {
+
   GlobalKey<FormState> formKey = GlobalKey();
   var controllers = {
     'username': TextEditingController(),
@@ -26,6 +28,9 @@ class LoginState extends State<Login> {
     'captcha': FocusNode(),
     'keyboard': FocusNode(),
   };
+  Animation<double> _animation;
+  AnimationController _animationController;
+
   Map<String, dynamic> formData = {};
   var captchaImage;
 
@@ -33,19 +38,12 @@ class LoginState extends State<Login> {
   void initState() {
     super.initState();
 
-    ConfigurationManager.configuration().then((config) {
-      controllers['username'].text = config.getString('username');
+    _animationController = AnimationController(duration: Duration(milliseconds: 1000), vsync: this);
+    _animation = CurvedAnimation(parent: _animationController, curve: Curves.easeOut);
+    _animation.addListener(() => setState(() {}));
+    _animationController.forward();
 
-      prepareHTTPAPI().then((prepared) {
-        if (prepared) {
-          flushCaptcha();
-        } else {
-          Messager.warning('请先进行初始设置');
-          Navigator.of(context).push(MaterialPageRoute(builder: (_) => SettingsScreen()));
-          return;
-        }
-      });
-    });
+    init();
   }
 
   @override
@@ -59,7 +57,13 @@ class LoginState extends State<Login> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  void dispose() {
+    super.dispose();
+    _animationController.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {print(_animation.value);
     return Card(
       child: Container(
         padding: EdgeInsets.fromLTRB(24, 24, 24, 0),
@@ -83,12 +87,14 @@ class LoginState extends State<Login> {
                     child: TextFormField(
                       controller: controllers['username'],
                       focusNode: focusNodes['username'],
-                      keyboardType: TextInputType.number,
+                      keyboardType: TextInputType.phone,
                       autofocus: controllers['username'].text.isEmpty,
+                      maxLength: 11,
                       decoration: InputDecoration(
                         icon: Icon(Icons.account_circle),
                         labelText: '用户名',
                         hintText: '手机号/编号',
+                        counterText: '',
                       ),
                       validator: (val) {
                         return val.length == 0 ? "请输入用户名" : null;
@@ -105,9 +111,11 @@ class LoginState extends State<Login> {
                       controller: controllers['password'],
                       focusNode: focusNodes['password'],
                       autofocus: true,
+                      maxLength: 20,
                       decoration: InputDecoration(
                         icon: Icon(Icons.lock),
                         labelText: '密码',
+                        counterText: '',
                       ),
                       obscureText: true,
                       validator: (val) {
@@ -132,9 +140,12 @@ class LoginState extends State<Login> {
                             controller: controllers['captcha'],
                             focusNode: focusNodes['captcha'],
                             keyboardType: TextInputType.number,
+                            maxLength: 4,
+                            inputFormatters: [WhitelistingTextInputFormatter.digitsOnly],
                             decoration: InputDecoration(
                               icon: Icon(Icons.security),
                               labelText: '验证码',
+                              counterText: '',
                             ),
                             validator: (val) {
                               return val.length != 4 ? "验证码错误" : null;
@@ -143,9 +154,14 @@ class LoginState extends State<Login> {
                           ),
                         ),
                       ),
-                      captchaImage != null
-                          ? GestureDetector(onTap: onCaptchaPressed, child: captchaImage)
-                          : FlatButton(child: null, onPressed: onCaptchaPressed),
+                      Container(
+                        width: 152,
+                        height: 60,
+                        padding: EdgeInsets.only(top: 8),
+                        child: captchaImage != null
+                          ? InkWell(onTap: onCaptchaPressed, child: Opacity(opacity: _animation.value, child: captchaImage))
+                          : FlatButton(child: null, onPressed: onCaptchaPressed)
+                      ),
                     ],
                   ),
                 ],
@@ -157,7 +173,6 @@ class LoginState extends State<Login> {
                 width: double.infinity,
                 height: 46,
                 child: RaisedButton(
-                  elevation: 4.0,
                   color: Theme.of(context).primaryColor,
                   textColor: Colors.white,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
@@ -195,25 +210,44 @@ class LoginState extends State<Login> {
     );
   }
 
+  void init() async {
+    var config = await ConfigurationManager.configuration();
+    controllers['username'].text = config.getString('username');
+
+    if (await prepareHTTPAPI()) {
+      VersionManager.checkUpdate();
+      flushCaptcha();
+    } else {
+      Messager.warning('请先进行初始设置');
+      Navigator.of(context).push(MaterialPageRoute(builder: (_) => SettingsScreen()));
+      return;
+    }
+  }
+
   void onCaptchaPressed() async {
     if(await prepareHTTPAPI()) {
-      flushCaptcha();
+      setState(() {
+        captchaImage = null;
+      });
+      await flushCaptcha();
+      FocusScope.of(context).requestFocus(focusNodes['captcha']);
+      controllers['captcha'].text = '';
     } else {
       Messager.warning('无法刷新验证码，请先设置服务器');
     }
   }
 
-  void flushCaptcha() {
+  Future flushCaptcha() {
     // 不能直接使用NetworkImage，因为NetworkImage和dio将产生不同的session
-    api.get(
-      '/user/login_captcha?width=150&height=50&v=${DateTime.now().millisecondsSinceEpoch}',
+    return api.get(
+      '/user/login_captcha?width=152&height=52&v=${DateTime.now().millisecondsSinceEpoch}',
       options: Options(responseType: ResponseType.bytes),
     ).then((resp) {
       setState(() {
         captchaImage = Image.memory(resp.data);
+        _animationController.reset();
+        _animationController.forward();
       });
-      FocusScope.of(context).requestFocus(focusNodes['captcha']);
-      controllers['captcha'].text = '';
     });
   }
 

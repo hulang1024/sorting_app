@@ -60,29 +60,25 @@ class ItemDetailsScreenState extends ScreenState<ItemDetailsScreen> {
                 style: TextStyle(color: item['packTime'] == null ? Colors.grey : Colors.green),
               ),
             ]),
-            item['packTime'] == null
-                ? SizedBox()
-                : Row(children: [
-                    Container(width: 90, child: Text('分配时间')),
-                    Text(item['packTime']),
-                  ]),
-            item['packTime'] == null
-                ? SizedBox()
-                : Row(
-                    children: [
-                      Container(width: 90, child: Text('包裹编号')),
-                      Text.rich(
-                        TextSpan(
-                          text: details['packageCode'],
-                          style: TextStyle(color: Colors.blue),
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () {
-                              push(PackageDetailsScreen({'code': details['packageCode']}));
-                            },
-                        ),
-                      ),
-                    ],
+            if (item['packTime'] != null) ...[
+              Row(children: [
+                Container(width: 90, child: Text('分配时间')),
+                Text(item['packTime']),
+              ]),
+              Row(children: [
+                Container(width: 90, child: Text('集包编号')),
+                Text.rich(
+                  TextSpan(
+                    text: details['packageCode'],
+                    style: TextStyle(color: Colors.blue),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () {
+                        push(PackageDetailsScreen({'code': details['packageCode']}));
+                      },
                   ),
+                ),
+              ]),
+            ],
           ],
         ),
       ],

@@ -7,7 +7,7 @@ import '../../api/http_api.dart';
 import 'details.dart';
 
 class PackageDeleteScreen extends Screen {
-  PackageDeleteScreen() : super(title: '删除包裹');
+  PackageDeleteScreen() : super(title: '删除集包');
 
   @override
   State<StatefulWidget> createState() => PackageDeleteScreenState();
@@ -23,7 +23,7 @@ class PackageDeleteScreenState extends ScreenState<PackageDeleteScreen> {
       children: [
         CodeInput(
           key: codeInputKey,
-          labelText: '包裹编号',
+          labelText: '集包编号',
           onDone: (code) async {
             FocusScope.of(context).requestFocus(FocusNode());
             submit(code);
@@ -34,11 +34,18 @@ class PackageDeleteScreenState extends ScreenState<PackageDeleteScreen> {
           options: Options(
             height: 310,
             url: '/deleted_package/page',
-            noData: Text('未查询到包裹删除记录'),
+            noData: Text('未查询到集包删除记录'),
             rowBuilder: (item, [index, context]) {
               return ListTile(
                 title: Text(item['code']),
-                subtitle: Text(item['deleteAt']),
+                subtitle: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('${item['deleteAt']}'),
+                    Text(true ? '删除成功' : '删除失败', style: TextStyle(color: true ? Colors.green : Colors.red)),
+                  ],
+                ),
                 contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 0),
                 trailing: Container(child: Icon(Icons.keyboard_arrow_right)),
                 onTap: () {

@@ -25,6 +25,7 @@ Future<bool> prepareHTTPAPI({bool reload = false}) async {
   }
   api.options.baseUrl = 'http://$hostname:$port';
   _prepared = true;
+  api.unlock();
   return _prepared;
 }
 
@@ -36,9 +37,15 @@ var api = () {
     sendTimeout: 3000,
     receiveTimeout: 3000,
   ));
-  dio.interceptors.add(CookieManager(CookieJar()));
   dio.interceptors.add(InterceptorsWrapper(
-    onResponse: (Response response) {},
+    onRequest: (RequestOptions request) {
+      if (request.baseUrl.isEmpty) {
+        dio.lock();
+        request.connectTimeout = 0;
+        Messager.warning('请先设置服务器');
+        return null;
+      }
+    },
     onError: (DioError e) {
       if (e.type == DioErrorType.CONNECT_TIMEOUT) {
         Messager.error('连接服务器超时');
@@ -49,6 +56,7 @@ var api = () {
       }
     },
   ));
+  dio.interceptors.add(CookieManager(CookieJar()));
 
   prepareHTTPAPI();
 
