@@ -18,7 +18,18 @@ class CodeInput extends StatefulWidget {
 typedef CodeInputDoneCallback = void Function(String);
 
 class CodeInputState extends State<CodeInput> {
+  static final _methodChannel = MethodChannel('samples.flutter.io/battery');
   TextEditingController controller = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    (() async {
+      var ret = await _methodChannel.invokeMethod('getBatteryLevel');
+      print('battery level：' + ret);
+    })();
+  }
 
   @override
   Widget build(BuildContext context) {

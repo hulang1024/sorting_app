@@ -32,19 +32,19 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
       fieldControllers[field] = TextEditingController();
     });
 
-    ConfigurationManager.configuration().then((config) {
+    (() async {
+      var config = await ConfigurationManager.configuration();
       fieldControllers.forEach((key, ctrl) {
         ctrl.text = config.getString(key);
       });
-      prepareHTTPAPI().then((prepared) {
-        if (prepared) {
-          fetchSchemes();
-          setState(() {
-            schemeId = config.getInt('schemeId');
-          });
-        }
-      });
-    });
+      bool prepared = await prepareHTTPAPI();
+      if (prepared) {
+        fetchSchemes();
+        setState(() {
+          schemeId = config.getInt('schemeId');
+        });
+      }
+    })();
   }
 
   @override
@@ -159,15 +159,7 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
                               child: Text(item['company']),
                           )).toList(),
                           hint: Text('请选择'),
-                          onChanged: (value) {
-                            ConfigurationManager.configuration().then((config) {
-                              config.setInt('schemeId', schemeId);
-                              Messager.ok("模式设置成功");
-                            });
-                            setState(() {
-                              schemeId = value;
-                            });
-                          },
+                          onChanged: onSchemeChanged,
                           value: schemeId,
                           style: TextStyle(
                             color: Color(0xff4a4a4a),
@@ -181,7 +173,10 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
           ),
         ),
         RaisedButton(
-          onPressed: onResetPressed,
+          onPressed: () {
+            Messager.warning('请长按按钮以确认');
+          },
+          onLongPress: onResetPressed,
           child: Text('重置设置'),
         ),
         RaisedButton(
@@ -299,17 +294,26 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
     }
   }
 
+  void onSchemeChanged(value) async {
+    var config = await ConfigurationManager.configuration();
+    config.setInt('schemeId', schemeId);
+    Messager.ok("模式设置成功");
+    setState(() {
+      schemeId = value;
+    });
+  }
+
   void onResetPressed() {
-    ConfigurationManager.clear();
     fieldControllers.forEach((key, ctrl) => ctrl.text = '');
+    ConfigurationManager.clear();
     ConfigurationManager.configuration().then((config) {
       config.remove('schemeId');
     });
     prepareHTTPAPI(reload: true);
+    Messager.ok('重置设置成功');
     setState(() {
       serverConfigureState = ServerConfigureState.untested;
       schemeId = null;
     });
   }
-
 }

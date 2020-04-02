@@ -25,7 +25,11 @@ class RegisterScreenState extends ScreenState<RegisterScreen> {
   @override
   void initState() {
     super.initState();
-    init();
+    (() async {
+      if (await dependentSettingsOk()) {
+        codeTextController.text = (await api.get('/user/next_code')).data;
+      }
+    })();
   }
 
   @override
@@ -123,23 +127,17 @@ class RegisterScreenState extends ScreenState<RegisterScreen> {
     }
 
     var form = formKey.currentState;
-    if (form.validate()) {
-      form.save();
-      var ret = await api.post('/user/register', data: formData);
-      if (ret.data['code'] == 0) {
-        Messager.ok('注册成功');
-        pop();
-      } else {
-        Messager.error(ret.data['msg']);
-      }
+    if (!form.validate()) {
+      return;
     }
-  }
-
-  void init() async {
-    if (await dependentSettingsOk()) {
-      api.get('/user/next_code').then((ret) {
-        codeTextController.text = ret.data;
-      });
+    form.save();
+    formData['branchCode'] = (await ConfigurationManager.configuration()).getString('branch.code');
+    var ret = await api.post('/user/register', data: formData);
+    if (ret.data['code'] == 0) {
+      Messager.ok('注册成功');
+      pop();
+    } else {
+      Messager.error(ret.data['msg']);
     }
   }
 

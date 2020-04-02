@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'details.dart';
 
-//到
 ListTile buildItemListTile(item, verbose, context) {
   return ListTile(
     title: Text(item['code']),

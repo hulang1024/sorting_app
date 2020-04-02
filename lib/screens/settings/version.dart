@@ -20,13 +20,17 @@ class VersionManager {
     onStateChange(VersionCheckingState.checking);
     String currentVersion = await getCurrentVersion();
     var ret = await api.get('/app_version/latest_info');
-    _latestVersionInfo = ret.data['data'];
-    VersionCheckingState state = compareVersion(currentVersion, _latestVersionInfo['version']) >= 0
-        ? VersionCheckingState.currentIsLatest
-        : VersionCheckingState.needUpdated;
-    onStateChange(state);
-    if (autoUpdate && state == VersionCheckingState.needUpdated) {
-      update();
+    if (ret.data['code'] == 0) {
+      _latestVersionInfo = ret.data['data'];
+      VersionCheckingState state = compareVersion(currentVersion, _latestVersionInfo['version']) >= 0
+          ? VersionCheckingState.currentIsLatest
+          : VersionCheckingState.needUpdated;
+      onStateChange(state);
+      if (autoUpdate && state == VersionCheckingState.needUpdated) {
+        update();
+      }
+    } else {
+      onStateChange(VersionCheckingState.currentIsLatest);
     }
   }
 

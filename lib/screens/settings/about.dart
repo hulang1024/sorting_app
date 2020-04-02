@@ -9,7 +9,7 @@ class AboutScreen extends Screen {
 }
 
 class AboutScreenState extends ScreenState<AboutScreen> {
-  String version;
+  String version = '';
   VersionCheckingState _versionCheckingState = VersionCheckingState.checking;
 
   @override

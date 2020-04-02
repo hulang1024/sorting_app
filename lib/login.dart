@@ -15,35 +15,38 @@ class Login extends StatefulWidget {
 }
 
 class LoginState extends State<Login> with SingleTickerProviderStateMixin {
-
   GlobalKey<FormState> formKey = GlobalKey();
-  var controllers = {
-    'username': TextEditingController(),
-    'password': TextEditingController(),
-    'captcha': TextEditingController(),
-  };
-  var focusNodes = {
-    'username': FocusNode(),
-    'password': FocusNode(),
-    'captcha': FocusNode(),
-    'keyboard': FocusNode(),
-  };
-  Animation<double> _animation;
-  AnimationController _animationController;
-
+  Map<String, TextEditingController> controllers = {};
+  Map<String, FocusNode> focusNodes = {};
   Map<String, dynamic> formData = {};
-  var captchaImage;
+  Image captchaImage;
+  bool captchaLoading = true;
+  bool logging = false;
+
 
   @override
   void initState() {
     super.initState();
+    ['username', 'password', 'captcha'].forEach((key) {
+      controllers[key] = TextEditingController();
+      focusNodes[key] = FocusNode();
+    });
 
-    _animationController = AnimationController(duration: Duration(milliseconds: 1000), vsync: this);
-    _animation = CurvedAnimation(parent: _animationController, curve: Curves.easeOut);
-    _animation.addListener(() => setState(() {}));
-    _animationController.forward();
+    (() async {
+      var config = await ConfigurationManager.configuration();
+      controllers['username'].text = config.getString('username');
+      if (controllers['username'].text.isNotEmpty) {
+        focusNodes['username'].nextFocus();
+      }
 
-    init();
+      if (await prepareHTTPAPI()) {
+        VersionManager.checkUpdate();
+        flushCaptcha();
+      } else {
+        Messager.warning('请先进行初始设置');
+        Navigator.of(context).push(MaterialPageRoute(builder: (_) => SettingsScreen()));
+      }
+    })();
   }
 
   @override
@@ -57,13 +60,7 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
   }
 
   @override
-  void dispose() {
-    super.dispose();
-    _animationController.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {print(_animation.value);
+  Widget build(BuildContext context) {
     return Card(
       child: Container(
         padding: EdgeInsets.fromLTRB(24, 24, 24, 0),
@@ -88,7 +85,7 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
                       controller: controllers['username'],
                       focusNode: focusNodes['username'],
                       keyboardType: TextInputType.phone,
-                      autofocus: controllers['username'].text.isEmpty,
+                      autofocus: true,
                       maxLength: 11,
                       decoration: InputDecoration(
                         icon: Icon(Icons.account_circle),
@@ -100,7 +97,8 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
                         return val.length == 0 ? "请输入用户名" : null;
                       },
                       onEditingComplete: () {
-                        FocusScope.of(context).requestFocus(focusNodes['password']);
+                        FocusScope.of(context).requestFocus(focusNodes[controllers['password'].text.isEmpty
+                            ? 'password' : 'captcha']);
                       },
                       onSaved: (val) => formData['username'] = val.trim(),
                     ),
@@ -121,6 +119,9 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
                       validator: (val) {
                         return val.length < 6 ? "密码长度错误" : null;
                       },
+                      onEditingComplete: () {
+                        FocusScope.of(context).requestFocus(controllers['captcha'].text.isEmpty ? focusNodes['captcha'] : FocusNode());
+                      },
                       onSaved: (val) => formData['password'] = val.trim(),
                     ),
                   ),
@@ -129,38 +130,37 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
                       Container(
                         padding: EdgeInsets.only(top: 8),
                         width: 112,
-                        child: RawKeyboardListener(
-                          focusNode: focusNodes['keyboard'],
-                          onKey: (RawKeyEvent event) {
-                            if (event.isKeyPressed(LogicalKeyboardKey.enter)) {
-                              onLoginPressed();
-                            }
-                          },
-                          child: TextFormField(
-                            controller: controllers['captcha'],
-                            focusNode: focusNodes['captcha'],
-                            keyboardType: TextInputType.number,
-                            maxLength: 4,
-                            inputFormatters: [WhitelistingTextInputFormatter.digitsOnly],
-                            decoration: InputDecoration(
-                              icon: Icon(Icons.security),
-                              labelText: '验证码',
-                              counterText: '',
-                            ),
-                            validator: (val) {
-                              return val.length != 4 ? "验证码错误" : null;
-                            },
-                            onSaved: (val) => formData['captcha'] = val,
+                        child: TextFormField(
+                          controller: controllers['captcha'],
+                          focusNode: focusNodes['captcha'],
+                          keyboardType: TextInputType.number,
+                          maxLength: 4,
+                          inputFormatters: [WhitelistingTextInputFormatter.digitsOnly],
+                          decoration: InputDecoration(
+                            icon: Icon(Icons.security),
+                            labelText: '验证码',
+                            counterText: '',
                           ),
+                          validator: (val) {
+                            return val.length != 4 ? "验证码错误" : null;
+                          },
+                          onSaved: (val) => formData['captcha'] = val,
                         ),
                       ),
-                      Container(
+                      AnimatedContainer(
+                        duration: Duration(milliseconds: 400),
                         width: 152,
                         height: 60,
                         padding: EdgeInsets.only(top: 8),
-                        child: captchaImage != null
-                          ? InkWell(onTap: onCaptchaPressed, child: Opacity(opacity: _animation.value, child: captchaImage))
-                          : FlatButton(child: null, onPressed: onCaptchaPressed)
+                        child: InkWell(
+                          onTap: onCaptchaPressed,
+                          child: AnimatedOpacity(
+                            duration: Duration(milliseconds: 500),
+                            opacity: captchaLoading ? 0 : 1,
+                            curve: captchaLoading ? Curves.easeOut : Curves.easeIn,
+                            child: captchaImage,
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -177,7 +177,7 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
                   textColor: Colors.white,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
                   onPressed: onLoginPressed,
-                  child: Text('登录'),
+                  child: Text(logging ? '登录中' : '登录'),
                 ),
               ),
             ),
@@ -210,25 +210,9 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
     );
   }
 
-  void init() async {
-    var config = await ConfigurationManager.configuration();
-    controllers['username'].text = config.getString('username');
-
-    if (await prepareHTTPAPI()) {
-      VersionManager.checkUpdate();
-      flushCaptcha();
-    } else {
-      Messager.warning('请先进行初始设置');
-      Navigator.of(context).push(MaterialPageRoute(builder: (_) => SettingsScreen()));
-      return;
-    }
-  }
 
   void onCaptchaPressed() async {
     if(await prepareHTTPAPI()) {
-      setState(() {
-        captchaImage = null;
-      });
       await flushCaptcha();
       FocusScope.of(context).requestFocus(focusNodes['captcha']);
       controllers['captcha'].text = '';
@@ -238,6 +222,9 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
   }
 
   Future flushCaptcha() {
+    setState(() {
+      captchaLoading = true;
+    });
     // 不能直接使用NetworkImage，因为NetworkImage和dio将产生不同的session
     return api.get(
       '/user/login_captcha?width=152&height=52&v=${DateTime.now().millisecondsSinceEpoch}',
@@ -245,8 +232,7 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
     ).then((resp) {
       setState(() {
         captchaImage = Image.memory(resp.data);
-        _animationController.reset();
-        _animationController.forward();
+        captchaLoading = false;
       });
     });
   }
@@ -257,15 +243,24 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
       return;
     }
 
+    var config = await ConfigurationManager.configuration();
+
+    if (config.getString('branch.code') == null) {
+        Messager.warning('无法登陆，还未设置网点');
+        return;
+    }
+    formData['branchCode'] = config.getString('branch.code');
+
     var form = formKey.currentState;
     if (!form.validate()) return;
     form.save();
 
+    setState(() {
+      logging = true;
+    });
     api.post('/user/login', queryParameters: formData).then((ret) {
       if (ret.data['code'] == 0) {
-        ConfigurationManager.configuration().then((config) {
-          config.setString('username', formData['username']);
-        });
+        config.setString('username', formData['username']);
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => Home()));
       } else {
         Messager.error(ret.data['msg']);
@@ -274,8 +269,14 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
         if (errorField != 'username') {
           controllers[errorField].text = '';
         }
+        setState(() {
+          logging = false;
+        });
       }
     }).catchError((_) {
+      setState(() {
+        logging = false;
+      });
       Messager.error('连接服务器失败');
     }, test: (error) => true);
   }
