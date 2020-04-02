@@ -23,7 +23,6 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
   bool captchaLoading = true;
   bool logging = false;
 
-
   @override
   void initState() {
     super.initState();
