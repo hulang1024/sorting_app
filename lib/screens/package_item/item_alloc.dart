@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../screen.dart';
 import '../settings/settings.dart';
-import '../../widgets/network_data_list.dart';
+import '../../widgets/data_list.dart';
 import '../../api/http_api.dart';
 import '../../widgets/code_input.dart';
 import '../../widgets/message.dart';
@@ -16,7 +16,7 @@ class PackageItemAllocScreen extends Screen {
 }
 
 class PackageItemAllocScreenState extends ScreenState<PackageItemAllocScreen> {
-  GlobalKey<NetworkDataListState> networkDataListKey = GlobalKey();
+  GlobalKey<DataListViewState> dataListKey = GlobalKey();
   Map<String, GlobalKey<CodeInputState>> codeInputKeys = {
     'packageCode': GlobalKey(),
     'itemCode': GlobalKey(),
@@ -36,7 +36,7 @@ class PackageItemAllocScreenState extends ScreenState<PackageItemAllocScreen> {
               key: codeInputKeys['packageCode'],
               labelText: '集包编号',
               onDone: (code) {
-                networkDataListKey.currentState.query({'packageCode': code});
+                dataListKey.currentState.query({'packageCode': code});
                 FocusScope.of(context).requestFocus(focusNodes['itemCode']);
               },
             ),
@@ -63,8 +63,8 @@ class PackageItemAllocScreenState extends ScreenState<PackageItemAllocScreen> {
               child: Text('确定'),
             ),
         ),
-        NetworkDataList(
-          key: networkDataListKey,
+        DataListView(
+          key: dataListKey,
           options: Options(
             height: 200,
             url: '/package_item_op/page',
@@ -79,10 +79,11 @@ class PackageItemAllocScreenState extends ScreenState<PackageItemAllocScreen> {
                   children: [
                     Text('集包${item['packageCode']}'),
                     Text('操作${item['opTime']} ${item['operatorName']}(${item['operatorPhone']})'),
-                    Text(true ? '操作成功' : '操作失败', style: TextStyle(color: true ? Colors.green : Colors.red)),
+                    Text('${item['opType'] == 1 ? '加件' : '减件'}${true ? '成功' : '失败'}', style: TextStyle(color: true ? Colors.green : Colors.red)),
                   ],
                 ),
-                contentPadding: EdgeInsets.fromLTRB(0, 0, 2, 0),
+                contentPadding: EdgeInsets.zero,
+                dense: true,
                 onTap: () {
                   Messager.info('没有更多操作');
                 },
@@ -115,7 +116,7 @@ class PackageItemAllocScreenState extends ScreenState<PackageItemAllocScreen> {
         formData['itemCode'] = '';
         codeInputKeys['itemCode'].currentState.controller.text = '';
         FocusScope.of(context).requestFocus(focusNodes['itemCode']);
-        networkDataListKey.currentState.query();
+        dataListKey.currentState.query();
       } else {
         Messager.error(ret.data['msg']);
       }

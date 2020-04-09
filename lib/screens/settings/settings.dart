@@ -2,7 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:sorting/screens/settings/about.dart';
+import '../../repositories/database.dart';
+import '../../screens/settings/about.dart';
 import '../../config.dart';
 import '../screen.dart';
 import '../../api/http_api.dart';
@@ -23,6 +24,7 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
   ServerConfigureState serverConfigureState = ServerConfigureState.untested;
   List schemes = [];  // 可选择的"模式"的列表
   int schemeId;       // 记录已选择的"模式"
+  bool rememberUsername = true;
 
   @override
   void initState() {
@@ -37,6 +39,7 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
       fieldControllers.forEach((key, ctrl) {
         ctrl.text = config.getString(key);
       });
+      rememberUsername = config.getBool('rememberUsername') ?? false;
       bool prepared = await prepareHTTPAPI();
       if (prepared) {
         fetchSchemes();
@@ -70,7 +73,6 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
               textAlign: TextAlign.center,
               decoration: InputDecoration(
                 labelText: '服务器地址',
-                labelStyle: TextStyle(),
                 counterText: '',
               ),
               onChanged: onServerChanged,
@@ -123,7 +125,6 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
           decoration: InputDecoration(
             labelText: '网点名称',
           ),
-          onChanged: onServerChanged,
         ),
         TextField(
           controller: fieldControllers['branch.code'],
@@ -131,7 +132,6 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
           decoration: InputDecoration(
             labelText: '网点编码',
           ),
-          onChanged: onServerChanged,
         ),
         Container(
           margin: EdgeInsets.fromLTRB(0, 8, 0, 0),
@@ -142,34 +142,30 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
             child: Text('设置网点'),
           ),
         ),
-        Container(
-          margin: EdgeInsets.fromLTRB(0, 0, 0, 0),
-          child: Row(
-            children: [
-              Text('模式', style: TextStyle(color: Color(0x99000000), fontSize: 13)),
-              Container(
-                margin: EdgeInsets.fromLTRB(8, 0, 0, 0),
-                width: 136,
-                child: schemes.length == 0
-                    ? SizedBox()
-                    : DropdownButtonHideUnderline(child:
-                        DropdownButton(
-                          items: schemes.map((item) => DropdownMenuItem(
-                              value: item['id'],
-                              child: Text(item['company']),
-                          )).toList(),
-                          hint: Text('请选择'),
-                          onChanged: onSchemeChanged,
-                          value: schemeId,
-                          style: TextStyle(
-                            color: Color(0xff4a4a4a),
-                            fontSize: 14,
-                          ),
-                          isDense: false,
-                        ),
-                      ),
-              ),
-            ],
+        ListTile(
+          title: Text('模式', style: TextStyle(fontSize: 14)),
+          contentPadding: EdgeInsets.zero,
+          dense: true,
+          trailing: Container(
+            margin: EdgeInsets.fromLTRB(8, 0, 0, 0),
+            child: schemes.length == 0
+              ? SizedBox()
+              : DropdownButtonHideUnderline(child:
+                  DropdownButton(
+                    items: schemes.map((item) => DropdownMenuItem(
+                      value: item['id'],
+                      child: Text(item['company']),
+                    )).toList(),
+                    hint: Text('请选择'),
+                    onChanged: onSchemeChanged,
+                    value: schemeId,
+                    style: TextStyle(
+                      color: Color(0xff4a4a4a),
+                      fontSize: 14,
+                    ),
+                    isDense: false,
+                  ),
+                ),
           ),
         ),
         RaisedButton(
@@ -178,6 +174,43 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
           },
           onLongPress: onResetPressed,
           child: Text('重置设置'),
+        ),
+        ListTile(
+          title: Text('记住用户名', style: TextStyle(fontSize: 14)),
+          contentPadding: EdgeInsets.zero,
+          dense: true,
+          trailing: Switch(
+            value: rememberUsername,
+            onChanged: (bool val) async {
+              setState(() {
+                rememberUsername = val;
+              });
+              var config = await ConfigurationManager.configuration();
+              config.setBool('rememberUsername', val);
+            },
+          ),
+        ),
+        RaisedButton(
+          color: Theme.of(context).primaryColor,
+          textColor: Colors.white,
+          onPressed: () async {
+            Messager.ok('上传中');
+            await SortingDatabase.sync();
+            Messager.ok('上传本地数据库完成');
+          },
+          child: Text('上传本地数据库'),
+        ),
+        RaisedButton(
+          color: Colors.redAccent,
+          textColor: Colors.white,
+          onPressed: () {
+            Messager.warning('请长按按钮以确认');
+          },
+          onLongPress: () async {
+            SortingDatabase.clear();
+            Messager.ok('完成');
+          },
+          child: Text('清空本地数据库'),
         ),
         RaisedButton(
           onPressed: () {
@@ -296,7 +329,7 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
 
   void onSchemeChanged(value) async {
     var config = await ConfigurationManager.configuration();
-    config.setInt('schemeId', schemeId);
+    config.setInt('schemeId', value);
     Messager.ok("模式设置成功");
     setState(() {
       schemeId = value;

@@ -19,9 +19,9 @@ class VersionManager {
     onStateChange = onStateChange ?? (v) {};
     onStateChange(VersionCheckingState.checking);
     String currentVersion = await getCurrentVersion();
-    var ret = await api.get('/app_version/latest_info');
-    if (ret.data['code'] == 0) {
-      _latestVersionInfo = ret.data['data'];
+    Result ret = (await api.get('/app_version/latest_info')).data;
+    if (ret.isOk) {
+      _latestVersionInfo = ret.data;
       VersionCheckingState state = compareVersion(currentVersion, _latestVersionInfo['version']) >= 0
           ? VersionCheckingState.currentIsLatest
           : VersionCheckingState.needUpdated;

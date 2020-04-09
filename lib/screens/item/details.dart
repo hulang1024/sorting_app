@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import '../package/details.dart';
 import '../screen.dart';
 import '../../api/http_api.dart';
+import 'list_tile.dart';
 
 class ItemDetailsScreen extends Screen {
   ItemDetailsScreen(this.item) : super(title: '快件详情');
@@ -57,7 +58,7 @@ class ItemDetailsScreenState extends ScreenState<ItemDetailsScreen> {
               Container(width: 90, child: Text('分配状态')),
               Text(
                 item['packTime'] == null ? '未分配 ' : '已分配 ',
-                style: TextStyle(color: item['packTime'] == null ? Colors.grey : Colors.green),
+                style: TextStyle(color: allocStatusColor(item['packTime'] != null)),
               ),
             ]),
             if (item['packTime'] != null) ...[

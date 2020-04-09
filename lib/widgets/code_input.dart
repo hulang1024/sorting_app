@@ -18,17 +18,11 @@ class CodeInput extends StatefulWidget {
 typedef CodeInputDoneCallback = void Function(String);
 
 class CodeInputState extends State<CodeInput> {
-  static final _methodChannel = MethodChannel('samples.flutter.io/battery');
   TextEditingController controller = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-
-    (() async {
-      var ret = await _methodChannel.invokeMethod('getBatteryLevel');
-      print('battery level：' + ret);
-    })();
   }
 
   @override
@@ -42,9 +36,11 @@ class CodeInputState extends State<CodeInput> {
       inputFormatters: [WhitelistingTextInputFormatter.digitsOnly],
       decoration: InputDecoration(
         labelText: widget.labelText,
+        labelStyle: TextStyle(fontWeight: FontWeight.normal, letterSpacing: 0),
         counterText: '',
-        contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+        contentPadding: EdgeInsets.symmetric(vertical: 0),
       ),
+      style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 2),
       onEditingComplete: () {
         widget.onDone(controller.text);
       },

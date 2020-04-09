@@ -1,10 +1,19 @@
+library api;
+
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:cookie_jar/cookie_jar.dart';
-import 'package:sorting/config.dart';
-import 'package:sorting/widgets/message.dart';
+import '../config.dart';
+import '../widgets/message.dart';
+part 'model/result.dart';
+part 'model/page.dart';
 
+bool serverAvailable() {
+  return false && _available;
+}
+
+bool _available = false;
 bool _prepared = false;
 
 /// 准备HTTP API。
@@ -46,9 +55,26 @@ var api = () {
         return null;
       }
     },
+    onResponse: (Response response) {
+      // 判断是否返回的是Result的map，如果是就转换为Result对象
+      if (response.data is Map) {
+        Map<String, dynamic> map = response.data;
+        if (['code', 'msg', 'data'].every((key) => map.containsKey(key))) {
+          response.data = Result.fromMap(map);
+        } else if (['total', 'content'].every((key) => map.containsKey(key))) {
+          response.data = Page.fromMap(map);
+        }
+      }
+      // 标记网络为可用状态
+      if (!_available) {
+        _available = true;
+      }
+    },
     onError: (DioError e) {
       if (e.type == DioErrorType.CONNECT_TIMEOUT) {
-        Messager.error('连接服务器超时');
+        Messager.error('连接服务器超时，请重试');
+        // 标记网络为不可用状态
+        _available = false;
       } else if (e.response?.statusCode == 401) {
         Messager.warning('登录状态失效，请重新登录');
       } else {

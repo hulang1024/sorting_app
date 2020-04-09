@@ -1,31 +1,27 @@
 import 'package:flutter/material.dart';
 import 'details.dart';
 
-ListTile buildItemListTile(item, verbose, context) {
-  return ListTile(
-    title: Text(item['code']),
-    subtitle: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+class ItemListTile extends ListTile {
+  ItemListTile(item, verbose, context) : super(
+    title: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        if(verbose) ...[
-          RichText(
-            text: TextSpan(
-              children: [
-                TextSpan(
-                  text: item['packTime'] == null ? '未分配 ' : '已分配 ',
-                  style: TextStyle(color: item['packTime'] == null ? Colors.grey : Colors.green),
-                ),
-              ],
-            ),
-          ),
-        ],
-        Text(item['destAddress']),
+        Text(item['code'],
+          style: verbose
+              ? TextStyle(color: allocStatusColor(item['packTime'] != null), fontSize: 14)
+              : null,
+        ),
+        Text(item['destAddress'], style: TextStyle(fontSize: 14)),
       ],
-    ),
-    contentPadding: EdgeInsets.fromLTRB(0, 4, 0, 4),
-    trailing: Container(child: Icon(Icons.keyboard_arrow_right)),
+      ),
+    trailing: Icon(Icons.keyboard_arrow_right),
+    contentPadding: EdgeInsets.zero,
+    dense: true,
     onTap: () {
       Navigator.push(context, MaterialPageRoute(builder: (context) => ItemDetailsScreen(item)));
     },
   );
 }
+
+Color allocStatusColor(alreadyAlloc) => alreadyAlloc ? Colors.green : Colors.grey;

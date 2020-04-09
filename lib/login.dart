@@ -6,6 +6,7 @@ import 'screens/settings/version.dart';
 import 'widgets/message.dart';
 import 'api/http_api.dart';
 import 'home.dart';
+import 'user.dart';
 import 'screens/user/register.dart';
 import 'screens/settings/settings.dart';
 
@@ -60,7 +61,7 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return Material(
       child: Container(
         padding: EdgeInsets.fromLTRB(24, 24, 24, 0),
         child: ListView(
@@ -89,9 +90,11 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
                       decoration: InputDecoration(
                         icon: Icon(Icons.account_circle),
                         labelText: '用户名',
+                        labelStyle: TextStyle(letterSpacing: 0),
                         hintText: '手机号/编号',
                         counterText: '',
                       ),
+                      style: TextStyle(letterSpacing: 2),
                       validator: (val) {
                         return val.length == 0 ? "请输入用户名" : null;
                       },
@@ -112,9 +115,11 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
                       decoration: InputDecoration(
                         icon: Icon(Icons.lock),
                         labelText: '密码',
+                        labelStyle: TextStyle(letterSpacing: 0),
                         counterText: '',
                       ),
                       obscureText: true,
+                      style: TextStyle(letterSpacing: 2),
                       validator: (val) {
                         return val.length < 6 ? "密码长度错误" : null;
                       },
@@ -138,8 +143,10 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
                           decoration: InputDecoration(
                             icon: Icon(Icons.security),
                             labelText: '验证码',
+                            labelStyle: TextStyle(letterSpacing: 0),
                             counterText: '',
                           ),
+                          style: TextStyle(letterSpacing: 2),
                           validator: (val) {
                             return val.length != 4 ? "验证码错误" : null;
                           },
@@ -181,7 +188,8 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
               ),
             ),
             ButtonBar(
-              alignment: MainAxisAlignment.center,
+              alignment: MainAxisAlignment.spaceEvenly,
+              buttonPadding: EdgeInsets.symmetric(horizontal: 0),
               children: [
                 FlatButton(
                   onPressed: () {
@@ -257,13 +265,20 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
     setState(() {
       logging = true;
     });
-    api.post('/user/login', queryParameters: formData).then((ret) {
-      if (ret.data['code'] == 0) {
-        config.setString('username', formData['username']);
+    api.post('/user/login', queryParameters: formData).then((response) {
+      Result ret = response.data;
+      if (ret.isOk) {
+        var userProps = ret.data;
+        setCurrentUser(User(id: userProps['id'], name: userProps['name'], phone: userProps['phone']));
+        if (config.getBool('rememberUsername')) {
+          config.setString('username', formData['username']);
+        } else {
+          config.setString('username', '');
+        }
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => Home()));
       } else {
-        Messager.error(ret.data['msg']);
-        var errorField = {'2': 'captcha', '3': 'username', '4': 'password'}[ret.data['code'].toString()];
+        Messager.error(ret.msg);
+        var errorField = {'2': 'captcha', '3': 'username', '4': 'password'}[ret.code.toString()];
         FocusScope.of(context).requestFocus(focusNodes[errorField]);
         if (errorField != 'username') {
           controllers[errorField].text = '';

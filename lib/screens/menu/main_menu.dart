@@ -28,20 +28,6 @@ class MainMenuState extends ScreenState<MainMenu> {
         ),
         children: [
           _functionButton(
-            icon: Icons.find_in_page,
-            text: '查询集包',
-            onPressed: () {
-              push(PackageSearchScreen());
-            },
-          ),
-          _functionButton(
-            icon: Icons.find_in_page,
-            text: '查询快件',
-            onPressed: () {
-              push(ItemSearchScreen());
-            },
-          ),
-          _functionButton(
             icon: Icons.add_box,
             text: '智能建包',
             onPressed: () {
@@ -67,6 +53,20 @@ class MainMenuState extends ScreenState<MainMenu> {
             text: '加包减包',
             onPressed: () {
               push(PackageItemAllocOpTypeScreen());
+            },
+          ),
+          _functionButton(
+            icon: Icons.find_in_page,
+            text: '查询集包',
+            onPressed: () {
+              push(PackageSearchScreen());
+            },
+          ),
+          _functionButton(
+            icon: Icons.find_in_page,
+            text: '查询快件',
+            onPressed: () {
+              push(ItemSearchScreen());
             },
           ),
         ],

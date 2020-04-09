@@ -132,12 +132,12 @@ class RegisterScreenState extends ScreenState<RegisterScreen> {
     }
     form.save();
     formData['branchCode'] = (await ConfigurationManager.configuration()).getString('branch.code');
-    var ret = await api.post('/user/register', data: formData);
-    if (ret.data['code'] == 0) {
+    Result ret = (await api.post('/user/register', data: formData)).data;
+    if (ret.isOk) {
       Messager.ok('注册成功');
       pop();
     } else {
-      Messager.error(ret.data['msg']);
+      Messager.error(ret.msg);
     }
   }
 

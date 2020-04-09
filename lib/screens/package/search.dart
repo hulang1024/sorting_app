@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../screens/package/list.dart';
+import '../../widgets/data_list.dart';
 import '../screen.dart';
 import '../../widgets/code_input.dart';
+import '../../api/http_api.dart';
 import 'details.dart';
+import 'list_tile.dart';
 
 class PackageSearchScreen extends Screen {
   PackageSearchScreen() : super(title: '查询集包');
@@ -11,7 +13,7 @@ class PackageSearchScreen extends Screen {
 }
 
 class PackageSearchScreenState extends ScreenState<PackageSearchScreen> {
-  final GlobalKey<PackageListViewState> packageListViewKey = GlobalKey();
+  final GlobalKey<DataListViewState> dataListViewStateKey = GlobalKey();
 
   @override
   Widget render(BuildContext context) {
@@ -21,18 +23,25 @@ class PackageSearchScreenState extends ScreenState<PackageSearchScreen> {
           labelText: '集包编号',
           onDone: (code) {
             FocusScope.of(context).requestFocus(FocusNode());
-            packageListViewKey.currentState.query({'code': code});
+            dataListViewStateKey.currentState.query({'code': code});
           },
         ),
-        PackageListView(
-          key: packageListViewKey,
-          height: 310,
-          queryParams: {'fromAll': '1'},
-          onData: (data) {
-            if (data['content'].length == 1) {
-              push(PackageDetailsScreen(data['content'][0]));
-            }
-          },
+        DataListView(
+          key: dataListViewStateKey,
+          options: Options(
+            height: 336,
+            url: '/package/page',
+            queryParams: {'fromAll': '1'},
+            noData: Text('未查询到集包'),
+            rowBuilder: (package, [index, context]) {
+              return PackageListTile(package, context);
+            },
+            onData: (Page page) {
+              if (page.content.length == 1) {
+                push(PackageDetailsScreen(page.content[0]));
+              }
+            },
+          ),
         ),
       ],
     );

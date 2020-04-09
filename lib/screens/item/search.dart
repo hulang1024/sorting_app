@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:sorting/screens/screen.dart';
 import '../screen.dart';
-import '../../widgets/network_data_list.dart';
+import '../../widgets/data_list.dart';
 import '../../widgets/code_input.dart';
+import '../../api/http_api.dart';
 import 'details.dart';
 import 'list_tile.dart';
 
@@ -14,7 +14,7 @@ class ItemSearchScreen extends Screen {
 }
 
 class ItemSearchScreenState extends ScreenState<ItemSearchScreen> {
-  final GlobalKey<NetworkDataListState> networkDataListKey = GlobalKey();
+  final GlobalKey<DataListViewState> dataListKey = GlobalKey();
 
   @override
   Widget render(BuildContext context) {
@@ -24,26 +24,23 @@ class ItemSearchScreenState extends ScreenState<ItemSearchScreen> {
           labelText: '快件编号',
           onDone: (code) {
             FocusScope.of(context).requestFocus(FocusNode());
-            networkDataListKey.currentState.query({'code': code});
+            dataListKey.currentState.query({'code': code});
           },
         ),
-        Container(
-          margin: EdgeInsets.only(top: 8),
-          child: NetworkDataList(
-            key: networkDataListKey,
-            options: Options(
-              height: 304,
-              url: '/item/page',
-              noData: Text('未查询到快件'),
-              rowBuilder: (item, index, context) {
-                return buildItemListTile(item, true, context);
-              },
-              onData: (data) {
-                if (data['content'].length == 1) {
-                  push(ItemDetailsScreen(data['content'][0]));
-                }
-              },
-            ),
+        DataListView(
+          key: dataListKey,
+          options: Options(
+            height: 336,
+            url: '/item/page',
+            noData: Text('未查询到快件'),
+            rowBuilder: (item, index, context) {
+              return ItemListTile(item, true, context);
+            },
+            onData: (Page page) {
+              if (page.content.length == 1) {
+                push(ItemDetailsScreen(page.content[0]));
+              }
+            },
           ),
         ),
       ],

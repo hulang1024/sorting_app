@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sorting/repositories/database.dart';
 import 'screens/screen.dart';
 import 'screens/menu/main_menu.dart';
 import 'screens/settings/settings.dart';
@@ -16,6 +17,12 @@ class HomeState extends State<Home> {
     ProfileScreen(),
   ];
   int _screenIndex = 1;
+
+  @override
+  void initState() {
+    super.initState();
+    SortingDatabase.sync();
+  }
 
   @override
   Widget build(BuildContext context) {
