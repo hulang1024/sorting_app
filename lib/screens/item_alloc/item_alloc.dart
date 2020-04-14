@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sorting/screens/item/list_tile.dart';
+import 'package:sorting/service/item_alloc.dart';
 import '../screen.dart';
 import '../settings/settings.dart';
 import '../../widgets/data_list.dart';
 import '../../api/http_api.dart';
 import '../../widgets/code_input.dart';
 import '../../widgets/message.dart';
+import 'details.dart';
 
 class PackageItemAllocScreen extends Screen {
   PackageItemAllocScreen({this.opType}) : super(title: opType == 1 ? '集包加件' : '集包减件');
@@ -36,7 +39,6 @@ class PackageItemAllocScreenState extends ScreenState<PackageItemAllocScreen> {
               key: codeInputKeys['packageCode'],
               labelText: '集包编号',
               onDone: (code) {
-                dataListKey.currentState.query({'packageCode': code});
                 FocusScope.of(context).requestFocus(focusNodes['itemCode']);
               },
             ),
@@ -65,34 +67,37 @@ class PackageItemAllocScreenState extends ScreenState<PackageItemAllocScreen> {
         ),
         DataListView(
           key: dataListKey,
-          options: Options(
-            height: 200,
-            url: '/package_item_op/page',
-            queryParams: {'opType': widget.opType},
-            noData: Text('未查询到记录'),
-            rowBuilder: (item, [index, context]) {
-              return ListTile(
-                title: Text('${item['opType'] == 1 ? '加件' : '减件'} ${item['itemCode']}'),
-                subtitle: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('集包${item['packageCode']}'),
-                    Text('操作${item['opTime']} ${item['operatorName']}(${item['operatorPhone']})'),
-                    Text('${item['opType'] == 1 ? '加件' : '减件'}${true ? '成功' : '失败'}', style: TextStyle(color: true ? Colors.green : Colors.red)),
-                  ],
-                ),
-                contentPadding: EdgeInsets.zero,
-                dense: true,
-                onTap: () {
-                  Messager.info('没有更多操作');
-                },
-              );
-            },
-          ),
+          height: 232,
+          loadData: loadData,
+          queryParams: {'opType': widget.opType},
+          noDataText: '未查询到记录',
+          rowBuilder: (op, [index, context]) {
+            return ListTile(
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(op.packageCode),
+                  Text(op.itemCode),
+                  Text(op.opType == 1 ? '加件' : '减件',
+                    style: TextStyle(color: itemStatus(op.status).color)),
+                ],
+              ),
+              trailing: Icon(Icons.keyboard_arrow_right),
+              contentPadding: EdgeInsets.zero,
+              dense: true,
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => ItemAllocOpDetailsScreen(op)));
+              },
+            );
+          },
         ),
       ],
     );
+  }
+
+  Future<Page> loadData(Map<String, dynamic> queryParams) {
+    return ItemAllocService().queryPage(queryParams);
   }
 
   void submit() async {
@@ -109,8 +114,8 @@ class PackageItemAllocScreenState extends ScreenState<PackageItemAllocScreen> {
     }
     codeInputKeys.forEach((k, key) => formData[k] = key.currentState.controller.text);
     if (formData['packageCode'].isNotEmpty && formData['itemCode'].isNotEmpty) {
-      var ret = await api.post('/package_item_op/${opType == 1 ? 'add_item' : 'delete_item'}', queryParameters: formData);
-      if (ret.data['code'] == 0) {
+      Result ret = await ItemAllocService().operate(opType, formData);
+      if (ret.isOk) {
         Messager.ok('${opType == 1 ? '加件' : '减件'}成功');
         // 只清空快件号
         formData['itemCode'] = '';
@@ -118,7 +123,7 @@ class PackageItemAllocScreenState extends ScreenState<PackageItemAllocScreen> {
         FocusScope.of(context).requestFocus(focusNodes['itemCode']);
         dataListKey.currentState.query();
       } else {
-        Messager.error(ret.data['msg']);
+        Messager.error(ret.msg);
       }
     }
   }

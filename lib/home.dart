@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sorting/repositories/database.dart';
+import 'dao/database.dart';
 import 'screens/screen.dart';
 import 'screens/menu/main_menu.dart';
 import 'screens/settings/settings.dart';

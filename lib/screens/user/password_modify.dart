@@ -74,11 +74,11 @@ class PasswordModifyScreenState extends ScreenState<PasswordModifyScreen> {
     var form = formKey.currentState;
     if (form.validate()) {
       form.save();
-      var ret = await api.put('/user/password', queryParameters: formData);
-      if (ret.data['code'] == 0) {
+      Result ret = await api.put('/user/password', queryParameters: formData);
+      if (ret.isOk) {
         Messager.ok('修改成功');
       } else {
-        Messager.error(ret.data['msg']);
+        Messager.error(ret.msg);
       }
     }
   }

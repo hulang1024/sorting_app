@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sorting/screens/package_item/item_alloc_op_type.dart';
+import 'package:sorting/screens/item_alloc/item_alloc_op_type.dart';
 import '../screen.dart';
 import '../item/search.dart';
 import '../package/create.dart';

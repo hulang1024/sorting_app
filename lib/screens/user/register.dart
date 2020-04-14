@@ -27,7 +27,7 @@ class RegisterScreenState extends ScreenState<RegisterScreen> {
     super.initState();
     (() async {
       if (await dependentSettingsOk()) {
-        codeTextController.text = (await api.get('/user/next_code')).data;
+        codeTextController.text = await api.get('/user/next_code');
       }
     })();
   }
@@ -132,7 +132,7 @@ class RegisterScreenState extends ScreenState<RegisterScreen> {
     }
     form.save();
     formData['branchCode'] = (await ConfigurationManager.configuration()).getString('branch.code');
-    Result ret = (await api.post('/user/register', data: formData)).data;
+    Result ret = await api.post('/user/register', data: formData);
     if (ret.isOk) {
       Messager.ok('注册成功');
       pop();

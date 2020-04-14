@@ -20,7 +20,7 @@ class ProfileScreenState extends ScreenState<ProfileScreen> {
 
     api.get('/user/session').then((ret) {
       setState(() {
-        user = ret.data['user'];
+        user = ret['user'];
       });
     });
   }

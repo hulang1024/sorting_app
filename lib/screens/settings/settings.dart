@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../repositories/database.dart';
+import 'package:sorting/dao/database.dart';
 import '../../screens/settings/about.dart';
 import '../../config.dart';
 import '../screen.dart';
@@ -194,9 +194,13 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
           color: Theme.of(context).primaryColor,
           textColor: Colors.white,
           onPressed: () async {
-            Messager.ok('上传中');
-            await SortingDatabase.sync();
-            Messager.ok('上传本地数据库完成');
+            Messager.info('上传中');
+            int total = await SortingDatabase.sync();
+            if (total > 0) {
+              Messager.ok('上传本地数据库完成');
+            } else {
+              Messager.warning('无数据');
+            }
           },
           child: Text('上传本地数据库'),
         ),
@@ -232,7 +236,7 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
     await prepareHTTPAPI();
     var ret = await api.get('/scheme/all');
     setState(() {
-      schemes = ret.data;
+      schemes = ret;
     });
   }
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sorting/entity/item_entity.dart';
 import '../screen.dart';
 import '../../widgets/data_list.dart';
 import '../../widgets/code_input.dart';
@@ -29,19 +30,18 @@ class ItemSearchScreenState extends ScreenState<ItemSearchScreen> {
         ),
         DataListView(
           key: dataListKey,
-          options: Options(
-            height: 336,
-            url: '/item/page',
-            noData: Text('未查询到快件'),
-            rowBuilder: (item, index, context) {
-              return ItemListTile(item, true, context);
-            },
-            onData: (Page page) {
-              if (page.content.length == 1) {
-                push(ItemDetailsScreen(page.content[0]));
-              }
-            },
-          ),
+          height: 336,
+          url: '/item/page',
+          convert: () => ItemEntity(),
+          noDataText: '未查询到快件',
+          rowBuilder: (item, index, context) {
+            return ItemListTile(item, true, context);
+          },
+          onData: (Page page) {
+            if (page.content.length == 1) {
+              push(ItemDetailsScreen(page.content[0]));
+            }
+          },
         ),
       ],
     );

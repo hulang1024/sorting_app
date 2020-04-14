@@ -1,6 +1,8 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:sorting/entity/item_entity.dart';
+import 'package:sorting/entity/package_entity.dart';
 import '../package/details.dart';
 import '../screen.dart';
 import '../../api/http_api.dart';
@@ -9,7 +11,7 @@ import 'list_tile.dart';
 class ItemDetailsScreen extends Screen {
   ItemDetailsScreen(this.item) : super(title: '快件详情');
 
-  final Map item;
+  final ItemEntity item;
 
   @override
   State<StatefulWidget> createState() => ItemDetailsScreenState();
@@ -22,11 +24,12 @@ class ItemDetailsScreenState extends ScreenState<ItemDetailsScreen> {
   void initState() {
     super.initState();
     details['item'] = widget.item;
-    api.get('/item/details', queryParameters: {'code': widget.item['code']}).then((ret) {
-      setState(() {
-        details = ret.data;
-      });
-    });
+
+    (() async {
+      details = await api.get('/item/details', queryParameters: {'code': widget.item.code});
+      details['item'] = ItemEntity().fromJson(details['item']);
+      setState(() {});
+    })();
   }
 
   @override
@@ -40,7 +43,7 @@ class ItemDetailsScreenState extends ScreenState<ItemDetailsScreen> {
           children: [
             Row(children: [
               Container(width: 90, child: Text('快件编号')),
-              Text(item['code']),
+              Text(item.code),
             ]),
             Row(children: [
               Container(width: 90, child: Text('目的地')),
@@ -48,23 +51,22 @@ class ItemDetailsScreenState extends ScreenState<ItemDetailsScreen> {
             ]),
             Row(children: [
               Container(width: 90, child: Text('目的地编号')),
-              Text(item['destCode']),
+              Text(item.destCode),
             ]),
             Row(children: [
               Container(width: 90, child: Text('创建时间')),
-              Text(item['createAt']),
+              Text(item.createAt),
             ]),
             Row(children: [
               Container(width: 90, child: Text('分配状态')),
-              Text(
-                item['packTime'] == null ? '未分配 ' : '已分配 ',
-                style: TextStyle(color: allocStatusColor(item['packTime'] != null)),
+              Text(itemAllocStatus(item.packTime != null).text,
+                style: TextStyle(color: itemAllocStatus(item.packTime != null).color),
               ),
             ]),
-            if (item['packTime'] != null) ...[
+            if (item.packTime != null) ...[
               Row(children: [
                 Container(width: 90, child: Text('分配时间')),
-                Text(item['packTime']),
+                Text(item.packTime),
               ]),
               Row(children: [
                 Container(width: 90, child: Text('集包编号')),
@@ -74,7 +76,7 @@ class ItemDetailsScreenState extends ScreenState<ItemDetailsScreen> {
                     style: TextStyle(color: Colors.blue),
                     recognizer: TapGestureRecognizer()
                       ..onTap = () {
-                        push(PackageDetailsScreen({'code': details['packageCode']}));
+                        push(PackageDetailsScreen(PackageEntity().fromJson({'code': details['packageCode']})));
                       },
                   ),
                 ),

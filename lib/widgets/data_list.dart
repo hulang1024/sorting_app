@@ -1,35 +1,41 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:sorting/generated/json/base/json_convert_content.dart';
 import '../api/http_api.dart';
-
-typedef LoadDataCallback = Future<Page> Function(Map<String, dynamic> queryParams);
-
-/// 数据列表视图的选项
-class Options {
-  double height;
-  LoadDataCallback loadData;
-  String url;
-  Map<String, dynamic> queryParams;
-  Widget noData;
-  @required
-  RowBuilder rowBuilder;
-  ValueChanged<Page> onData;
-
-  Options({this.height, this.loadData, this.url, this.queryParams, this.noData, this.rowBuilder, this.onData});
-}
 
 /// 数据列表视图
 class DataListView extends StatefulWidget {
-  DataListView({Key key, @required this.options}) : super(key: key);
+  DataListView({
+    Key key,
+    this.height,
+    this.loadData,
+    this.dataFilter,
+    this.convert,
+    this.url,
+    this.queryParams,
+    this.noDataText,
+    @required this.rowBuilder,
+    this.onData,
+    this.showPagination = true,
+  }) : super(key: key);
 
-  final Options options;
+  final double height;
+  final Future<Page> Function(Map<String, dynamic> queryParams) loadData;
+  final Page Function(Page page) dataFilter;
+  final JsonConvert Function() convert;
+  final String url;
+  final Map<String, dynamic> queryParams;
+  final String noDataText;
+  final RowBuilder rowBuilder;
+  final ValueChanged<Page> onData;
+  final bool showPagination;
 
   @override
   State<StatefulWidget> createState() => DataListViewState();
 }
 
-typedef RowBuilder = Widget Function(Map row, int index, BuildContext context);
+typedef RowBuilder = Widget Function(dynamic row, int index, BuildContext context);
 
 class DataListViewState extends State<DataListView> {
   ScrollController listController = ScrollController();
@@ -44,7 +50,7 @@ class DataListViewState extends State<DataListView> {
   @override
   void initState() {
     super.initState();
-    _queryParams = widget.options.queryParams ?? {};
+    _queryParams = widget.queryParams ?? {};
     _fetch();
     listController.addListener(() {
       if (listController.position.pixels == listController.position.maxScrollExtent && !_loading && _more) {
@@ -66,7 +72,9 @@ class DataListViewState extends State<DataListView> {
       return Center(
         child: Container(
           margin: EdgeInsets.only(top: 16),
-          child: widget.options.noData ?? Text('未查询到数据'),
+          child: Text(widget.noDataText ?? '未查询到数据',
+            style: TextStyle(color: Colors.black87, fontSize: 14),
+          ),
         ),
       );
     } else {
@@ -78,7 +86,7 @@ class DataListViewState extends State<DataListView> {
     return Column(
       children: [
         Container(
-          height: widget.options.height ?? 304,
+          height: (widget.height ?? 304) - 19,
           child: ListView.builder(
             controller: listController,
             itemCount: _list.length + 1,
@@ -99,11 +107,16 @@ class DataListViewState extends State<DataListView> {
                 );
               }
 
-              return widget.options.rowBuilder(_list[index], index, context);
+              return widget.rowBuilder(_list[index], index, context);
             },
           ),
         ),
-        //if(_total != null) Text('共 $_total 个记录', style: TextStyle(color: Colors.grey, fontSize: 12)),
+        if (widget.showPagination)
+          InkWell(
+            onTap: () {
+              query();
+            },
+            child: Text('共 $_total 个记录', style: TextStyle(color: Colors.grey, fontSize: 13))),
       ],
     );
   }
@@ -131,6 +144,9 @@ class DataListViewState extends State<DataListView> {
     queryParams.addAll({'page': _pageNo, 'size': _pageSize});
 
     var load = (Page page) {
+      if (widget.dataFilter != null) {
+        page = widget.dataFilter(page);
+      }
       setState(() {
         page.content.forEach((e) => _list.add(e));
         _total = page.total;
@@ -141,18 +157,22 @@ class DataListViewState extends State<DataListView> {
       });
     };
 
-    if (widget.options.loadData != null) {
-      Page page = await widget.options.loadData(queryParams);
+    if (widget.loadData != null) {
+      Page page = await widget.loadData(queryParams);
       load(page);
       setState(() {
         _loading = false;
       });
     } else {
-      api.get(widget.options.url, queryParameters: queryParams).then((ret) {
-        if (widget.options.onData != null) {
-          widget.options.onData(ret.data);
+      api.get(widget.url, queryParameters: queryParams).then((ret) {
+        Page page = Page.fromMap(ret);
+        if (widget.convert != null) {
+          page.content = page.content.map((e) => widget.convert().fromJson(e)).toList();
         }
-        load(ret.data);
+        if (widget.onData != null) {
+          widget.onData(page);
+        }
+        load(page);
       }).catchError((_) {
         setState(() {
           _loading = false;

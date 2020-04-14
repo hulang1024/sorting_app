@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../repositories/package.dart';
+import 'package:sorting/service/package.dart';
 import '../../widgets/data_list.dart';
 import '../../api/http_api.dart';
 import '../screen.dart';
@@ -74,20 +74,18 @@ class PackageCreateScreenState extends ScreenState<PackageCreateScreen> {
         ),
         DataListView(
           key: packageListViewKey,
-          options: Options(
-            height: 224,
-            loadData: loadData,
-            queryParams: {'fromAll': '1'},
-            noData: Text('没有集包记录'),
-            rowBuilder: (package, [index, context]) {
-              return PackageListTile(package, context);
-            },
-            onData: (Page page) {
-              if (page.content.length == 1) {
-                push(PackageDetailsScreen(page.content[0]));
-              }
-            },
-          ),
+          height: 224,
+          loadData: loadData,
+          queryParams: {'fromAll': '1'},
+          noDataText: '没有集包创建记录',
+          rowBuilder: (package, [index, context]) {
+            return PackageListTile(package, context);
+          },
+          onData: (Page page) {
+            if (page.content.length == 1) {
+              push(PackageDetailsScreen(page.content[0]));
+            }
+          },
         ),
       ],
     );
@@ -111,7 +109,7 @@ class PackageCreateScreenState extends ScreenState<PackageCreateScreen> {
   }
 
   Future<Page> loadData(Map<String, dynamic> queryParams) {
-    return PackageLocalRepo().page(queryParams);
+    return PackageService().queryPage(queryParams);
   }
 
   void queryAddress() {
@@ -123,7 +121,7 @@ class PackageCreateScreenState extends ScreenState<PackageCreateScreen> {
     });
     api.get('/coded_address', queryParameters: {'code': destCodeController.text}).then((ret) {
       setState(() {
-        address = ret.data.toString();
+        address = ret.toString();
         querying = false;
       });
     });
@@ -137,7 +135,7 @@ class PackageCreateScreenState extends ScreenState<PackageCreateScreen> {
       return;
     }
 
-    Result result = await PackageAddRepo().add(
+    Result result = await PackageService().add(
       formData,
       (widget.smartCreate ? {'smartCreate': widget.smartCreate, 'allocItemNumMax': 10} as Map<String, dynamic> : null),
     );

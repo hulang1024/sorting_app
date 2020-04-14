@@ -27,7 +27,7 @@ class Result {
   }
 
   static fromMap(Map<String, dynamic> map) {
-    Result result = new Result();
+    Result result = Result();
     result._code = map['code'];
     result._msg = map['msg'];
     result._data = map['data'];

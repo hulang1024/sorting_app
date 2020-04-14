@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:sorting/entity/item_entity.dart';
+import 'package:sorting/entity/package_entity.dart';
+import 'package:sorting/service/item.dart';
+import 'package:sorting/service/package.dart';
 import '../screen.dart';
 import '../../widgets/data_list.dart';
 import '../item/list_tile.dart';
-import '../../repositories/package.dart';
 import '../../api/http_api.dart';
 import 'list_tile.dart';
 
 class PackageDetailsScreen extends Screen {
-  PackageDetailsScreen(this.package, [this.isDeleted = false]) : super(title: '集包详情');
+  PackageDetailsScreen(this.package) : super(title: '集包详情');
 
-  final Map package;
-  final bool isDeleted;
+  final PackageEntity package;
 
   @override
   State<StatefulWidget> createState() => PackageDetailsScreenState();
@@ -19,7 +21,7 @@ class PackageDetailsScreen extends Screen {
 
 class PackageDetailsScreenState extends ScreenState<PackageDetailsScreen> {
   Map<String, dynamic> details = {
-    'package': {},
+    'package': null,
     'destAddress': {},
     'creator': {},
     'deleteOperator': {},
@@ -31,27 +33,17 @@ class PackageDetailsScreenState extends ScreenState<PackageDetailsScreen> {
   void initState() {
     super.initState();
     details['package'] = widget.package;
-    var package = details['package'];
+    var package = widget.package;
 
     (() async {
-      if (!widget.isDeleted) {
-        // 如果是服务器集包数据，就从服务器查询
-        // 如果是本地集包数据且是上传成功状态并且可连接服务器，也从服务器查询；否则从本地库查询
-        PackageRepo repo = package['status'] == null || (package['status'] == 0 && serverAvailable())
-            ? PackageRemoteRepo() : PackageLocalRepo();
-        details = await repo.details(package['code']);
-        setState(() {});
-      } else {
-        details = (await api.get('/deleted_package/details', queryParameters: {'code': package['code']})).data;
-        setState(() {});
-      }
+      details = await PackageService().details(package);
+      setState(() {});
     })();
-
   }
 
   @override
   Widget render(BuildContext context) {
-    var package = details['package'];
+    PackageEntity package = details['package'];
     var destAddress = details['destAddress'];
     var creator = details['creator'];
     var deleteOperator = details['deleteOperator'];
@@ -62,7 +54,7 @@ class PackageDetailsScreenState extends ScreenState<PackageDetailsScreen> {
           children: [
             Row(children: [
               Container(width: 90, child: Text('集包编号')),
-              Text(package['code'] ?? ''),
+              Text(package.code ?? ''),
             ]),
             if (destAddress != null)
               Row(children: [
@@ -71,7 +63,7 @@ class PackageDetailsScreenState extends ScreenState<PackageDetailsScreen> {
               ]),
             Row(children: [
               Container(width: 90, child: Text('目的地编号')),
-              Text(package['destCode'] ?? ''),
+              Text(package.destCode ?? ''),
             ]),
             if (creator != null) ...[
               Row(children: [
@@ -81,42 +73,35 @@ class PackageDetailsScreenState extends ScreenState<PackageDetailsScreen> {
               ]),
               Row(children: [
                 Container(width: 90, child: Text('创建时间')),
-                Text(package['createAt'] ?? ''),
+                Text(package.createAt ?? ''),
               ]),
             ],
-            if (package['status'] != null)
+            if (package.status != null)
               Row(children: [
                 Container(width: 90, child: Text('数据状态')),
-                Text([
-                  '已上传成功',
-                  '未上传到服务器',
-                  '上传失败，已存在相同编号',
-                  '上传失败，未查询到目的地编号'][package['status']],
-                  style: TextStyle(color: package['status'] == 0 ? Colors.green : statusColor(package['status'])),
+                Text(packageStatus(package.status).text,
+                  style: TextStyle(color: package.status == 0 ? Colors.green : packageStatus(package.status).color),
                 ),
               ]),
-            if (package['lastUpdate'] != null)
+            if (package.lastUpdate != null)
               Row(children: [
                 Container(width: 90, child: Text('更新时间')),
-                Text(package['lastUpdate']),
+                Text(package.lastUpdate),
               ]),
-            if (widget.isDeleted && deleteOperator != null) ...[
+            if (package.deleteAt != null && deleteOperator != null) ...[
               Row(children: [
                 Container(width: 90, child: Text('删除者')),
                 Text(deleteOperator['name'] ?? '-'),
-                Padding(
-                  padding: EdgeInsets.only(left: 8),
-                  child: Text('(手机号:${deleteOperator['phone'] ?? '-'})'),
-                ),
+                Text('(手机号:${deleteOperator['phone'] ?? '-'})'),
               ]),
               Row(children: [
                 Container(width: 90, child: Text('删除时间')),
-                Text(package['deleteAt']),
+                Text(package.deleteAt),
               ]),
             ],
           ],
         ),
-        if (!widget.isDeleted) packageItemsView(package),
+        if (package.deleteAt == null) packageItemsView(package),
       ],
     );
   }
@@ -131,22 +116,31 @@ class PackageDetailsScreenState extends ScreenState<PackageDetailsScreen> {
           child: Text('快件（$itemTotal个）',),
         ),
         DataListView(
-          options: Options(
-            height: 202,
-            url: '/item/page',
-            queryParams: {'packageCode': package['code']},
-            noData: Text('未包含快件'),
-            rowBuilder: (item, index, context) {
-              return ItemListTile(item, false, context);
-            },
-            onData: (Page page) {
-              setState(() {
-                itemTotal = page.total;
-              });
-            },
-          ),
+          height: 202,
+          loadData: loadPackageItemsData,
+          queryParams: {'packageCode': package.code},
+          noDataText: '未包含快件',
+          showPagination: false,
+          rowBuilder: (item, index, context) {
+            return ItemListTile(item, false, context);
+          },
+          onData: (Page page) {
+            setState(() {
+              itemTotal = page.total;
+            });
+          },
         ),
       ],
     );
+  }
+
+  Future<Page> loadPackageItemsData(Map<String, dynamic> queryParams) async {
+    if (serverAvailable()) {
+      Page page = Page.fromMap(await api.get('/item/page', queryParameters: queryParams));
+      page.content = page.content.map((e) => ItemEntity().fromJson(e)).toList();
+      return page;
+    } else {
+      return ItemService().queryPage(queryParams);
+    }
   }
 }

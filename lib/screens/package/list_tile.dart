@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:sorting/entity/package_entity.dart';
+import 'package:sorting/widgets/status.dart';
 import 'details.dart';
 
 class PackageListTile extends ListTile {
-  PackageListTile(package, context) : super(
+  PackageListTile(PackageEntity package, context) : super(
     title: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        Text(package['code'],
-          style: TextStyle(color: package['status'] == null ? Colors.black87 : statusColor(package['status']), fontSize: 14),
+        Text(package.code,
+          style: TextStyle(color: package.status == null ? Colors.black87 : packageStatus(package.status).color, fontSize: 14),
         ),
-        Text(package['destAddress'] ?? package['destCode'],
+        Text(package.destAddress ?? package.destCode,
             style: TextStyle(color: Colors.black54, fontSize: 14)),
       ],
     ),
@@ -23,5 +25,10 @@ class PackageListTile extends ListTile {
     },
   );
 }
-
-Color statusColor(status) => [Colors.black87, Colors.orange, Colors.red, Colors.red][status];
+Status packageStatus(code) => [
+  Status(text: '已上传成功', color: Colors.black87),
+  Status(text: '未上传到服务器', color: Colors.orange),
+  Status(text: '上传失败，已存在相同编号', color: Colors.red),
+  Status(text: '上传失败，未查询到目的地编号', color: Colors.red),
+  Status(text: '已删除', color: Colors.black87),
+][code];

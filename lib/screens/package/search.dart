@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sorting/entity/package_entity.dart';
 import '../../widgets/data_list.dart';
 import '../screen.dart';
 import '../../widgets/code_input.dart';
@@ -28,20 +29,19 @@ class PackageSearchScreenState extends ScreenState<PackageSearchScreen> {
         ),
         DataListView(
           key: dataListViewStateKey,
-          options: Options(
-            height: 336,
-            url: '/package/page',
-            queryParams: {'fromAll': '1'},
-            noData: Text('未查询到集包'),
-            rowBuilder: (package, [index, context]) {
-              return PackageListTile(package, context);
-            },
-            onData: (Page page) {
-              if (page.content.length == 1) {
-                push(PackageDetailsScreen(page.content[0]));
-              }
-            },
-          ),
+          height: 336,
+          url: '/package/page',
+          convert: () => PackageEntity(),
+          queryParams: {'fromAll': '1'},
+          noDataText: '未查询到集包',
+          rowBuilder: (package, [index, context]) {
+            return PackageListTile(package, context);
+          },
+          onData: (Page page) {
+            if (page.content.length == 1) {
+              push(PackageDetailsScreen(page.content[0]));
+            }
+          },
         ),
       ],
     );

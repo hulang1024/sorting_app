@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dio/dio.dart';
+import 'package:sorting/entity/user_entity.dart';
+import 'package:sorting/session.dart';
 import 'config.dart';
 import 'screens/settings/version.dart';
 import 'widgets/message.dart';
 import 'api/http_api.dart';
 import 'home.dart';
-import 'user.dart';
 import 'screens/user/register.dart';
 import 'screens/settings/settings.dart';
 
@@ -238,7 +239,7 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
       options: Options(responseType: ResponseType.bytes),
     ).then((resp) {
       setState(() {
-        captchaImage = Image.memory(resp.data);
+        captchaImage = Image.memory(resp);
         captchaLoading = false;
       });
     });
@@ -265,11 +266,9 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
     setState(() {
       logging = true;
     });
-    api.post('/user/login', queryParameters: formData).then((response) {
-      Result ret = response.data;
+    api.post('/user/login', queryParameters: formData).then((ret) {
       if (ret.isOk) {
-        var userProps = ret.data;
-        setCurrentUser(User(id: userProps['id'], name: userProps['name'], phone: userProps['phone']));
+        setCurrentUser(UserEntity().fromJson(ret.data));
         if (config.getBool('rememberUsername')) {
           config.setString('username', formData['username']);
         } else {
