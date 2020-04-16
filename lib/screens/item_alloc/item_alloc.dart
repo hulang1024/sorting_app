@@ -79,7 +79,7 @@ class PackageItemAllocScreenState extends ScreenState<PackageItemAllocScreen> {
                 children: [
                   Text(op.packageCode),
                   Text(op.itemCode),
-                  Text(op.opType == 1 ? '加件' : '减件',
+                  Text(op.status == 0 ? '成功' : op.status == 1 ? '未上传' : '失败',
                     style: TextStyle(color: itemStatus(op.status).color)),
                 ],
               ),

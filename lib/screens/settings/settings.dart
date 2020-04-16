@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sorting/dao/database.dart';
+import 'package:sorting/service/offline_data_sync.dart';
 import '../../screens/settings/about.dart';
 import '../../config.dart';
 import '../screen.dart';
@@ -195,7 +196,7 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
           textColor: Colors.white,
           onPressed: () async {
             Messager.info('上传中');
-            int total = await SortingDatabase.sync();
+            int total = await new OfflineDataSyncService().sync();
             if (total > 0) {
               Messager.ok('上传本地数据库完成');
             } else {

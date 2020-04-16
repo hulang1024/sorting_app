@@ -29,6 +29,7 @@ class MainMenuState extends ScreenState<MainMenu> {
         children: [
           _functionButton(
             icon: Icons.add_box,
+            iconColor: Colors.blueAccent,
             text: '智能建包',
             onPressed: () {
               push(PackageCreateScreen(smartCreate: true));
@@ -36,6 +37,7 @@ class MainMenuState extends ScreenState<MainMenu> {
           ),
           _functionButton(
             icon: Icons.add_box,
+            iconColor: Colors.blueAccent,
             text: '手动建包',
             onPressed: () {
               push(PackageCreateScreen());
@@ -43,6 +45,7 @@ class MainMenuState extends ScreenState<MainMenu> {
           ),
           _functionButton(
             icon: Icons.delete_forever,
+            iconColor: Colors.redAccent,
             text: '删除集包',
             onPressed: () {
               push(PackageDeleteScreen());
@@ -57,6 +60,7 @@ class MainMenuState extends ScreenState<MainMenu> {
           ),
           _functionButton(
             icon: Icons.find_in_page,
+            iconColor: Colors.green,
             text: '查询集包',
             onPressed: () {
               push(PackageSearchScreen());
@@ -64,6 +68,7 @@ class MainMenuState extends ScreenState<MainMenu> {
           ),
           _functionButton(
             icon: Icons.find_in_page,
+            iconColor: Colors.green,
             text: '查询快件',
             onPressed: () {
               push(ItemSearchScreen());
@@ -77,6 +82,7 @@ class MainMenuState extends ScreenState<MainMenu> {
 
   Widget _functionButton({
     @required IconData icon,
+    Color iconColor,
     @required String text,
     @required VoidCallback onPressed,
   }) {
@@ -88,7 +94,7 @@ class MainMenuState extends ScreenState<MainMenu> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, color: Colors.black87),
+          Icon(icon, color: iconColor ?? Colors.orangeAccent, size: 26),
           Text(text, style: TextStyle(fontSize: 16, color: Colors.black87)),
         ],
       ),

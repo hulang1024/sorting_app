@@ -5,7 +5,7 @@ import 'package:sorting/screens/screen.dart';
 import 'item_alloc.dart';
 
 class PackageItemAllocOpTypeScreen extends Screen {
-  PackageItemAllocOpTypeScreen() : super(title: '选择操作', addPadding: EdgeInsets.all(-8));
+  PackageItemAllocOpTypeScreen() : super(title: '选择操作');
 
   @override
   State<StatefulWidget> createState() => _PackageItemAllocOpTypeScreenState();
@@ -19,19 +19,20 @@ class _PackageItemAllocOpTypeScreenState extends ScreenState<PackageItemAllocOpT
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
         _TypeButton(
-          icon: Icons.remove,
-          color: Colors.redAccent,
-          text: '减件',
-          onTap: () {
-            push(PackageItemAllocScreen(opType: 2));
-          },
-        ),
-        _TypeButton(
           icon: Icons.add,
           color: Colors.blueAccent,
           text: '加件',
           onTap: () {
             push(PackageItemAllocScreen(opType: 1));
+          },
+        ),
+        Padding(padding: EdgeInsets.only(top: 8),),
+        _TypeButton(
+          icon: Icons.remove,
+          color: Colors.redAccent,
+          text: '减件',
+          onTap: () {
+            push(PackageItemAllocScreen(opType: 2));
           },
         ),
       ],
@@ -51,6 +52,8 @@ class _TypeButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: Material(
+        elevation: 2,
+        borderRadius: BorderRadius.all(Radius.circular(4)),
         color: color,
         child: InkWell(
           onTap: onTap,
@@ -58,12 +61,12 @@ class _TypeButton extends StatelessWidget {
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Icon(icon, color: Colors.white),
+                Icon(icon, color: Colors.white, size: 26),
                 Text(
                   text,
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 18,
+                    fontSize: 16,
                     fontStyle: FontStyle.italic
                   ),
                 ),

@@ -1,4 +1,3 @@
-import 'package:sorting/service/package.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
@@ -34,7 +33,7 @@ class SortingDatabase {
             `opType`          int                  not null,
             `opTime`          int                  not null,
             `operator`        int                  not null,
-            `status`         int                   not null
+            `status`          int                   not null
           );
         ''');
         await db.execute('''
@@ -44,16 +43,12 @@ class SortingDatabase {
             `itemCode`        char(19)             not null,
             `createAt`        int                  not null,
             `operator`        int                  not null,
-            `status`         int                   not null
+            `status`          int                   not null
           );
         ''');
       },
     );
     return _db;
-  }
-
-  static Future<int> sync() async {
-    return PackageService().sync();
   }
 
   static void clear() async {

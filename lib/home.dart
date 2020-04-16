@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'dao/database.dart';
+import 'package:sorting/service/offline_data_sync.dart';
 import 'screens/screen.dart';
 import 'screens/menu/main_menu.dart';
 import 'screens/settings/settings.dart';
@@ -21,7 +21,7 @@ class HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    SortingDatabase.sync();
+    OfflineDataSyncService().sync();
   }
 
   @override

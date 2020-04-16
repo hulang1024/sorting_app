@@ -1,10 +1,8 @@
-import 'dart:convert';
 import 'package:quiver/strings.dart';
 import 'package:sorting/api/http_api.dart';
 import 'package:sorting/dao/db_utils.dart';
 import 'package:sorting/dao/package.dart';
 import 'package:sorting/entity/package_entity.dart';
-import 'package:sqflite/sqflite.dart';
 import '../session.dart';
 
 class PackageService {
@@ -133,29 +131,5 @@ class PackageService {
       'deleteAt': getNowDateTimeString(),
       'deleteOperator': getCurrentUser().id
     }, where: 'code = "$code"') > 0);
-  }
-
-  /// 同步到服务器
-  Future<int> sync() async {
-    const SIZE = 24;
-    int pageNo = 0;
-    Page page;
-    do {
-      page = await queryPage({'fromAll': '1', 'status': 1, 'page': ++pageNo, 'size': SIZE});
-      if (page.total == 0) {
-        break;
-      }
-      Result ret = await api.post('/package/batch', data: jsonEncode(page.content));
-      var db = await getDB();
-      Batch batch = db.batch();
-      ret.data.forEach((status, packageCodes) {
-        packageCodes.forEach((code) {
-          batch.update('package', {'status': status, 'lastUpdate': getNowDateTimeString()}, where: 'code = "$code"');
-        });
-      });
-      batch.commit();
-    } while (page.content.length == SIZE);
-    final total = (pageNo == 1 ? 0 : pageNo) * SIZE + page.content.length;
-    return total;
   }
 }
