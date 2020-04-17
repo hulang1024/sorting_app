@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sorting/screens/item/list_tile.dart';
 import 'package:sorting/service/item_alloc.dart';
 import '../screen.dart';
 import '../settings/settings.dart';
@@ -8,7 +7,7 @@ import '../../widgets/data_list.dart';
 import '../../api/http_api.dart';
 import '../../widgets/code_input.dart';
 import '../../widgets/message.dart';
-import 'details.dart';
+import 'list_tile.dart';
 
 class PackageItemAllocScreen extends Screen {
   PackageItemAllocScreen({this.opType}) : super(title: opType == 1 ? '集包加件' : '集包减件');
@@ -72,24 +71,7 @@ class PackageItemAllocScreenState extends ScreenState<PackageItemAllocScreen> {
           queryParams: {'opType': widget.opType},
           noDataText: '未查询到记录',
           rowBuilder: (op, [index, context]) {
-            return ListTile(
-              title: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(op.packageCode),
-                  Text(op.itemCode),
-                  Text(op.status == 0 ? '成功' : op.status == 1 ? '未上传' : '失败',
-                    style: TextStyle(color: itemStatus(op.status).color)),
-                ],
-              ),
-              trailing: Icon(Icons.keyboard_arrow_right),
-              contentPadding: EdgeInsets.zero,
-              dense: true,
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => ItemAllocOpDetailsScreen(op)));
-              },
-            );
+            return ItemOpRecordListTile(op, context);
           },
         ),
       ],

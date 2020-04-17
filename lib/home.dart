@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:sorting/service/offline_data_sync.dart';
 import 'screens/screen.dart';
 import 'screens/menu/main_menu.dart';
-import 'screens/settings/settings.dart';
 import 'screens/user/profile.dart';
 
 class Home extends StatefulWidget {
@@ -12,11 +11,10 @@ class Home extends StatefulWidget {
 
 class HomeState extends State<Home> {
   final List<Screen> screens = [
-    SettingsScreen(),
     MainMenu(),
     ProfileScreen(),
   ];
-  int _screenIndex = 1;
+  int _screenIndex = 0;
 
   @override
   void initState() {
@@ -31,10 +29,6 @@ class HomeState extends State<Home> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _screenIndex,
         items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            title: Text('设置'),
-          ),
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             title: Text('首页'),

@@ -7,6 +7,5 @@ void setCurrentUser(UserEntity user) {
 }
 
 UserEntity getCurrentUser() {
-  assert (_currentUser != null);
   return _currentUser;
 }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sorting/dao/database.dart';
 import 'package:sorting/service/offline_data_sync.dart';
+import 'package:sorting/session.dart';
 import '../../screens/settings/about.dart';
 import '../../config.dart';
 import '../screen.dart';
@@ -11,7 +12,7 @@ import '../../api/http_api.dart';
 import '../../widgets/message.dart';
 
 class SettingsScreen extends Screen {
-  SettingsScreen() : super(title: '设置', homeAction: false, addPadding: EdgeInsets.only(top: -8));
+  SettingsScreen({homeAction: true}) : super(title: '设置', homeAction: homeAction, addPadding: EdgeInsets.only(top: -8));
   @override
   State<StatefulWidget> createState() => SettingsScreenState();
 }
@@ -191,32 +192,34 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
             },
           ),
         ),
-        RaisedButton(
-          color: Theme.of(context).primaryColor,
-          textColor: Colors.white,
-          onPressed: () async {
-            Messager.info('上传中');
-            int total = await new OfflineDataSyncService().sync();
-            if (total > 0) {
-              Messager.ok('上传本地数据库完成');
-            } else {
-              Messager.warning('无数据');
-            }
-          },
-          child: Text('上传本地数据库'),
-        ),
-        RaisedButton(
-          color: Colors.redAccent,
-          textColor: Colors.white,
-          onPressed: () {
-            Messager.warning('请长按按钮以确认');
-          },
-          onLongPress: () async {
-            SortingDatabase.clear();
-            Messager.ok('完成');
-          },
-          child: Text('清空本地数据库'),
-        ),
+        if (getCurrentUser() != null)
+          RaisedButton(
+            color: Theme.of(context).primaryColor,
+            textColor: Colors.white,
+            onPressed: () async {
+              Messager.info('上传中');
+              int total = await new OfflineDataSyncService().sync();
+              if (total > 0) {
+                Messager.ok('上传本地数据库完成');
+              } else {
+                Messager.warning('无数据');
+              }
+            },
+            child: Text('上传本地数据库'),
+          ),
+        if (getCurrentUser() != null)
+          RaisedButton(
+            color: Colors.redAccent,
+            textColor: Colors.white,
+            onPressed: () {
+              Messager.warning('请长按按钮以确认');
+            },
+            onLongPress: () async {
+              SortingDatabase.clear();
+              Messager.ok('完成');
+            },
+            child: Text('清空本地数据库'),
+          ),
         RaisedButton(
           onPressed: () {
             push(AboutScreen());

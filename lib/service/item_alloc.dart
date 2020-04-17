@@ -40,19 +40,20 @@ class ItemAllocService {
     if (serverAvailable()) {
       ret = await api.post('/package_item_op/${opType == 1 ? 'add_item' : 'delete_item'}', queryParameters: formData);
       if (ret.isOk) {
-        await (opType == 1 ? _addItem : _delItem)(formData['packageCode'], formData['itemCode']);
+        await (opType == 1 ? _addItem : _delItem)(formData['packageCode'], formData['itemCode'], 0);
       }
     } else {
-      ret = await (opType == 1 ? _addItem : _delItem)(formData['packageCode'], formData['itemCode']);
+      var db = await getDB();
+      if ((await _packageRepo.findById(formData['packageCode'])) == null) {
+        return Result.fail(code: 1, msg: '未查询到集包');
+      }
+      ret = await (opType == 1 ? _addItem : _delItem)(formData['packageCode'], formData['itemCode'], 1);
     }
     return ret;
   }
 
-  Future<Result> _addItem(String packageCode, String itemCode) async {
+  Future<Result> _addItem(String packageCode, String itemCode, int status) async {
     var db = await getDB();
-    if ((await _packageRepo.findById(packageCode)) == null) {
-      return Result.fail(code: 1, msg: '未查询到集包');
-    }
     var packageItemRel = await DBUtils.findOne('package_item_rel', where: 'itemCode = $itemCode', convert: () => PackageItemRelEntity());
     if (packageItemRel != null) {
       if (packageItemRel.packageCode == packageCode) {
@@ -67,7 +68,7 @@ class ItemAllocService {
       rel.itemCode = itemCode;
       rel.operator = getCurrentUser().id;
       rel.createAt = getNowDateTimeString();
-      rel.status = 1;
+      rel.status = status;
       bool ok = await txn.insert('package_item_rel', rel.toJson()) > 0;
       if (!ok) {
         return Result.fail();
@@ -79,12 +80,12 @@ class ItemAllocService {
       op.opType = 1;
       op.opTime = getNowDateTimeString();
       op.operator = getCurrentUser().id;
-      op.status = 1;
+      op.status = status;
       return Result.from(await txn.insert('package_item_op', op.toJson()) > 0);
     });
   }
 
-  Future<Result> _delItem(String packageCode, String itemCode) async {
+  Future<Result> _delItem(String packageCode, String itemCode, int status) async {
     var db = await getDB();
     return await db.transaction((txn) async {
       bool exists = await txn.delete('package_item_rel', where: 'packageCode = "$packageCode" and itemCode = "$itemCode"') > 0;
@@ -98,7 +99,7 @@ class ItemAllocService {
       op.opType = 2;
       op.opTime = getNowDateTimeString();
       op.operator = getCurrentUser().id;
-      op.status = 1;
+      op.status = status;
       return Result.from(await txn.insert('package_item_op', op.toJson()) > 0);
     });
   }

@@ -125,7 +125,8 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
                         return val.length < 6 ? "密码长度错误" : null;
                       },
                       onEditingComplete: () {
-                        FocusScope.of(context).requestFocus(controllers['captcha'].text.isEmpty ? focusNodes['captcha'] : FocusNode());
+                        FocusScope.of(context).requestFocus(
+                            controllers['captcha'].text.isEmpty ? focusNodes['captcha'] : FocusNode());
                       },
                       onSaved: (val) => formData['password'] = val.trim(),
                     ),
@@ -194,7 +195,7 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
               children: [
                 FlatButton(
                   onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(builder: (_) => SettingsScreen()));
+                    Navigator.of(context).push(MaterialPageRoute(builder: (_) => SettingsScreen(homeAction: false)));
                   },
                   child: Text('设置'),
                 ),

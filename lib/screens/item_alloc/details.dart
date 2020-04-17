@@ -47,7 +47,7 @@ class ItemAllocOpDetailsScreenState extends ScreenState<ItemAllocOpDetailsScreen
                   style: TextStyle(color: Colors.blue),
                   recognizer: TapGestureRecognizer()
                     ..onTap = () {
-                      push(PackageDetailsScreen(PackageEntity().fromJson({'code': op.packageCode})));
+                      push(PackageDetailsScreen(PackageEntity().fromJson({'code': op.packageCode, 'status': op.status})));
                     },
                 ),
               ),

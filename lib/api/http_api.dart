@@ -10,7 +10,7 @@ part 'model/result.dart';
 part '../entity/page.dart';
 
 bool serverAvailable() {
-  return false && _available;
+  return _available;
 }
 
 bool _available = false;

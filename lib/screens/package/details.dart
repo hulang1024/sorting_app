@@ -135,12 +135,16 @@ class PackageDetailsScreenState extends ScreenState<PackageDetailsScreen> {
   }
 
   Future<Page> loadPackageItemsData(Map<String, dynamic> queryParams) async {
+    Page page;
     if (serverAvailable()) {
-      Page page = Page.fromMap(await api.get('/item/page', queryParameters: queryParams));
+      page = Page.fromMap(await api.get('/item/page', queryParameters: queryParams));
       page.content = page.content.map((e) => ItemEntity().fromJson(e)).toList();
-      return page;
     } else {
-      return ItemService().queryPage(queryParams);
+      page = await ItemService().queryPage(queryParams);
     }
+    setState(() {
+      itemTotal = page.total;
+    });
+    return page;
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:sorting/screens/settings/settings.dart';
 import '../user/password_modify.dart';
 import '../screen.dart';
 import '../../login.dart';
@@ -45,23 +46,29 @@ class ProfileScreenState extends ScreenState<ProfileScreen> {
           Container(width: 80, child: Text('注册时间')),
           Text(user['createAt'] ?? ''),
         ]),
-        Container(
-          margin: EdgeInsets.only(top: 120),
-          child: RaisedButton(
-            color: Colors.orange,
-            textColor: Colors.white,
-            onPressed: () {
-              push(PasswordModifyScreen());
-            },
-            child: Text('修改密码'),
-          ),
+        Padding(padding: EdgeInsets.only(top: 90)),
+        RaisedButton(
+          color: Colors.orange,
+          textColor: Colors.white,
+          onPressed: () {
+            push(PasswordModifyScreen());
+          },
+          child: Text('修改密码'),
         ),
         RaisedButton(
+          color: Colors.redAccent,
+          textColor: Colors.white,
           onPressed: () {
             Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => Login()));
             api.post('/user/logout');
           },
-          child: Text('退出当前用户'),
+          child: Text('退出用户'),
+        ),
+        RaisedButton(
+          onPressed: () {
+            push(SettingsScreen());
+          },
+          child: Text('应用设置'),
         ),
       ],
     );

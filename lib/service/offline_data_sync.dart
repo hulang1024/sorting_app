@@ -62,8 +62,8 @@ class OfflineDataSyncService {
     do {
       ++pageNo;
       rows = await db.rawQuery('''
-        select r.* from package p inner join package_item_rel r on(p.code=r.packageCode)
-        where p.status = 0 and r.status = 1
+        select r.* from package_item_rel r
+        where r.status = 1
         limit ${(pageNo - 1) * PAGE_SIZE}, $PAGE_SIZE
       ''');
       if (rows.isEmpty) {
