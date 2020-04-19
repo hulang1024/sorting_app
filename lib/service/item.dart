@@ -12,7 +12,8 @@ class ItemService {
       where.add('operator = ${getCurrentUser().id}');
     }
     where.add('packageCode = "${queryParams['packageCode']}"');
-    return DBUtils.fetchPage('package_item_rel', queryParams,
+    return DBUtils.fetchPage('package_item_rel',
+      pageParams: queryParams,
       columns: ['itemCode code', 'status'],
       where: where,
       orderBy: 'strftime("%s", createAt) desc',

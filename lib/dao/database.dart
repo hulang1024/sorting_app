@@ -20,9 +20,15 @@ class SortingDatabase {
             `createAt`        char(19)                  not null,
             `operator`        int                       not null,
             `status`          int                       not null,
-            `lastUpdate`      char(19),
-            `deleteAt`        char(19),
-            `deleteOperator`  int
+            `lastUpdate`      char(19)
+          );
+        ''');
+        await db.execute('''
+          create table if not exists `package_delete_op`(
+            `code`            char(10)   primary key    not null,
+            `operator`        int                       not null,
+            `deleteAt`        char(19)                  not null,
+            `status`          int                       not null
           );
         ''');
         await db.execute(''' 

@@ -216,7 +216,7 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
             },
             onLongPress: () async {
               SortingDatabase.clear();
-              Messager.ok('完成');
+              Messager.ok('已清空本地数据库');
             },
             child: Text('清空本地数据库'),
           ),

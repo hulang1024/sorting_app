@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sorting/entity/package_item_op_entity.dart';
-import 'package:sorting/screens/item/list_tile.dart';
+import 'package:sorting/widgets/status.dart';
 
 import 'details.dart';
 
@@ -23,7 +23,7 @@ class ItemOpRecordListTile extends ListTile {
             ),
             Padding(padding: EdgeInsets.only(left: 2),),
             Text(op.status == 0 ? '已成功' : op.status == 1 ? '未上传' : '已失败',
-                style: TextStyle(color: itemStatus(op.status).color)),
+                style: TextStyle(color: itemAllocStatus(op.status).color)),
             ]
         ),
       ],
@@ -36,3 +36,13 @@ class ItemOpRecordListTile extends ListTile {
     },
   );
 }
+
+Status itemAllocStatus(code) => [
+  Status(text: '已上传成功', color: Colors.green),
+  Status(text: '未上传到服务器', color: Colors.orange),
+  Status(text: '快件编号有误', color: Colors.red),
+  Status(text: '不存在快件', color: Colors.red),
+  Status(text: '快件早已加到其它集包', color: Colors.red),
+  Status(text: '不存在集包', color: Colors.red),
+  Status(text: '快件和集包的目的地编号不相同', color: Colors.red),
+][code];

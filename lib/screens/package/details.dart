@@ -8,6 +8,7 @@ import '../screen.dart';
 import '../../widgets/data_list.dart';
 import '../item/list_tile.dart';
 import '../../api/http_api.dart';
+import 'delete.dart';
 import 'list_tile.dart';
 
 class PackageDetailsScreen extends Screen {
@@ -20,23 +21,22 @@ class PackageDetailsScreen extends Screen {
 }
 
 class PackageDetailsScreenState extends ScreenState<PackageDetailsScreen> {
+  String code;
   Map<String, dynamic> details = {
     'package': null,
-    'destAddress': {},
-    'creator': {},
-    'deleteOperator': {},
-    'items': [],
+    'destAddress': null,
+    'creator': null,
+    'deleteInfo': null,
   };
   int itemTotal = 0;
 
   @override
   void initState() {
     super.initState();
+    code = widget.package.code;
     details['package'] = widget.package;
-    var package = widget.package;
-
     (() async {
-      details = await PackageService().details(package);
+      details = await PackageService().details(widget.package);
       setState(() {});
     })();
   }
@@ -46,7 +46,7 @@ class PackageDetailsScreenState extends ScreenState<PackageDetailsScreen> {
     PackageEntity package = details['package'];
     var destAddress = details['destAddress'];
     var creator = details['creator'];
-    var deleteOperator = details['deleteOperator'];
+    var deleteInfo = details['deleteInfo'];
 
     return ListView(
       children: [
@@ -54,17 +54,18 @@ class PackageDetailsScreenState extends ScreenState<PackageDetailsScreen> {
           children: [
             Row(children: [
               Container(width: 90, child: Text('集包编号')),
-              Text(package.code ?? ''),
+              Text(package?.code ?? code),
             ]),
             if (destAddress != null)
               Row(children: [
                 Container(width: 90, child: Text('目的地')),
                 Container(width: 200, child: Text(destAddress['address'] ?? '')),
               ]),
-            Row(children: [
-              Container(width: 90, child: Text('目的地编号')),
-              Text(package.destCode ?? ''),
-            ]),
+            if (package != null)
+              Row(children: [
+                Container(width: 90, child: Text('目的地编号')),
+                Text(package?.destCode ?? ''),
+              ]),
             if (creator != null) ...[
               Row(children: [
                 Container(width: 90, child: Text('创建者')),
@@ -73,35 +74,40 @@ class PackageDetailsScreenState extends ScreenState<PackageDetailsScreen> {
               ]),
               Row(children: [
                 Container(width: 90, child: Text('创建时间')),
-                Text(package.createAt ?? ''),
+                Text(package?.createAt ?? ''),
               ]),
             ],
-            if (package.status != null)
+            if (package?.status != null)
               Row(children: [
                 Container(width: 90, child: Text('数据状态')),
                 Text(packageStatus(package.status).text,
                   style: TextStyle(color: package.status == 0 ? Colors.green : packageStatus(package.status).color),
                 ),
               ]),
-            if (package.lastUpdate != null)
+            if (package?.lastUpdate != null)
               Row(children: [
                 Container(width: 90, child: Text('更新时间')),
                 Text(package.lastUpdate),
               ]),
-            if (package.deleteAt != null && deleteOperator != null) ...[
+            if (deleteInfo != null) ...[
               Row(children: [
                 Container(width: 90, child: Text('删除者')),
-                Text(deleteOperator['name'] ?? '-'),
-                Text('(手机号:${deleteOperator['phone'] ?? '-'})'),
+                Text(deleteInfo['operatorInfo']['name'] ?? '-'),
+                Text('(手机号:${deleteInfo['operatorInfo']['phone'] ?? '-'})'),
               ]),
               Row(children: [
                 Container(width: 90, child: Text('删除时间')),
-                Text(package.deleteAt),
+                Text(deleteInfo['deleteAt']),
+              ]),
+              Row(children: [
+                Container(width: 90, child: Text('操作状态')),
+                Text(deleteOpStatus(deleteInfo['status']).text,
+                  style: TextStyle(color: deleteOpStatus(deleteInfo['status']).color),),
               ]),
             ],
           ],
         ),
-        if (package.deleteAt == null) packageItemsView(package),
+        if (package != null && package.status != 4) packageItemsView(package),
       ],
     );
   }

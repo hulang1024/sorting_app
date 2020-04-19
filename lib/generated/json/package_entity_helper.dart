@@ -22,12 +22,6 @@ packageEntityFromJson(PackageEntity data, Map<String, dynamic> json) {
 	if (json['lastUpdate'] != null) {
 		data.lastUpdate = json['lastUpdate']?.toString();
 	}
-	if (json['deleteAt'] != null) {
-		data.deleteAt = json['deleteAt']?.toString();
-	}
-	if (json['deleteOperator'] != null) {
-		data.deleteOperator = json['deleteOperator']?.toInt();
-	}
 	return data;
 }
 
@@ -40,7 +34,5 @@ Map<String, dynamic> packageEntityToJson(PackageEntity entity) {
 	data['operator'] = entity.operator;
 	data['status'] = entity.status;
 	data['lastUpdate'] = entity.lastUpdate;
-	data['deleteAt'] = entity.deleteAt;
-	data['deleteOperator'] = entity.deleteOperator;
 	return data;
 }

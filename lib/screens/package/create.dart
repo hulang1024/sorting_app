@@ -76,7 +76,6 @@ class PackageCreateScreenState extends ScreenState<PackageCreateScreen> {
           key: packageListViewKey,
           height: 224,
           loadData: loadData,
-          queryParams: {'fromAll': '1'},
           noDataText: '没有集包创建记录',
           rowBuilder: (package, [index, context]) {
             return PackageListTile(package, context);
@@ -109,6 +108,7 @@ class PackageCreateScreenState extends ScreenState<PackageCreateScreen> {
   }
 
   Future<Page> loadData(Map<String, dynamic> queryParams) {
+    queryParams['fromAll'] = '1';
     return PackageService().queryPage(queryParams);
   }
 
@@ -137,7 +137,7 @@ class PackageCreateScreenState extends ScreenState<PackageCreateScreen> {
 
     Result result = await PackageService().add(
       formData,
-      (widget.smartCreate ? {'smartCreate': widget.smartCreate, 'allocItemNumMax': 10} as Map<String, dynamic> : null),
+      (widget.smartCreate ? {'smartCreate': widget.smartCreate, 'allocItemNumMax': 10} : null),
     );
     if (result.isOk) {
       Messager.ok('创建集包成功');

@@ -59,8 +59,8 @@ class ItemDetailsScreenState extends ScreenState<ItemDetailsScreen> {
             ]),
             Row(children: [
               Container(width: 90, child: Text('分配状态')),
-              Text(itemAllocStatus(item.packTime != null).text,
-                style: TextStyle(color: itemAllocStatus(item.packTime != null).color),
+              Text(itemStatus(item.packTime != null).text,
+                style: TextStyle(color: itemStatus(item.packTime != null).color),
               ),
             ]),
             if (item.packTime != null) ...[

@@ -18,7 +18,8 @@ class ItemAllocService {
     if (queryParams['opType'] != null) {
       where.add('opType = ${queryParams['opType']}');
     }
-    return DBUtils.fetchPage('package_item_op', queryParams,
+    return DBUtils.fetchPage('package_item_op',
+      pageParams: queryParams,
       where: where,
       orderBy: 'strftime("%s", opTime) desc',
       convert: () => PackageItemOpEntity());
@@ -43,9 +44,11 @@ class ItemAllocService {
         await (opType == 1 ? _addItem : _delItem)(formData['packageCode'], formData['itemCode'], 0);
       }
     } else {
-      var db = await getDB();
-      if ((await _packageRepo.findById(formData['packageCode'])) == null) {
+      var package = await _packageRepo.findById(formData['packageCode']);
+      if (package == null) {
         return Result.fail(code: 1, msg: '未查询到集包');
+      } else if (package.status == 4) {
+        return Result.fail(code: 2, msg: '该集包已删除');
       }
       ret = await (opType == 1 ? _addItem : _delItem)(formData['packageCode'], formData['itemCode'], 1);
     }

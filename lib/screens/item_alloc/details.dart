@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:sorting/entity/package_entity.dart';
 import 'package:sorting/entity/package_item_op_entity.dart';
-import 'package:sorting/screens/item/list_tile.dart';
 import 'package:sorting/service/item_alloc.dart';
 import '../package/details.dart';
 import '../screen.dart';
+import 'list_tile.dart';
 
 class ItemAllocOpDetailsScreen extends Screen {
   ItemAllocOpDetailsScreen(this.op) : super(title: '集包${op.opType == 1 ? '增件' : '减件'}详情');
@@ -67,8 +67,8 @@ class ItemAllocOpDetailsScreenState extends ScreenState<ItemAllocOpDetailsScreen
             ]),
             Row(children: [
               Container(width: 90, child: Text('数据状态')),
-              Text(itemStatus(op.status).text,
-                style: TextStyle(color: op.status == 0 ? Colors.green : itemStatus(op.status).color),
+              Text(itemAllocStatus(op.status).text,
+                style: TextStyle(color: op.status == 0 ? Colors.green : itemAllocStatus(op.status).color),
               ),
             ]),
           ],

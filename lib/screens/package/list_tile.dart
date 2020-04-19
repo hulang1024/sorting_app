@@ -26,9 +26,9 @@ class PackageListTile extends ListTile {
   );
 }
 Status packageStatus(code) => [
-  Status(text: '已上传成功', color: Colors.black87),
+  Status(text: '创建成功', color: Colors.black87),
   Status(text: '未上传到服务器', color: Colors.orange),
-  Status(text: '上传失败，已存在相同编号', color: Colors.red),
-  Status(text: '上传失败，未查询到目的地编号', color: Colors.red),
-  Status(text: '已删除', color: Colors.black87),
+  Status(text: '创建上传失败，已存在相同编号', color: Colors.red),
+  Status(text: '创建上传失败，未查询到目的地编号', color: Colors.red),
+  Status(text: '已删除', color: Colors.red),
 ][code];

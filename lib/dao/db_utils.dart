@@ -18,14 +18,16 @@ class DBUtils {
     var db = await getDB();
     List<Map<String, dynamic>> result = await db.query(table,
       columns: columns,
-        where: where is List ? (where.isNotEmpty ? where.join(' and ') : null) : where,
+      where: where is List ? (where.isNotEmpty ? where.join(' and ') : null) : where,
       whereArgs: whereArgs,
     );
-    return result.length > 0 ? convert().fromJson(result[0]) : null;
+    return result.length > 0 ? (convert != null ? convert().fromJson(result[0]) : result[0]) : null;
   }
 
-  static Future<Page> fetchPage(String table, Map<String, dynamic> pageParams,
-      {bool distinct,
+  static Future<Page> fetchPage(String table,
+      {
+        Map<String, dynamic> pageParams,
+        bool distinct,
         List<String> columns,
         where,
         List<dynamic> whereArgs,
@@ -60,7 +62,7 @@ class DBUtils {
       orderBy: orderBy,
       offset: (pageNo - 1) * size,
       limit: size,);
-    return Page(content: result.map((e) => convert().fromJson(e)).toList(), total: total);
+    return Page(content: convert != null ? result.map((e) => convert().fromJson(e)).toList() : result, total: total);
   }
 }
 

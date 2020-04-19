@@ -3,11 +3,11 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 class Messager {
   static Future ok(msg) {
-    return _showMsg(msg, Colors.green);
+    return _showMsg(msg, Colors.lightGreen);
   }
 
   static Future info(msg) {
-    return _showMsg(msg, Colors.black87);
+    return _showMsg(msg, Colors.white);
   }
 
   static Future warning(msg) {
@@ -24,7 +24,7 @@ class Messager {
       gravity: ToastGravity.TOP,
       textColor: textColor,
       fontSize: 16,
-      backgroundColor: Color.fromRGBO(240, 240, 240, 1),
+      backgroundColor: Color.fromRGBO(0, 0, 0, 0.7),
     );
   }
 }
