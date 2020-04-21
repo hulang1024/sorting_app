@@ -46,7 +46,6 @@ class RegisterScreenState extends ScreenState<RegisterScreen> {
                 autofocus: true,
                 maxLength: 11,
                 decoration: InputDecoration(
-                  icon: Icon(Icons.person),
                   labelText: '姓名',
                   counterText: '',
                 ),
@@ -64,7 +63,6 @@ class RegisterScreenState extends ScreenState<RegisterScreen> {
                 maxLength: 11,
                 inputFormatters: [WhitelistingTextInputFormatter.digitsOnly],
                 decoration: InputDecoration(
-                  icon: Icon(Icons.smartphone),
                   labelText: '手机号',
                   helperText: '手机号可用作登录用户名',
                   counterText: '',
@@ -83,7 +81,6 @@ class RegisterScreenState extends ScreenState<RegisterScreen> {
                 focusNode: focusNodes['code'],
                 readOnly: true,
                 decoration: InputDecoration(
-                  icon: Icon(Icons.credit_card),
                   labelText: '编号',
                   helperText: '编号也可用作登录用户名',
                 ),
@@ -96,7 +93,6 @@ class RegisterScreenState extends ScreenState<RegisterScreen> {
                 focusNode: focusNodes['password'],
                 maxLength: 20,
                 decoration: InputDecoration(
-                  icon: Icon(Icons.lock),
                   labelText: '密码',
                   counterText: '',
                 ),

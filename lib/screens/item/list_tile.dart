@@ -16,8 +16,8 @@ class ItemListTile extends ListTile {
               : null,
         ),
         if (item.status != null)
-          Text(itemStatus(item.status).text,
-            style: TextStyle(color: itemStatus(item.status).color, fontSize: 12),
+          Text(itemStatus(item.packTime != null).text,
+            style: TextStyle(color: itemStatus(item.packTime != null).color, fontSize: 12),
           ),
         if (verbose && item.destAddress != null)
           Text(item.destAddress, style: TextStyle(fontSize: 14)),

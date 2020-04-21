@@ -7,7 +7,7 @@ import '../package/delete.dart';
 import '../package/search.dart';
 
 class MainMenu extends Screen {
-  MainMenu() : super(title: '首页', homeAction: false, addPadding: EdgeInsets.all(-8));
+  MainMenu() : super(title: '首页', homeAction: false);
 
   @override
   State<StatefulWidget> createState() => MainMenuState();
@@ -17,59 +17,63 @@ class MainMenuState extends ScreenState<MainMenu> {
   @override
   Widget render(BuildContext context) {
     return Container(
-      color: Color.fromRGBO(210, 210, 210, 0.4),
-      padding: EdgeInsets.fromLTRB(8, 8, 8, 8),
-      child: GridView(
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          childAspectRatio: 1.44,
-          mainAxisSpacing: 8.0,
-          crossAxisSpacing: 8.0,
-        ),
+      padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+      child: GridView.count(
+        crossAxisCount: 2,
+        mainAxisSpacing: 4,
+        crossAxisSpacing: 4,
+        childAspectRatio: 1.43,
         children: [
           _functionButton(
             icon: Icons.add_box,
-            iconColor: Colors.blueAccent,
+            color: Colors.blueAccent,
             text: '智能建包',
+            context: context,
             onPressed: () {
               push(PackageCreateScreen(smartCreate: true));
             },
           ),
           _functionButton(
             icon: Icons.add_box,
-            iconColor: Colors.blueAccent,
+            color: Colors.blueAccent,
             text: '手动建包',
+            context: context,
             onPressed: () {
               push(PackageCreateScreen());
             },
           ),
           _functionButton(
             icon: Icons.delete_forever,
-            iconColor: Colors.redAccent,
+            color: Colors.redAccent,
             text: '删除集包',
+            context: context,
             onPressed: () {
               push(PackageDeleteScreen());
             },
           ),
           _functionButton(
             icon: Icons.edit,
+            color: Colors.orangeAccent,
             text: '加包减包',
+            context: context,
             onPressed: () {
               push(PackageItemAllocOpTypeScreen());
             },
           ),
           _functionButton(
             icon: Icons.find_in_page,
-            iconColor: Colors.green,
+            color: Colors.green,
             text: '查询集包',
+            context: context,
             onPressed: () {
               push(PackageSearchScreen());
             },
           ),
           _functionButton(
             icon: Icons.find_in_page,
-            iconColor: Colors.green,
+            color: Colors.green,
             text: '查询快件',
+            context: context,
             onPressed: () {
               push(ItemSearchScreen());
             },
@@ -82,21 +86,26 @@ class MainMenuState extends ScreenState<MainMenu> {
 
   Widget _functionButton({
     @required IconData icon,
-    Color iconColor,
+    @required Color color,
     @required String text,
+    @required BuildContext context,
     @required VoidCallback onPressed,
   }) {
-    return RaisedButton(
-      elevation: 0.5,
-      color: Colors.white,
+    return Card(
+      margin: EdgeInsets.all(2),
+      elevation: 2,
+      color: color,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(4))),
-      onPressed: onPressed,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, color: iconColor ?? Colors.orangeAccent, size: 26),
-          Text(text, style: TextStyle(fontSize: 16, color: Colors.black87)),
-        ],
+      child: InkWell(
+        onTap: onPressed,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: Colors.white, size: 34),
+            Padding(padding: EdgeInsets.symmetric(vertical: 4),),
+            Text(text, style: TextStyle(fontSize: 14.5, color: Colors.white.withOpacity(0.9))),
+          ],
+        ),
       ),
     );
   }

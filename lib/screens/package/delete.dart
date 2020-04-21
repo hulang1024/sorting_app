@@ -82,7 +82,7 @@ class PackageDeleteScreenState extends ScreenState<PackageDeleteScreen> {
 
 Status deleteOpStatus(code) => [
   Status(text: '删除成功', color: Colors.green),
-  Status(text: '未上传', color: Colors.orange),
+  Status(text: '等待上传', color: Colors.orange),
   Status(text: '删除失败，集包包含快件', color: Colors.red),
   Status(text: '删除失败，集包不存在', color: Colors.red),
 ][code];

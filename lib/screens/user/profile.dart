@@ -68,7 +68,12 @@ class ProfileScreenState extends ScreenState<ProfileScreen> {
           onPressed: () {
             push(SettingsScreen());
           },
-          child: Text('应用设置'),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.settings, size: 16,),
+              Text('设置')
+            ]),
         ),
       ],
     );

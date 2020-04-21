@@ -36,7 +36,12 @@ abstract class ScreenState<T extends Screen> extends State<T> {
     return Scaffold(
       appBar: AppBar(
         title: Text(_title),
-        centerTitle: true,
+        elevation: 0,
+        backgroundColor: Theme.of(context).canvasColor,
+        iconTheme: Theme.of(context).iconTheme.copyWith(color: Colors.black87),
+        textTheme: Theme.of(context).textTheme.copyWith(
+          title: TextStyle(color: Colors.black87, fontSize: 20, fontWeight: FontWeight.bold),
+        ),
         actions: !widget.homeAction
             ? null
             : [

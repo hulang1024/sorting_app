@@ -69,7 +69,7 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
           children: [
             Center(
               child: Text(
-                '分拣系统终端',
+                '欢迎登陆',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -81,7 +81,7 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
               child: Column(
                 children: [
                   Padding(
-                    padding: EdgeInsets.only(top: 0),
+                    padding: EdgeInsets.only(top: 8),
                     child: TextFormField(
                       controller: controllers['username'],
                       focusNode: focusNodes['username'],
@@ -89,10 +89,7 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
                       autofocus: true,
                       maxLength: 11,
                       decoration: InputDecoration(
-                        icon: Icon(Icons.account_circle),
-                        labelText: '用户名',
-                        labelStyle: TextStyle(letterSpacing: 0),
-                        hintText: '手机号/编号',
+                        hintText: '请输入手机号/编号',
                         counterText: '',
                       ),
                       style: TextStyle(letterSpacing: 2),
@@ -114,9 +111,7 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
                       autofocus: true,
                       maxLength: 20,
                       decoration: InputDecoration(
-                        icon: Icon(Icons.lock),
-                        labelText: '密码',
-                        labelStyle: TextStyle(letterSpacing: 0),
+                        hintText: '密码',
                         counterText: '',
                       ),
                       obscureText: true,
@@ -143,9 +138,7 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
                           maxLength: 4,
                           inputFormatters: [WhitelistingTextInputFormatter.digitsOnly],
                           decoration: InputDecoration(
-                            icon: Icon(Icons.security),
-                            labelText: '验证码',
-                            labelStyle: TextStyle(letterSpacing: 0),
+                            hintText: '验证码',
                             counterText: '',
                           ),
                           style: TextStyle(letterSpacing: 2),
@@ -176,7 +169,7 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
               ),
             ),
             Container(
-              margin: EdgeInsets.fromLTRB(0, 32, 0, 8),
+              margin: EdgeInsets.fromLTRB(0, 40, 0, 8),
               child: SizedBox(
                 width: double.infinity,
                 height: 46,
@@ -190,14 +183,14 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
               ),
             ),
             ButtonBar(
-              alignment: MainAxisAlignment.spaceEvenly,
+              alignment: MainAxisAlignment.spaceBetween,
               buttonPadding: EdgeInsets.symmetric(horizontal: 0),
               children: [
                 FlatButton(
                   onPressed: () {
                     Navigator.of(context).push(MaterialPageRoute(builder: (_) => SettingsScreen(homeAction: false)));
                   },
-                  child: Text('设置'),
+                  child: Text('应用设置'),
                 ),
                 FlatButton(
                   onPressed: () {
@@ -209,7 +202,7 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
                   onPressed: () {
                     Navigator.of(context).push(MaterialPageRoute(builder: (_) => RegisterScreen()));
                   },
-                  child: Text('注册'),
+                  child: Text('用户注册'),
                 ),
               ],
             ),

@@ -1,4 +1,4 @@
-import 'package:quiver/strings.dart';
+﻿import 'package:quiver/strings.dart';
 import 'package:sorting/api/http_api.dart';
 import 'package:sorting/dao/db_utils.dart';
 import 'package:sorting/dao/package.dart';
@@ -115,9 +115,8 @@ class PackageService {
       if ([0, 1].contains(oldPackage.status)) {
         return Result.fail(code: 2, msg: '集包已存在');
       } else {
-        // 状态为上传失败时，实际为修改
         bool ok = await db.update('package',
-          {'status': 1, 'destCode': package['destCode'], 'lastUpdate': getNowDateTimeString()},
+          {'status': package['status'], 'destCode': package['destCode'], 'lastUpdate': getNowDateTimeString()},
           where: 'code = "${package['code']}"',
         ) > 0;
         return Result.from(ok);

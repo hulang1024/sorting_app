@@ -28,13 +28,18 @@ class HomeState extends State<Home> {
       body: screens[_screenIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _screenIndex,
+        elevation: 4,
+        backgroundColor: Colors.white,
+        selectedFontSize: 12,
+        unselectedFontSize: 12,
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             title: Text('首页'),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
+            icon: Icon(Icons.person_outline),
+            activeIcon: Icon(Icons.person),
             title: Text('我的'),
           ),
         ],
