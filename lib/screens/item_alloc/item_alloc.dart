@@ -55,13 +55,13 @@ class PackageItemAllocScreenState extends ScreenState<PackageItemAllocScreen> {
           margin: EdgeInsets.only(top: 8),
           child:
             RaisedButton(
-              color: Theme.of(context).primaryColor,
+              color: widget.opType == 1 ? Colors.blueAccent : Colors.redAccent,
               textColor: Colors.white,
               onPressed: () {
                 FocusScope.of(context).requestFocus(FocusNode());
                 submit();
               },
-              child: Text('确定'),
+              child: Text(widget.opType == 1 ? '加件' : '减件'),
             ),
         ),
         DataListView(

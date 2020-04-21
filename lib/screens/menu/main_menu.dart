@@ -22,13 +22,12 @@ class MainMenuState extends ScreenState<MainMenu> {
         crossAxisCount: 2,
         mainAxisSpacing: 4,
         crossAxisSpacing: 4,
-        childAspectRatio: 1.43,
+        childAspectRatio: 1.41,
         children: [
           _functionButton(
             icon: Icons.add_box,
             color: Colors.blueAccent,
             text: '智能建包',
-            context: context,
             onPressed: () {
               push(PackageCreateScreen(smartCreate: true));
             },
@@ -37,7 +36,6 @@ class MainMenuState extends ScreenState<MainMenu> {
             icon: Icons.add_box,
             color: Colors.blueAccent,
             text: '手动建包',
-            context: context,
             onPressed: () {
               push(PackageCreateScreen());
             },
@@ -46,7 +44,6 @@ class MainMenuState extends ScreenState<MainMenu> {
             icon: Icons.delete_forever,
             color: Colors.redAccent,
             text: '删除集包',
-            context: context,
             onPressed: () {
               push(PackageDeleteScreen());
             },
@@ -55,7 +52,6 @@ class MainMenuState extends ScreenState<MainMenu> {
             icon: Icons.edit,
             color: Colors.orangeAccent,
             text: '加包减包',
-            context: context,
             onPressed: () {
               push(PackageItemAllocOpTypeScreen());
             },
@@ -64,7 +60,6 @@ class MainMenuState extends ScreenState<MainMenu> {
             icon: Icons.find_in_page,
             color: Colors.green,
             text: '查询集包',
-            context: context,
             onPressed: () {
               push(PackageSearchScreen());
             },
@@ -73,7 +68,6 @@ class MainMenuState extends ScreenState<MainMenu> {
             icon: Icons.find_in_page,
             color: Colors.green,
             text: '查询快件',
-            context: context,
             onPressed: () {
               push(ItemSearchScreen());
             },
@@ -88,12 +82,11 @@ class MainMenuState extends ScreenState<MainMenu> {
     @required IconData icon,
     @required Color color,
     @required String text,
-    @required BuildContext context,
     @required VoidCallback onPressed,
   }) {
     return Card(
       margin: EdgeInsets.all(2),
-      elevation: 2,
+      elevation: 1.5,
       color: color,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(4))),
       child: InkWell(

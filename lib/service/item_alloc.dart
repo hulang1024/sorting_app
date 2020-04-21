@@ -45,9 +45,7 @@ class ItemAllocService {
       }
     } else {
       var package = await _packageRepo.findById(formData['packageCode']);
-      if (package == null) {
-        return Result.fail(code: 1, msg: '未查询到集包');
-      } else if (package.status == 4) {
+      if (package?.status == 4) {
         return Result.fail(code: 2, msg: '该集包已删除');
       }
       ret = await (opType == 1 ? _addItem : _delItem)(formData['packageCode'], formData['itemCode'], 1);
@@ -91,10 +89,7 @@ class ItemAllocService {
   Future<Result> _delItem(String packageCode, String itemCode, int status) async {
     var db = await getDB();
     return await db.transaction((txn) async {
-      bool exists = await txn.delete('package_item_rel', where: 'packageCode = "$packageCode" and itemCode = "$itemCode"') > 0;
-      if (!exists) {
-        return Result.fail(code: 5, msg: '集包未加快件');
-      }
+      await txn.delete('package_item_rel', where: 'packageCode = "$packageCode" and itemCode = "$itemCode"');
 
       PackageItemOpEntity op = PackageItemOpEntity();
       op.packageCode = packageCode;

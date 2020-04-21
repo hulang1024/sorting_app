@@ -61,7 +61,7 @@ class _TypeButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: Material(
-        elevation: 2,
+        elevation: 1.5,
         borderRadius: BorderRadius.all(Radius.circular(4)),
         color: color,
         child: InkWell(

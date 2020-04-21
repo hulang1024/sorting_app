@@ -172,7 +172,7 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
               margin: EdgeInsets.fromLTRB(0, 40, 0, 8),
               child: SizedBox(
                 width: double.infinity,
-                height: 46,
+                height: 44,
                 child: RaisedButton(
                   color: Theme.of(context).primaryColor,
                   textColor: Colors.white,

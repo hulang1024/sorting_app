@@ -8,6 +8,9 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
+        buttonTheme: Theme.of(context).buttonTheme.copyWith(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(4))),
+        ),
         primarySwatch: Colors.blue,
         primaryColor: Colors.blueAccent,
       ),
