@@ -76,13 +76,13 @@ class HttpApi {
       onError: (DioError e) {
         if (e.type == DioErrorType.CONNECT_TIMEOUT) {
           Messager.error('连接服务器超时，请重试');
-          // 标记网络为不可用状态
-          _available = false;
         } else if (e.response?.statusCode == 401) {
           Messager.warning('登录状态失效，请重新登录');
         } else {
           Messager.error(e.message);
         }
+        // 标记网络为不可用状态
+        _available = false;
       },
     ));
     _dio.interceptors.add(CookieManager(CookieJar()));
