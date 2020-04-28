@@ -169,10 +169,10 @@ class DataListViewState extends State<DataListView> {
         if (widget.convert != null) {
           page.content = page.content.map((e) => widget.convert().fromJson(e)).toList();
         }
+        load(page);
         if (widget.onData != null) {
           widget.onData(page);
         }
-        load(page);
       }).catchError((_) {
         setState(() {
           _loading = false;

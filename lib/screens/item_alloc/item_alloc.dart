@@ -36,6 +36,7 @@ class PackageItemAllocScreenState extends ScreenState<PackageItemAllocScreen> {
           children: [
             CodeInput(
               key: codeInputKeys['packageCode'],
+              focusNode: focusNodes['packageCode'],
               labelText: '集包编号',
               onDone: (code) {
                 FocusScope.of(context).requestFocus(focusNodes['itemCode']);

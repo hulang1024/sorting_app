@@ -39,7 +39,7 @@ class PackageSearchScreenState extends ScreenState<PackageSearchScreen> {
           },
           onData: (Page page) {
             if (page.content.length == 1) {
-              push(PackageDetailsScreen(page.content[0].code));
+              push(PackageDetailsScreen(page.content[0]));
             }
           },
         ),

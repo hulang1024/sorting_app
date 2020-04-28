@@ -19,17 +19,20 @@ typedef CodeInputDoneCallback = void Function(String);
 
 class CodeInputState extends State<CodeInput> {
   TextEditingController controller = TextEditingController();
-  static const messageChannel = const BasicMessageChannel('sorting/scan', StandardMessageCodec());
   FocusNode focusNode;
+  static const _messageChannel = const BasicMessageChannel('sorting/scan', StandardMessageCodec());
 
   @override
   void initState() {
     super.initState();
-    focusNode = widget.focusNode ?? FocusNode();
 
-    messageChannel.setMessageHandler((result) async {
-      if (widget.focusNode.hasFocus) {
-        controller.text = result;
+    focusNode = widget.focusNode ?? FocusNode();
+    focusNode.addListener(() {
+      if (focusNode.hasFocus) {
+        _messageChannel.setMessageHandler((result) async {
+          controller.text = result;
+          widget.onDone(controller.text);
+        });
       }
     });
   }
@@ -41,8 +44,7 @@ class CodeInputState extends State<CodeInput> {
       focusNode: focusNode,
       autofocus: widget.autofocus,
       keyboardType: TextInputType.number,
-      maxLength: 10,
-      inputFormatters: [WhitelistingTextInputFormatter.digitsOnly],
+      maxLength: 20,
       decoration: InputDecoration(
         labelText: widget.labelText,
         labelStyle: TextStyle(fontWeight: FontWeight.normal, letterSpacing: 0),
