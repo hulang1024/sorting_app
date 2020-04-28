@@ -19,17 +19,26 @@ typedef CodeInputDoneCallback = void Function(String);
 
 class CodeInputState extends State<CodeInput> {
   TextEditingController controller = TextEditingController();
+  static const messageChannel = const BasicMessageChannel('sorting/scan', StandardMessageCodec());
+  FocusNode focusNode;
 
   @override
   void initState() {
     super.initState();
+    focusNode = widget.focusNode ?? FocusNode();
+
+    messageChannel.setMessageHandler((result) async {
+      if (widget.focusNode.hasFocus) {
+        controller.text = result;
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return TextField(
       controller: controller,
-      focusNode: widget.focusNode ?? FocusNode(),
+      focusNode: focusNode,
       autofocus: widget.autofocus,
       keyboardType: TextInputType.number,
       maxLength: 10,
