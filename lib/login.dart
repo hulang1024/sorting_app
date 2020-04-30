@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dio/dio.dart';
 import 'package:sorting/entity/user_entity.dart';
+import 'package:sorting/screens/settings/general.dart';
 import 'package:sorting/session.dart';
 import 'config.dart';
 import 'screens/settings/version.dart';
@@ -40,12 +41,12 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
         focusNodes['username'].nextFocus();
       }
 
-      if (await prepareHTTPAPI()) {
+      if (await api.prepare()) {
         VersionManager.checkUpdate();
         flushCaptcha();
       } else {
         Messager.warning('请先进行初始设置');
-        Navigator.of(context).push(MaterialPageRoute(builder: (_) => SettingsScreen()));
+        Navigator.of(context).push(MaterialPageRoute(builder: (_) => GeneralSettingsScreen()));
       }
     })();
   }
@@ -54,7 +55,7 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
   void deactivate() async {
     super.deactivate();
     if (ModalRoute.of(context).isCurrent) {
-      if(await prepareHTTPAPI()) {
+      if(await api.prepare()) {
         flushCaptcha();
       }
     }
@@ -214,7 +215,7 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
 
 
   void onCaptchaPressed() async {
-    if(await prepareHTTPAPI()) {
+    if(await api.prepare()) {
       await flushCaptcha();
       FocusScope.of(context).requestFocus(focusNodes['captcha']);
       controllers['captcha'].text = '';
@@ -240,7 +241,7 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
   }
 
   void onLoginPressed() async {
-    if(!await prepareHTTPAPI()) {
+    if(!await api.prepare()) {
       Messager.warning('无法登陆，请先设置服务器');
       return;
     }

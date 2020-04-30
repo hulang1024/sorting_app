@@ -14,13 +14,14 @@ class OfflineDataSyncService {
 
   Future<int> sync() async {
     int uploadRows = 0;
-    uploadRows += await _uploadPackages();
-    uploadRows += await _uploadItemRelations();
+    uploadRows += await _uploadPackages(isSmartCreate: false);
+    uploadRows += await _uploadPackageItemRelations();
+    uploadRows += await _uploadPackages(isSmartCreate: true);
     uploadRows += await _requestDeletePackages();
     return uploadRows;
   }
 
-  Future<int> _uploadPackages() async {
+  Future<int> _uploadPackages({isSmartCreate}) async {
     const PAGE_SIZE = 24;
     int pageNo = 0;
     Page page;
@@ -31,6 +32,7 @@ class OfflineDataSyncService {
       page = await _packageService.queryPage({
         'fromAll': '1',
         'isDeleted': false,
+        'isSmartCreate': isSmartCreate,
         'status': 1,
         'page': ++pageNo,
         'size': PAGE_SIZE,
@@ -46,7 +48,9 @@ class OfflineDataSyncService {
           return map;
         }).toList();
       };
-      Result ret = await api.post('/package/batch', data: toJson(filterFields: ['code', 'destCode', 'createAt', 'operator']));
+      Result ret = await api.post('/package/batch',
+        data: toJson(filterFields: ['code', 'destCode', 'createAt', 'operator']),
+        queryParameters: {'smartCreate': isSmartCreate, 'allocItemNumMax': 10});
       if (!ret.isOk) {
         break;
       }
@@ -89,7 +93,7 @@ class OfflineDataSyncService {
   }
 
 
-  Future<int> _uploadItemRelations() async {
+  Future<int> _uploadPackageItemRelations() async {
     const PAGE_SIZE = 24;
     int pageNo = 0;
     List<Map<String, dynamic>> rows;
@@ -98,7 +102,7 @@ class OfflineDataSyncService {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     int schemeId = prefs.getInt('schemeId');
     if (schemeId == null) {
-      Messager.error('请先设置模式');
+      Messager.error('自动上传集包快件关联失败：请先设置模式');
       return 0;
     }
     do {

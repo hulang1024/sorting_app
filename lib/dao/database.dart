@@ -19,6 +19,7 @@ class SortingDatabase {
             `destCode`        char(30)                  not null,
             `createAt`        char(19)                  not null,
             `operator`        int                       not null,
+            `isSmartCreate`   int                       not null,
             `status`          int                       not null,
             `lastUpdate`      char(19)
           );
@@ -57,7 +58,7 @@ class SortingDatabase {
     return _db;
   }
 
-  static void clear() async {
+  static void delete() async {
     deleteDatabase(join(await getDatabasesPath(), DB_FILENAME));
     _db = null;
   }

@@ -9,39 +9,14 @@ import '../widgets/message.dart';
 part 'model/result.dart';
 part '../entity/page.dart';
 
-bool serverAvailable() {
-  return _available;
-}
-
-bool _available = false;
-bool _prepared = false;
-
-/// 准备HTTP API。
-/// 配置项server.hostname和server.port必须先存在，如果准备好了，返回true，否则返回false。
-Future<bool> prepareHTTPAPI({bool reload = false}) async {
-  if (reload) {
-    api.options.baseUrl = '';
-    _prepared = false;
-  }
-  if (_prepared) {
-    return true;
-  }
-  var prefs = await ConfigurationManager.configuration();
-  String hostname = prefs.getString('server.hostname') ?? '';
-  String port = prefs.getString('server.port') ?? '';
-  if (hostname.isEmpty || port.isEmpty) {
-    return false;
-  }
-  api.options.baseUrl = 'http://$hostname:$port';
-  _prepared = true;
-  api.unlock();
-  return _prepared;
-}
-
 class HttpApi {
   Dio _dio;
+  bool _prepared = false;
+  bool _available = false;
 
   get options => _dio.options;
+
+  get isAvailable => _available;
 
   HttpApi() {
     _dio = Dio(BaseOptions(
@@ -87,7 +62,29 @@ class HttpApi {
     ));
     _dio.interceptors.add(CookieManager(CookieJar()));
 
-    prepareHTTPAPI();
+    prepare();
+  }
+
+  /// 准备HTTP API。
+  /// 如果准备好了，返回true，否则返回false。
+  Future<bool> prepare({bool reload = false}) async {
+    if (reload) {
+      api.options.baseUrl = '';
+      _prepared = false;
+    }
+    if (_prepared) {
+      return true;
+    }
+    var prefs = await ConfigurationManager.configuration();
+    String hostname = prefs.getString('server.hostname') ?? '';
+    String port = prefs.getString('server.port') ?? '';
+    if (hostname.isEmpty || port.isEmpty) {
+      return false;
+    }
+    api.options.baseUrl = 'http://$hostname:$port';
+    _prepared = true;
+    api.unlock();
+    return _prepared;
   }
 
   Future<T> get<T>(

@@ -6,6 +6,7 @@ class PackageEntity with JsonConvert<PackageEntity> {
   String destAddress;
   String createAt;
 	int operator;
-	int status;
+  int isSmartCreate;
+  int status;
 	String lastUpdate;
 }

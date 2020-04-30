@@ -109,11 +109,12 @@ class PackageCreateScreenState extends ScreenState<PackageCreateScreen> {
 
   Future<Page> loadData(Map<String, dynamic> queryParams) {
     queryParams['fromAll'] = '1';
+    queryParams['isSmartCreate'] = widget.smartCreate;
     return PackageService().queryPage(queryParams);
   }
 
   void queryAddress() {
-    if (!serverAvailable()) {
+    if (!api.isAvailable) {
       return;
     }
     setState(() {

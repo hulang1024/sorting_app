@@ -16,6 +16,9 @@ packageEntityFromJson(PackageEntity data, Map<String, dynamic> json) {
 	if (json['operator'] != null) {
 		data.operator = json['operator']?.toInt();
 	}
+  if (json['isSmartCreate'] != null) {
+    data.isSmartCreate = json['isSmartCreate']?.toInt();
+  }
 	if (json['status'] != null) {
 		data.status = json['status']?.toInt();
 	}
@@ -32,7 +35,8 @@ Map<String, dynamic> packageEntityToJson(PackageEntity entity) {
 	data['destAddress'] = entity.destAddress;
 	data['createAt'] = entity.createAt;
 	data['operator'] = entity.operator;
-	data['status'] = entity.status;
+  data['isSmartCreate'] = entity.isSmartCreate;
+  data['status'] = entity.status;
 	data['lastUpdate'] = entity.lastUpdate;
 	return data;
 }

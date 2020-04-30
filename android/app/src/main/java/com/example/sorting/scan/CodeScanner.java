@@ -19,10 +19,10 @@ public class CodeScanner {
         BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if ("com.android.receive_scan_action".equals(intent.getAction())) {
-                    String data = intent.getStringExtra("data");
-                    messageChannel.send(data);
-                }
+            if ("com.android.receive_scan_action".equals(intent.getAction())) {
+                String data = intent.getStringExtra("data");
+                messageChannel.send(data);
+            }
             }
         };
         activity.registerReceiver(broadcastReceiver, new IntentFilter("com.android.receive_scan_action"));

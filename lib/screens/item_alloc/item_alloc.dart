@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sorting/screens/settings/general.dart';
 import 'package:sorting/service/item_alloc.dart';
 import '../screen.dart';
-import '../settings/settings.dart';
 import '../../widgets/data_list.dart';
 import '../../api/http_api.dart';
 import '../../widgets/code_input.dart';
@@ -91,7 +91,7 @@ class PackageItemAllocScreenState extends ScreenState<PackageItemAllocScreen> {
       formData['schemeId'] = prefs.getInt('schemeId');
       if (formData['schemeId'] == null) {
         Messager.error('请先设置模式');
-        push(SettingsScreen());
+        push(GeneralSettingsScreen());
         return;
       }
     }

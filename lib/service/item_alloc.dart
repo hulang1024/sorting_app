@@ -38,17 +38,26 @@ class ItemAllocService {
 
   Future<Result> operate(int opType, formData) async {
     Result ret;
-    if (serverAvailable()) {
-      ret = await api.post('/package_item_op/${opType == 1 ? 'add_item' : 'delete_item'}', queryParameters: formData);
-      if (ret.isOk) {
-        await (opType == 1 ? _addItem : _delItem)(formData['packageCode'], formData['itemCode'], 0);
-      }
-    } else {
-      var package = await _packageRepo.findById(formData['packageCode']);
-      if (package?.status == 4) {
-        return Result.fail(code: 2, msg: '该集包已删除');
-      }
-      ret = await (opType == 1 ? _addItem : _delItem)(formData['packageCode'], formData['itemCode'], 1);
+    switch (api.isAvailable) {
+      case true:
+        ret = await api.post('/package_item_op/${opType == 1 ? 'add_item' : 'delete_item'}', queryParameters: formData)
+            .catchError((_) => null);
+        if (ret == null) {
+          continue OFFLINE;
+        }
+        if (ret.isOk) {
+          await (opType == 1 ? _addItem : _delItem)(formData['packageCode'], formData['itemCode'], 0);
+        }
+        break;
+
+      OFFLINE:
+      case false:
+        var package = await _packageRepo.findById(formData['packageCode']);
+        if (package?.status == 4) {
+          return Result.fail(code: 2, msg: '该集包已删除');
+        }
+        ret = await (opType == 1 ? _addItem : _delItem)(formData['packageCode'], formData['itemCode'], 1);
+        break;
     }
     return ret;
   }

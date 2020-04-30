@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:sorting/entity/package_entity.dart';
-import 'package:sorting/service/package.dart';
 import 'package:sorting/service/package_delete.dart';
 import 'package:sorting/widgets/status.dart';
 import '../screen.dart';
@@ -69,7 +68,7 @@ class PackageDeleteScreenState extends ScreenState<PackageDeleteScreen> {
 
   void submit(code) async {
     if (code.isEmpty) return;
-    Result ret = await PackageService().delete(code);
+    Result ret = await PackageDeleteService().delete(code);
     if (ret.isOk) {
       Messager.ok('删除成功');
       codeInputKey.currentState.controller.clear();

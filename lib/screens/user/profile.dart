@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:sorting/screens/settings/settings.dart';
+import 'package:sorting/session.dart';
 import '../user/password_modify.dart';
 import '../screen.dart';
 import '../../login.dart';
@@ -60,6 +61,7 @@ class ProfileScreenState extends ScreenState<ProfileScreen> {
           textColor: Colors.white,
           onPressed: () {
             Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => Login()));
+            setCurrentUser(null);
             api.post('/user/logout');
           },
           child: Text('退出用户'),

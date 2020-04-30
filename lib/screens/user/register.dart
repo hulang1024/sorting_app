@@ -138,7 +138,7 @@ class RegisterScreenState extends ScreenState<RegisterScreen> {
   }
 
   Future<bool> dependentSettingsOk() async {
-    if (!await prepareHTTPAPI()) {
+    if (!await api.prepare()) {
       Messager.warning('无法注册，请先设置服务器');
       return false;
     }
