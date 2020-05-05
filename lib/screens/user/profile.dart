@@ -20,11 +20,14 @@ class ProfileScreenState extends ScreenState<ProfileScreen> {
   void initState() {
     super.initState();
 
-    api.get('/user/session').then((ret) {
-      setState(() {
-        user = ret['user'];
-      });
-    });
+    (() async {
+      if (!api.isAvailable) {
+        return;
+      }
+      user = await api.get('/user/session');
+      setState(() {});
+    })();
+
   }
 
   @override

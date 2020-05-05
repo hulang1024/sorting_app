@@ -15,8 +15,8 @@ class SortingDatabase {
       onCreate: (Database db, int version) async {
         await db.execute('''
           create table if not exists `package`(
-            `code`            char(10)   primary key    not null,
-            `destCode`        char(30)                  not null,
+            `code`            varchar(20)   primary key not null,
+            `destCode`        varchar(30)               not null,
             `createAt`        char(19)                  not null,
             `operator`        int                       not null,
             `isSmartCreate`   int                       not null,
@@ -26,7 +26,7 @@ class SortingDatabase {
         ''');
         await db.execute('''
           create table if not exists `package_delete_op`(
-            `code`            char(10)   primary key    not null,
+            `code`            varchar(20)   primary key not null,
             `operator`        int                       not null,
             `deleteAt`        char(19)                  not null,
             `status`          int                       not null
@@ -35,12 +35,12 @@ class SortingDatabase {
         await db.execute(''' 
           create table if not exists `package_item_op`(
             `id`              integer   primary key autoincrement not null,
-            `packageCode`     char(30)             not null,
-            `itemCode`        char(19)             not null,
-            `opType`          int                  not null,
-            `opTime`          int                  not null,
-            `operator`        int                  not null,
-            `status`          int                   not null
+            `packageCode`     varchar(20)             not null,
+            `itemCode`        varchar(20)             not null,
+            `opType`          int                     not null,
+            `opTime`          int                     not null,
+            `operator`        int                     not null,
+            `status`          int                     not null
           );
         ''');
         await db.execute('''
@@ -50,7 +50,13 @@ class SortingDatabase {
             `itemCode`        char(19)             not null,
             `createAt`        int                  not null,
             `operator`        int                  not null,
-            `status`          int                   not null
+            `status`          int                  not null
+          );
+        ''');
+        await db.execute('''
+          create table if not exists `coded_address`(
+            `code`     varchar(30)  primary key  not null,
+            `address`  varchar(255)              not null
           );
         ''');
       },
@@ -61,5 +67,10 @@ class SortingDatabase {
   static void delete() async {
     deleteDatabase(join(await getDatabasesPath(), DB_FILENAME));
     _db = null;
+  }
+
+  static void deleteBasicData() async {
+    var db = await instance();
+    await db.delete('coded_address');
   }
 }

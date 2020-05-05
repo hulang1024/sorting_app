@@ -49,7 +49,9 @@ class PackageDeleteService {
   Future<Result> _softDelete(String code, int status) async {
     var db = await getDB();
 
-    if (await DBUtils.findOne('package_delete_op', where: 'code = "$code"') != null) {
+    Map<String, dynamic> packageDeleteOp = await DBUtils.findOne('package_delete_op', where: 'code = "$code"');
+    // 如果是在线删除，并且之前已经有删除记录且状态为成功，则不能再次删除
+    if (status == 0 && packageDeleteOp != null && packageDeleteOp['status'] == 0) {
       return Result.fail(code: 2, msg: '已删除');
     }
 
@@ -75,8 +77,14 @@ class PackageDeleteService {
           status = 0;
         }
       }
-      ok = await txn.insert('package_delete_op',
-          {'code': code, 'operator': getCurrentUser().id, 'deleteAt': now, 'status': status}) > 0;
+      if (packageDeleteOp == null) {
+        ok = await txn.insert('package_delete_op',
+          {'code': code, 'operator': getCurrentUser().id, 'deleteAt': now, 'status': status},) > 0;
+      } else {
+        ok = await txn.update('package_delete_op',
+          {'operator': getCurrentUser().id, 'deleteAt': now, 'status': status},
+          where: 'code = "$code"',) > 0;
+      }
       return Result.ok();
     });
   }

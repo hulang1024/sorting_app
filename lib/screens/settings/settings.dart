@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sorting/dao/database.dart';
 import 'package:sorting/screens/settings/general.dart';
-import 'package:sorting/service/offline_data_sync.dart';
+import 'package:sorting/service/data_sync.dart';
 import 'package:sorting/session.dart';
 import '../../screens/settings/about.dart';
 import '../screen.dart';
@@ -35,7 +35,7 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
             textColor: Colors.white,
             onPressed: () async {
               Messager.info('上传中');
-              int total = await new OfflineDataSyncService().sync();
+              int total = await DataSyncService().uploadOfflineData();
               if (total > 0) {
                 Messager.ok('上传离线数据完成');
               } else {
@@ -46,6 +46,19 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
           ),
         if (getCurrentUser() != null)
           RaisedButton(
+            color: Colors.orange,
+            textColor: Colors.white,
+            onPressed: () async {
+              Messager.info('下载中');
+              int total = await DataSyncService().downloadBasicData();
+              if (total >= 0) {
+                Messager.ok('下载基础数据完成');
+              }
+            },
+            child: Text('下载基础数据'),
+          ),
+        if (getCurrentUser() != null)
+          RaisedButton(
             color: Colors.redAccent,
             textColor: Colors.white,
             onPressed: () {
@@ -53,9 +66,22 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
             },
             onLongPress: () async {
               SortingDatabase.delete();
-              Messager.ok('已删除本地数据');
+              Messager.ok('已删除离线数据');
             },
-            child: Text('删除本地数据'),
+            child: Text('删除离线数据'),
+          ),
+        if (getCurrentUser() != null)
+          RaisedButton(
+            color: Colors.redAccent,
+            textColor: Colors.white,
+            onPressed: () {
+              Messager.warning('请长按按钮以确认');
+            },
+            onLongPress: () async {
+              SortingDatabase.deleteBasicData();
+              Messager.ok('已删除基础数据');
+            },
+            child: Text('删除基础数据'),
           ),
         RaisedButton(
           onPressed: () {

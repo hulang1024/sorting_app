@@ -26,11 +26,25 @@ class PackageService {
     if (queryParams['isDeleted'] != null) {
       where.add('status ${queryParams['isDeleted'] ? '=4' : '!=4'}');
     }
-    return DBUtils.fetchPage('package',
+
+    Page page = await DBUtils.fetchPage('package',
         pageParams: queryParams,
         where: where,
         orderBy: 'strftime("%s", createAt) desc',
         convert: () => PackageEntity());
+
+    if (page.total > 0) {
+      final destCodes = page.content.map((m) => (m as PackageEntity).destCode);
+      var codedAddressMap = {};
+      (await (await getDB()).query('coded_address', where: 'code in (${destCodes.join(',')})')).forEach((m) {
+        codedAddressMap[m['code']] = m['address'];
+      });
+      page.content.forEach((item) {
+        PackageEntity package = item as PackageEntity;
+        package.destAddress = codedAddressMap[package.destCode];
+      });
+    }
+    return page;
   }
 
   // 查询集包详情
@@ -54,6 +68,10 @@ class PackageService {
       if (package != null) {
         if (package.operator == getCurrentUser().id) {
           details['creator'] = getCurrentUser().toJson();
+        }
+        var codedAddress = await DBUtils.findOne('coded_address', where: 'code = "${package.destCode}"');
+        if (codedAddress != null) {
+          details['destAddress'] = codedAddress;
         }
       }
     }
@@ -113,7 +131,7 @@ class PackageService {
         return Result.from(ok);
       }
     } else {
-      package['isSmartCreate'] = smartCreateSpec['smartCreate'] ? 1 : 0;
+      package['isSmartCreate'] = smartCreateSpec != null ? (smartCreateSpec['smartCreate'] ? 1 : 0) : 0;
       return Result.from(await db.insert('package', package) > 0);
     }
   }

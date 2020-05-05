@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:sorting/service/coded_address.dart';
 import 'package:sorting/service/package.dart';
 import '../../widgets/data_list.dart';
 import '../../api/http_api.dart';
@@ -113,18 +114,14 @@ class PackageCreateScreenState extends ScreenState<PackageCreateScreen> {
     return PackageService().queryPage(queryParams);
   }
 
-  void queryAddress() {
-    if (!api.isAvailable) {
-      return;
-    }
+  void queryAddress() async {
     setState(() {
       querying = true;
     });
-    api.get('/coded_address', queryParameters: {'code': destCodeController.text}).then((ret) {
-      setState(() {
-        address = ret.toString();
-        querying = false;
-      });
+    String address = await CodedAddressService().query(code: destCodeController.text);
+    setState(() {
+      this.address = address ?? '';
+      querying = false;
     });
   }
 

@@ -1,4 +1,4 @@
-package com.example.sorting.scan;
+package io.sorting.scan;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

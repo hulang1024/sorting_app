@@ -2,17 +2,35 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sorting/api/http_api.dart';
 import 'package:sorting/dao/db_utils.dart';
+import 'package:sorting/service/coded_address.dart';
 import 'package:sorting/service/package_delete.dart';
 import 'package:sorting/widgets/message.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package.dart';
 
-/// 同步离线数据到服务器
-class OfflineDataSyncService {
+/// 本地与服务器数据同步
+class DataSyncService {
   PackageService _packageService = PackageService();
   PackageDeleteService _packageDeleteService = PackageDeleteService();
 
-  Future<int> sync() async {
+  /// 应用启动时执行任务
+  Future<void> onAppInitState() async {
+    await uploadOfflineData();
+
+    // 不存在数据时才去自动下载，减少服务器压力
+    if (!await CodedAddressService().existsData()) {
+      return await downloadCodedAddress();
+    }
+  }
+
+  /// 从服务器同步
+  /// 下载一些基础数据
+  Future<int> downloadBasicData() async {
+    return await downloadCodedAddress();
+  }
+
+  /// 上传离线数据
+  Future<int> uploadOfflineData() async {
     int uploadRows = 0;
     uploadRows += await _uploadPackages(isSmartCreate: false);
     uploadRows += await _uploadPackageItemRelations();
@@ -129,6 +147,27 @@ class OfflineDataSyncService {
       batch.commit();
     } while (rows.length == PAGE_SIZE);
     return (pageNo == 1 ? 0 : pageNo) * PAGE_SIZE + rows.length;
+  }
+
+  Future<int> downloadCodedAddress() async {
+    List records = await api.get('/coded_address/all');
+    // 如果未查询到任何数据，则当作下载失败
+    if (records.isEmpty) {
+      return -1;
+    }
+
+    var db = await getDB();
+    var existsCodes = (await db.query('coded_address', columns: ['code'])).map((m) => m['code']);
+    records.removeWhere((record) => existsCodes.contains(record['code']));
+    if (records.isEmpty) {
+      return 0;
+    }
+    Batch batch = db.batch();
+    records.forEach((record) {
+      batch.insert('coded_address', record);
+    });
+    await batch.commit();
+    return records.length;
   }
 
 }

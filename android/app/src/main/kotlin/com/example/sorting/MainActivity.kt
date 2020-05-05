@@ -1,4 +1,4 @@
-package com.example.sorting
+package io.sorting
 
 import androidx.annotation.NonNull;
 import io.flutter.embedding.android.FlutterActivity

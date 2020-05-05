@@ -1,4 +1,4 @@
-package com.example.sorting.scan;
+package io.sorting.scan;
 
 import android.content.Context;
 import android.content.Intent;

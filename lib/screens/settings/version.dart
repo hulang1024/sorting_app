@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:install_plugin/install_plugin.dart';
 import 'package:package_info/package_info.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sorting/widgets/message.dart';
@@ -54,23 +55,27 @@ class VersionManager {
       _initialized = true;
     }
 
-    FlutterDownloader.registerCallback(_downloadCallback);
     await FlutterDownloader.enqueue(
       url: api.options.baseUrl + '/' + versionInfo['url'],
-      savedDir: (await getExternalStorageDirectory()).path.toString(),
+      savedDir: await getAppPath(),
       fileName: versionInfo['version'] + '.apk',
       showNotification: true,
       openFileFromNotification: true,
     );
+    FlutterDownloader.registerCallback(_downloadCallback);
   }
 
   static void _downloadCallback(taskId, status, progress) async {
     if (status == DownloadTaskStatus.complete) {
       await FlutterDownloader.initialize();
-      FlutterDownloader.open(taskId: taskId);
+      //FlutterDownloader.open(taskId: taskId);
+      InstallPlugin.installApk(await getAppPath(), "io.github.hulang1024");
     } else if (status == DownloadTaskStatus.failed) {
-      //Messager.ok('对不起，下载失败');
     }
+  }
+
+  static Future<String> getAppPath() async {
+    return (await getExternalStorageDirectory()).path;
   }
 }
 
