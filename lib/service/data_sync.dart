@@ -162,16 +162,15 @@ class DataSyncService {
     }
 
     var db = await getDB();
-    db.transaction((txn) async {
+    return db.transaction((txn) async {
       await txn.delete('coded_address');
       Batch batch = txn.batch();
       records.forEach((record) {
         batch.insert('coded_address', record);
       });
       await batch.commit();
+      return records.length;
     });
-
-    return records.length;
   }
 
 }
