@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sorting/api/http_api.dart';
 import 'package:sorting/dao/db_utils.dart';
@@ -16,17 +17,12 @@ class DataSyncService {
   /// 应用启动时执行任务
   Future<void> onAppInitState() async {
     await uploadOfflineData();
-
-    // 不存在数据时才去自动下载，减少服务器压力
-    if (!await CodedAddressService().existsData()) {
-      return await downloadCodedAddress();
-    }
+    await pullBasicData(checkVersion: true);
   }
 
-  /// 从服务器同步
-  /// 下载一些基础数据
-  Future<int> downloadBasicData() async {
-    return await downloadCodedAddress();
+  /// 更新基础数据
+  Future<int> pullBasicData({checkVersion: false}) async {
+    return await pullCodedAddress(checkVersion: checkVersion);
   }
 
   /// 上传离线数据
@@ -149,7 +145,16 @@ class DataSyncService {
     return (pageNo == 1 ? 0 : pageNo) * PAGE_SIZE + rows.length;
   }
 
-  Future<int> downloadCodedAddress() async {
+  Future<int> pullCodedAddress({@required checkVersion}) async {
+    // 检查版本
+    if (checkVersion) {
+      // 检查服务器中记录数量是否不大于本地记录数
+      var count = await api.get('/coded_address/count');
+      if (count == await CodedAddressService().count()) {
+        return 0;
+      }
+    }
+
     List records = await api.get('/coded_address/all');
     // 如果未查询到任何数据，则当作下载失败
     if (records.isEmpty) {
@@ -157,16 +162,15 @@ class DataSyncService {
     }
 
     var db = await getDB();
-    var existsCodes = (await db.query('coded_address', columns: ['code'])).map((m) => m['code']);
-    records.removeWhere((record) => existsCodes.contains(record['code']));
-    if (records.isEmpty) {
-      return 0;
-    }
-    Batch batch = db.batch();
-    records.forEach((record) {
-      batch.insert('coded_address', record);
+    db.transaction((txn) async {
+      await txn.delete('coded_address');
+      Batch batch = txn.batch();
+      records.forEach((record) {
+        batch.insert('coded_address', record);
+      });
+      await batch.commit();
     });
-    await batch.commit();
+
     return records.length;
   }
 

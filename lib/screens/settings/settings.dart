@@ -50,12 +50,12 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
             textColor: Colors.white,
             onPressed: () async {
               Messager.info('下载中');
-              int total = await DataSyncService().downloadBasicData();
+              int total = await DataSyncService().pullBasicData();
               if (total >= 0) {
-                Messager.ok('下载基础数据完成');
+                Messager.ok('更新基础数据完成');
               }
             },
-            child: Text('下载基础数据'),
+            child: Text('更新基础数据'),
           ),
         if (getCurrentUser() != null)
           RaisedButton(

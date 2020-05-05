@@ -3,21 +3,16 @@ import 'package:sorting/dao/db_utils.dart';
 import 'package:sorting/service/data_sync.dart';
 
 class CodedAddressService {
-  /// 判断本地地址库是否有数据
-  Future<bool> existsData() async {
-    return (await (await getDB()).rawQuery('select count(1) as count from coded_address'))[0]['count'] > 0;
-  }
-
   /// 查询地址
   Future<String> query({code}) async {
     // 如果本地地址库有数据，则查询
-    if (await existsData()) {
+    if (await count() > 0) {
       return _queryAddress(code);
     }
     // 如果没有数据但API可用，则从服务器下载完成之后然后再次尝试从本地数据库查询
     else if (api.isAvailable) {
-      int total = await DataSyncService().downloadCodedAddress();
-      if (total >= 0) {
+      int total = await DataSyncService().pullCodedAddress(checkVersion: false);
+      if (total > 0) {
         return _queryAddress(code);
       } else {
         return null;
@@ -26,6 +21,10 @@ class CodedAddressService {
     else {
       return null;
     }
+  }
+
+  Future<int> count() async {
+    return (await (await getDB()).rawQuery('select count(1) as count from coded_address'))[0]['count'];
   }
 
   Future<String> _queryAddress(String code) async {

@@ -36,7 +36,8 @@ class PackageService {
     if (page.total > 0) {
       final destCodes = page.content.map((m) => (m as PackageEntity).destCode);
       var codedAddressMap = {};
-      (await (await getDB()).query('coded_address', where: 'code in (${destCodes.join(',')})')).forEach((m) {
+      (await (await getDB()).query('coded_address',
+          where: 'code in (${destCodes.map((e) => '"$e"').join(',')})')).forEach((m) {
         codedAddressMap[m['code']] = m['address'];
       });
       page.content.forEach((item) {

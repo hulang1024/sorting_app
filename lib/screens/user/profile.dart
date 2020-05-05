@@ -24,8 +24,10 @@ class ProfileScreenState extends ScreenState<ProfileScreen> {
       if (!api.isAvailable) {
         return;
       }
-      user = await api.get('/user/session');
-      setState(() {});
+      var ret = await api.get('/user/session');
+      setState(() {
+        user = ret['user'];
+      });
     })();
 
   }
