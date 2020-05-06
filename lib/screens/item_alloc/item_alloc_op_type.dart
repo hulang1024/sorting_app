@@ -14,37 +14,40 @@ class PackageItemAllocOpTypeScreen extends Screen {
 class _PackageItemAllocOpTypeScreenState extends ScreenState<PackageItemAllocOpTypeScreen> {
   @override
   Widget render(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: <Widget>[
-        _TypeButton(
-          icon: Icons.add,
-          color: Colors.blueAccent,
-          text: '加件',
-          onTap: () {
-            push(PackageItemAllocScreen(opType: 1));
-          },
-        ),
-        Padding(padding: EdgeInsets.only(top: 8)),
-        _TypeButton(
-          icon: Icons.remove,
-          color: Colors.redAccent,
-          text: '减件',
-          onTap: () {
-            push(PackageItemAllocScreen(opType: 2));
-          },
-        ),
-        Padding(padding: EdgeInsets.only(top: 8)),
-        _TypeButton(
-          icon: Icons.find_in_page,
-          color: Colors.green,
-          text: '查询',
-          onTap: () {
-            push(PackageItemOpRecordSearchScreen());
-          },
-        ),
-      ],
+    return SingleChildScrollView(
+      padding: EdgeInsets.all(2),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          _TypeButton(
+            icon: Icons.add,
+            color: Colors.blueAccent,
+            text: '加件',
+            onTap: () {
+              push(PackageItemAllocScreen(opType: 1));
+            },
+          ),
+          Padding(padding: EdgeInsets.only(top: 8)),
+          _TypeButton(
+            icon: Icons.remove,
+            color: Colors.redAccent,
+            text: '减件',
+            onTap: () {
+              push(PackageItemAllocScreen(opType: 2));
+            },
+          ),
+          Padding(padding: EdgeInsets.only(top: 8)),
+          _TypeButton(
+            icon: Icons.find_in_page,
+            color: Colors.green,
+            text: '查询',
+            onTap: () {
+              push(PackageItemOpRecordSearchScreen());
+            },
+          ),
+        ],
+      ),
     );
   }
 
@@ -59,18 +62,20 @@ class _TypeButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
+    return Container(
+      height: 120,
       child: Material(
         elevation: 1.5,
         borderRadius: BorderRadius.all(Radius.circular(4)),
         color: color,
         child: InkWell(
           onTap: onTap,
-          child: Center(child:
-            Column(
+          child: Center(
+            child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Icon(icon, color: Colors.white, size: 26),
+                Padding(padding: EdgeInsets.symmetric(vertical: 4),),
                 Text(
                   text,
                   style: TextStyle(

@@ -79,10 +79,7 @@ class GeneralSettingsScreenState extends ScreenState<GeneralSettingsScreen> {
               onChanged: onServerChanged,
             ),
           ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 4),
-            child: Text(':', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
-          ),
+          Padding(padding: EdgeInsets.symmetric(horizontal: 2),),
           Expanded(
             child: TextField(
               controller: fieldControllers['server.port'],

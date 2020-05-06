@@ -57,6 +57,7 @@ abstract class ScreenState<T extends Screen> extends State<T> {
       ),
       body: Container(
         padding: padding,
+        width: double.infinity,
         child: render(context),
       ),
     );

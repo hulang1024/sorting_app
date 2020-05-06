@@ -85,7 +85,7 @@ class MainMenuState extends ScreenState<MainMenu> {
     @required VoidCallback onPressed,
   }) {
     return Card(
-      margin: EdgeInsets.all(3),
+      margin: EdgeInsets.all(2),
       elevation: 1.5,
       color: color,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(4))),
