@@ -61,8 +61,8 @@ class GeneralSettingsScreenState extends ScreenState<GeneralSettingsScreen> {
     return ListView(
       children: [
         Row(children: <Widget>[
-          Expanded(child:
-            TextField(
+          Expanded(
+            child: TextField(
               controller: fieldControllers['server.hostname'],
               keyboardType: TextInputType.number,
               maxLength: 15,
@@ -71,6 +71,7 @@ class GeneralSettingsScreenState extends ScreenState<GeneralSettingsScreen> {
               textAlign: TextAlign.center,
               decoration: InputDecoration(
                 isDense: true,
+                filled: true,
                 border: InputBorder.none,
                 labelText: '服务器地址',
                 counterText: '',
@@ -79,11 +80,11 @@ class GeneralSettingsScreenState extends ScreenState<GeneralSettingsScreen> {
             ),
           ),
           Padding(
-            padding: EdgeInsets.only(top: 16),
+            padding: EdgeInsets.symmetric(horizontal: 4),
             child: Text(':', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
           ),
-          Expanded(child:
-            TextField(
+          Expanded(
+            child: TextField(
               controller: fieldControllers['server.port'],
               keyboardType: TextInputType.number,
               maxLength: 4,
@@ -92,6 +93,7 @@ class GeneralSettingsScreenState extends ScreenState<GeneralSettingsScreen> {
               textAlign: TextAlign.center,
               decoration: InputDecoration(
                 isDense: true,
+                filled: true,
                 border: InputBorder.none,
                 labelText: '服务器端口',
                 counterText: '',
@@ -101,7 +103,7 @@ class GeneralSettingsScreenState extends ScreenState<GeneralSettingsScreen> {
           ),
         ]),
         Container(
-          margin: EdgeInsets.only(top: 0),
+          margin: EdgeInsets.only(bottom: 8),
           child: RaisedButton(
             color: [
               Colors.orange,
@@ -126,17 +128,20 @@ class GeneralSettingsScreenState extends ScreenState<GeneralSettingsScreen> {
           keyboardType: TextInputType.text,
           decoration: InputDecoration(
             isDense: true,
-            contentPadding: EdgeInsets.symmetric(vertical: 4),
+            filled: true,
+            contentPadding: EdgeInsets.fromLTRB(12, 4, 0, 4),
             border: InputBorder.none,
             labelText: '网点名称',
           ),
         ),
+        Padding(padding: EdgeInsets.symmetric(vertical: 2),),
         TextField(
           controller: fieldControllers['branch.code'],
           keyboardType: TextInputType.number,
           decoration: InputDecoration(
             isDense: true,
-            contentPadding: EdgeInsets.symmetric(vertical: 4),
+            filled: true,
+            contentPadding: EdgeInsets.fromLTRB(12, 4, 0, 4),
             border: InputBorder.none,
             labelText: '网点编码',
           ),

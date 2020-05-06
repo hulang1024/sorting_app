@@ -40,66 +40,88 @@ class RegisterScreenState extends ScreenState<RegisterScreen> {
           key: formKey,
           child: Column(
             children: [
-              TextFormField(
-                focusNode: focusNodes['name'],
-                keyboardType: TextInputType.text,
-                autofocus: true,
-                maxLength: 11,
-                decoration: InputDecoration(
-                  labelText: '姓名',
-                  counterText: '',
+              Container(
+                margin: EdgeInsets.only(top: 16),
+                child: TextFormField(
+                  focusNode: focusNodes['name'],
+                  keyboardType: TextInputType.text,
+                  autofocus: true,
+                  maxLength: 11,
+                  decoration: InputDecoration(
+                    filled: true,
+                    isDense: true,
+                    border: InputBorder.none,
+                    labelText: '姓名',
+                    counterText: '',
+                  ),
+                  validator: (val) {
+                    return val.length == 0 ? "请输入姓名" : null;
+                  },
+                  onEditingComplete: () {
+                    FocusScope.of(context).requestFocus(focusNodes['phone']);
+                  },
+                  onSaved: (val) => formData['name'] = val.trim(),
                 ),
-                validator: (val) {
-                  return val.length == 0 ? "请输入姓名" : null;
-                },
-                onEditingComplete: () {
-                  FocusScope.of(context).requestFocus(focusNodes['phone']);
-                },
-                onSaved: (val) => formData['name'] = val.trim(),
               ),
-              TextFormField(
-                keyboardType: TextInputType.phone,
-                focusNode: focusNodes['phone'],
-                maxLength: 11,
-                inputFormatters: [WhitelistingTextInputFormatter.digitsOnly],
-                decoration: InputDecoration(
-                  labelText: '手机号',
-                  helperText: '手机号可用作登录用户名',
-                  counterText: '',
+              Container(
+                margin: EdgeInsets.only(top: 16),
+                child: TextFormField(
+                  keyboardType: TextInputType.phone,
+                  focusNode: focusNodes['phone'],
+                  maxLength: 11,
+                  inputFormatters: [WhitelistingTextInputFormatter.digitsOnly],
+                  decoration: InputDecoration(
+                    filled: true,
+                    isDense: true,
+                    border: InputBorder.none,
+                    labelText: '手机号',
+                    counterText: '',
+                  ),
+                  validator: (val) {
+                    return val.length == 0 ? "请输入手机号" : null;
+                  },
+                  onEditingComplete: () {
+                    FocusScope.of(context).requestFocus(focusNodes['password']);
+                  },
+                  onSaved: (val) => formData['phone'] = val.trim(),
                 ),
-                validator: (val) {
-                  return val.length == 0 ? "请输入手机号" : null;
-                },
-                onEditingComplete: () {
-                  FocusScope.of(context).requestFocus(focusNodes['password']);
-                },
-                onSaved: (val) => formData['phone'] = val.trim(),
               ),
-              TextFormField(
-                controller: codeTextController,
-                keyboardType: TextInputType.number,
-                focusNode: focusNodes['code'],
-                readOnly: true,
-                decoration: InputDecoration(
-                  labelText: '编号',
-                  helperText: '编号也可用作登录用户名',
+              Container(
+                margin: EdgeInsets.only(top: 16),
+                child: TextFormField(
+                  controller: codeTextController,
+                  keyboardType: TextInputType.number,
+                  focusNode: focusNodes['code'],
+                  readOnly: true,
+                  decoration: InputDecoration(
+                    filled: true,
+                    isDense: true,
+                    border: InputBorder.none,
+                    labelText: '编号',
+                  ),
+                  onEditingComplete: () {
+                    FocusScope.of(context).requestFocus(focusNodes['password']);
+                  },
+                  onSaved: (val) => formData['code'] = val.trim(),
                 ),
-                onEditingComplete: () {
-                  FocusScope.of(context).requestFocus(focusNodes['password']);
-                },
-                onSaved: (val) => formData['code'] = val.trim(),
               ),
-              TextFormField(
-                focusNode: focusNodes['password'],
-                maxLength: 20,
-                decoration: InputDecoration(
-                  labelText: '密码',
-                  counterText: '',
+              Container(
+                margin: EdgeInsets.only(top: 16),
+                child: TextFormField(
+                  focusNode: focusNodes['password'],
+                  maxLength: 20,
+                  decoration: InputDecoration(
+                    filled: true,
+                    isDense: true,
+                    border: InputBorder.none,
+                    labelText: '密码',
+                    counterText: '',
+                  ),
+                  validator: (val) {
+                    return val.length < 6 ? "密码长度错误" : null;
+                  },
+                  onSaved: (val) => formData['password'] = val.trim(),
                 ),
-                validator: (val) {
-                  return val.length < 6 ? "密码长度错误" : null;
-                },
-                onSaved: (val) => formData['password'] = val.trim(),
               ),
             ],
           ),

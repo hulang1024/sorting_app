@@ -18,10 +18,9 @@ class Login extends StatefulWidget {
 }
 
 class LoginState extends State<Login> with SingleTickerProviderStateMixin {
-  GlobalKey<FormState> formKey = GlobalKey();
   Map<String, TextEditingController> controllers = {};
   Map<String, FocusNode> focusNodes = {};
-  Map<String, dynamic> formData = {};
+  GlobalKey akey = GlobalKey();
   Image captchaImage;
   bool captchaLoading = true;
   bool logging = false;
@@ -65,95 +64,92 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Material(
       child: Container(
-        padding: EdgeInsets.fromLTRB(24, 24, 24, 0),
+        padding: EdgeInsets.fromLTRB(24, 32, 24, 0),
         child: ListView(
           children: [
-            Center(
-              child: Text(
-                '欢迎登陆',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+            Text('欢迎登陆', style: TextStyle(color: Colors.black87.withOpacity(0.8), fontSize: 21, fontWeight: FontWeight.bold)),
+            Column(
+              children: [
+                Container(
+                  margin: EdgeInsets.only(top: 32),
+                  decoration: BoxDecoration(
+                    color: Color(0xfff2f0f4),
+                    borderRadius: BorderRadius.all(Radius.circular(4)),
+                  ),
+                  child: TextField(
+                    controller: controllers['username'],
+                    focusNode: focusNodes['username'],
+                    keyboardType: TextInputType.phone,
+                    autofocus: true,
+                    maxLength: 11,
+                    decoration: InputDecoration(
+                      labelText: '手机号码/编号',
+                      counterText: '',
+                      contentPadding: EdgeInsets.fromLTRB(16,8,0,8),
+                      border: InputBorder.none,
+                    ),
+                    style: TextStyle(letterSpacing: 2),
+                    onEditingComplete: () {
+                      FocusScope.of(context).requestFocus(focusNodes[controllers['password'].text.isEmpty
+                          ? 'password' : 'captcha']);
+                    },
+                  ),
                 ),
-              ),
-            ),
-            Form(
-              key: formKey,
-              child: Column(
-                children: [
-                  Padding(
-                    padding: EdgeInsets.only(top: 8),
-                    child: TextFormField(
-                      controller: controllers['username'],
-                      focusNode: focusNodes['username'],
-                      keyboardType: TextInputType.phone,
-                      autofocus: true,
-                      maxLength: 11,
-                      decoration: InputDecoration(
-                        hintText: '请输入手机号/编号',
-                        counterText: '',
-                      ),
-                      style: TextStyle(letterSpacing: 2),
-                      validator: (val) {
-                        return val.length == 0 ? "请输入用户名" : null;
-                      },
-                      onEditingComplete: () {
-                        FocusScope.of(context).requestFocus(focusNodes[controllers['password'].text.isEmpty
-                            ? 'password' : 'captcha']);
-                      },
-                      onSaved: (val) => formData['username'] = val.trim(),
-                    ),
+                Container(
+                  margin: EdgeInsets.only(top: 16),
+                  decoration: BoxDecoration(
+                    color: Color(0xfff2f0f4),
+                    borderRadius: BorderRadius.all(Radius.circular(4)),
                   ),
-                  Padding(
-                    padding: EdgeInsets.only(top: 8),
-                    child: TextFormField(
-                      controller: controllers['password'],
-                      focusNode: focusNodes['password'],
-                      autofocus: true,
-                      maxLength: 20,
-                      decoration: InputDecoration(
-                        hintText: '密码',
-                        counterText: '',
-                      ),
-                      obscureText: true,
-                      style: TextStyle(letterSpacing: 2),
-                      validator: (val) {
-                        return val.length < 6 ? "密码长度错误" : null;
-                      },
-                      onEditingComplete: () {
-                        FocusScope.of(context).requestFocus(
-                            controllers['captcha'].text.isEmpty ? focusNodes['captcha'] : FocusNode());
-                      },
-                      onSaved: (val) => formData['password'] = val.trim(),
+                  child: TextField(
+                    controller: controllers['password'],
+                    focusNode: focusNodes['password'],
+                    autofocus: true,
+                    maxLength: 20,
+                    decoration: InputDecoration(
+                      labelText: '密码',
+                      counterText: '',
+                      contentPadding: EdgeInsets.fromLTRB(16,8,0,8),
+                      border: InputBorder.none,
                     ),
+                    obscureText: true,
+                    style: TextStyle(letterSpacing: 2),
+                    onEditingComplete: () {
+                      FocusScope.of(context).requestFocus(
+                          controllers['captcha'].text.isEmpty ? focusNodes['captcha'] : FocusNode());
+                    },
                   ),
-                  Row(
-                    children: [
-                      Container(
-                        padding: EdgeInsets.only(top: 8),
-                        width: 112,
-                        child: TextFormField(
-                          controller: controllers['captcha'],
-                          focusNode: focusNodes['captcha'],
-                          keyboardType: TextInputType.number,
-                          maxLength: 4,
-                          inputFormatters: [WhitelistingTextInputFormatter.digitsOnly],
-                          decoration: InputDecoration(
-                            hintText: '验证码',
-                            counterText: '',
-                          ),
-                          style: TextStyle(letterSpacing: 2),
-                          validator: (val) {
-                            return val.length != 4 ? "验证码错误" : null;
-                          },
-                          onSaved: (val) => formData['captcha'] = val,
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Container(
+                      margin: EdgeInsets.fromLTRB(0, 16, 8, 0),
+                      decoration: BoxDecoration(
+                        color: Color(0xfff2f0f4),
+                        borderRadius: BorderRadius.all(Radius.circular(4)),
+                      ),
+                      width: 124,
+                      child: TextField(
+                        controller: controllers['captcha'],
+                        focusNode: focusNodes['captcha'],
+                        keyboardType: TextInputType.number,
+                        maxLength: 4,
+                        inputFormatters: [WhitelistingTextInputFormatter.digitsOnly],
+                        decoration: InputDecoration(
+                          labelText: '验证码',
+                          counterText: '',
+                          contentPadding: EdgeInsets.fromLTRB(16,8,0,8),
+                          border: InputBorder.none,
                         ),
+                        style: TextStyle(letterSpacing: 2),
                       ),
-                      AnimatedContainer(
+                    ),
+                    Expanded(
+                      key: akey,
+                      child: AnimatedContainer(
                         duration: Duration(milliseconds: 400),
-                        width: 152,
-                        height: 60,
-                        padding: EdgeInsets.only(top: 8),
+                        height: 50,
                         child: InkWell(
                           onTap: onCaptchaPressed,
                           child: AnimatedOpacity(
@@ -164,28 +160,26 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
                           ),
                         ),
                       ),
-                    ],
-                  ),
-                ],
-              ),
+                    ),
+                  ],
+                ),
+              ],
             ),
             Container(
-              margin: EdgeInsets.fromLTRB(0, 40, 0, 8),
+              margin: EdgeInsets.fromLTRB(0, 24, 0, 48),
               child: SizedBox(
                 width: double.infinity,
-                height: 44,
+                height: 40,
                 child: RaisedButton(
                   color: Theme.of(context).primaryColor,
                   textColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
                   onPressed: onLoginPressed,
                   child: Text(logging ? '登录中' : '登录'),
                 ),
               ),
             ),
             ButtonBar(
-              alignment: MainAxisAlignment.spaceBetween,
-              buttonPadding: EdgeInsets.symmetric(horizontal: 0),
+              alignment: MainAxisAlignment.spaceEvenly,
               children: [
                 FlatButton(
                   onPressed: () {
@@ -213,7 +207,6 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
     );
   }
 
-
   void onCaptchaPressed() async {
     if(await api.prepare()) {
       await flushCaptcha();
@@ -230,7 +223,7 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
     });
     // 不能直接使用NetworkImage，因为NetworkImage和dio将产生不同的session
     return api.get(
-      '/user/login_captcha?width=152&height=52&v=${DateTime.now().millisecondsSinceEpoch}',
+      '/user/login_captcha?width=${(akey.currentContext.findRenderObject() as RenderBox).size.width.toInt()}&height=50&v=${DateTime.now().millisecondsSinceEpoch}',
       options: Options(responseType: ResponseType.bytes),
     ).then((resp) {
       setState(() {
@@ -252,11 +245,25 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
         Messager.warning('无法登陆，还未设置网点');
         return;
     }
-    formData['branchCode'] = config.getString('branch.code');
 
-    var form = formKey.currentState;
-    if (!form.validate()) return;
-    form.save();
+    // 验证字段
+    String error;
+    if (controllers['username'].text.isEmpty) {
+      error = '请输入用户名';
+    } else if (controllers['password'].text.length < 6) {
+      error = '密码长度错误';
+    } else if (controllers['captcha'].text.length != 4) {
+      error = '验证码错误';
+    }
+    if (error != null) {
+      Messager.warning(error);
+      return;
+    }
+    Map<String, dynamic> formData = {};
+    ['username', 'password', 'captcha'].forEach((key) {
+      formData[key] = controllers[key].text;
+    });
+    formData['branchCode'] = config.getString('branch.code');
 
     setState(() {
       logging = true;

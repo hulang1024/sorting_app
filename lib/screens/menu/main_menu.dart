@@ -85,7 +85,7 @@ class MainMenuState extends ScreenState<MainMenu> {
     @required VoidCallback onPressed,
   }) {
     return Card(
-      margin: EdgeInsets.all(2),
+      margin: EdgeInsets.all(3),
       elevation: 1.5,
       color: color,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(4))),
@@ -96,7 +96,7 @@ class MainMenuState extends ScreenState<MainMenu> {
           children: [
             Icon(icon, color: Colors.white, size: 34),
             Padding(padding: EdgeInsets.symmetric(vertical: 4),),
-            Text(text, style: TextStyle(fontSize: 14.5, color: Colors.white.withOpacity(0.9))),
+            Text(text, style: TextStyle(fontSize: 14, color: Colors.white.withOpacity(0.9))),
           ],
         ),
       ),

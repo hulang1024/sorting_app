@@ -40,7 +40,7 @@ abstract class ScreenState<T extends Screen> extends State<T> {
         backgroundColor: Theme.of(context).canvasColor,
         iconTheme: Theme.of(context).iconTheme.copyWith(color: Colors.black87),
         textTheme: Theme.of(context).textTheme.copyWith(
-          title: TextStyle(color: Colors.black87, fontSize: 20, fontWeight: FontWeight.bold),
+          title: TextStyle(color: Colors.black87.withOpacity(0.8), fontSize: 20, fontWeight: FontWeight.bold),
         ),
         actions: !widget.homeAction
             ? null
