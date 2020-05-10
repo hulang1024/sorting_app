@@ -17,11 +17,15 @@ List<KeyBinding> getDefaultGlobalKeyBindings() => [
   KeyBinding(InputKey.F4, GlobalAction.ItemAlloc),
   KeyBinding(InputKey.Num5, GlobalAction.ItemAlloc),
 
-  KeyBinding(InputKey.F5, GlobalAction.PackageSearch),
+  KeyBinding(InputKey.F3, GlobalAction.PackageSearch),
   KeyBinding(InputKey.Num7, GlobalAction.PackageSearch),
 
-  KeyBinding(InputKey.F3, GlobalAction.ItemSearch),
+  KeyBinding(InputKey.F5, GlobalAction.ItemSearch),
   KeyBinding(InputKey.Num8, GlobalAction.ItemSearch),
+
+  KeyBinding(InputKey.Num3, GlobalAction.ItemAllocDelete),
+  KeyBinding(InputKey.Num6, GlobalAction.ItemAllocAdd),
+  KeyBinding(InputKey.Num9, GlobalAction.ItemAllocSearch),
 ];
 
 abstract class KeyBindingManager {

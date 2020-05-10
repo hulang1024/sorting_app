@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:sorting/input/bindings/action.dart';
 import 'package:sorting/input/bindings/inputkey.dart';
 import 'package:sorting/input/bindings/key_binding.dart';
+import 'package:sorting/input/bindings/key_bindings_manager.dart';
 import 'package:sorting/input/bindings/key_combination.dart';
 import 'package:sorting/screens/screen.dart';
 import 'item_alloc.dart';
@@ -16,11 +18,6 @@ class PackageItemAllocMenuScreen extends Screen {
 }
 
 class _PackageItemAllocMenuScreenState extends ScreenState<PackageItemAllocMenuScreen> {
-  List<KeyBinding> keyBindings = [
-    KeyBinding([InputKey.Num1, InputKey.F1], 'delete'),
-    KeyBinding([InputKey.Num2, InputKey.F2], 'add'),
-    KeyBinding([InputKey.Num3, InputKey.F3], 'search'),
-  ];
 
   @override
   Widget render(BuildContext context) {
@@ -31,21 +28,21 @@ class _PackageItemAllocMenuScreenState extends ScreenState<PackageItemAllocMenuS
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           _optionButton(
-            name: 'delete',
+            action: GlobalAction.ItemAllocDelete,
             icon: Icons.remove,
             color: Colors.redAccent,
             text: '减件',
           ),
           Padding(padding: EdgeInsets.only(top: 8)),
           _optionButton(
-            name: 'add',
+            action: GlobalAction.ItemAllocAdd,
             icon: Icons.add,
             color: Colors.blueAccent,
             text: '加件',
           ),
           Padding(padding: EdgeInsets.only(top: 8)),
           _optionButton(
-            name: 'search',
+            action: GlobalAction.ItemAllocSearch,
             icon: Icons.find_in_page,
             color: Colors.green,
             text: '查询',
@@ -58,16 +55,18 @@ class _PackageItemAllocMenuScreenState extends ScreenState<PackageItemAllocMenuS
   @override
   void onKeyUp(RawKeyEvent event) {
     KeyCombination keyCombination = KeyCombination.fromRawKeyEvent(event);
-    for (var binding in keyBindings) {
-      if (binding.keyCombination.isPressed(keyCombination, KeyCombinationMatchingMode.Any)) {
-        _enterScreen(binding.action);
-        return;
-      }
+    KeyBinding binding = KeyBindingManager.getByKeyCombination(keyCombination);
+    if (binding != null) {
+      _enterScreen(binding.action);
     }
     super.onKeyUp(event);
   }
 
-  Widget _optionButton({String name, IconData icon, String text, Color color}) {
+  Widget _optionButton({GlobalAction action, IconData icon, String text, Color color}) {
+    String keysText = KeyBindingManager.getByAction(action)
+        .where((binding) => binding.keyCombination.keys[0] != InputKey.None)
+        .map((binding) => binding.keyCombination.readableString())
+        .join(' / ');
     return Container(
       height: 120,
       child: Material(
@@ -76,7 +75,7 @@ class _PackageItemAllocMenuScreenState extends ScreenState<PackageItemAllocMenuS
         color: color,
         child: InkWell(
           onTap: () {
-            _enterScreen(name);
+            _enterScreen(action);
           },
           child: Center(
             child: Column(
@@ -96,7 +95,7 @@ class _PackageItemAllocMenuScreenState extends ScreenState<PackageItemAllocMenuS
                   ],
                 ),
                 Padding(padding: EdgeInsets.symmetric(vertical: 4),),
-                Text(keyBindings.firstWhere((binding) => binding.action == name).keyCombination.readableString(separator: ' / '),
+                Text(keysText,
                   style: TextStyle(
                     color: Colors.white38,
                     fontSize: 11,
@@ -110,16 +109,16 @@ class _PackageItemAllocMenuScreenState extends ScreenState<PackageItemAllocMenuS
     );
   }
 
-  void _enterScreen(String functionName) {
-    switch (functionName) {
-      case 'add':
-        push(PackageItemAllocScreen(opType: 1));
-        break;
-      case 'delete':
+  void _enterScreen(GlobalAction action) {
+    switch (action) {
+      case GlobalAction.ItemAllocDelete:
         push(PackageItemAllocScreen(opType: 2));
         break;
-      case 'search':
-        push(PackageItemOpRecordSearchScreen());
+      case GlobalAction.ItemAllocAdd:
+        push(PackageItemAllocScreen(opType: 1));
+        break;
+      case GlobalAction.ItemAllocSearch:
+        push(PackageItemAllocSearchScreen());
         break;
     }
   }

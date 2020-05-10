@@ -15,7 +15,7 @@ import 'screens/user/register.dart';
 import 'screens/settings/settings.dart';
 
 class Login extends Screen {
-  Login() : super(title: "欢迎登陆", hasAppBar: false, autoKeyboardFocus: false);
+  Login() : super(title: "欢迎登陆", hasAppBar: false, autoKeyboardFocus: false, addPadding: EdgeInsets.all(-8));
   @override
   State<StatefulWidget> createState() => LoginState();
 }

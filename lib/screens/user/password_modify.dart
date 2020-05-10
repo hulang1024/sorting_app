@@ -70,6 +70,17 @@ class PasswordModifyScreenState extends ScreenState<PasswordModifyScreen> {
     );
   }
 
+  @override
+  void onOKKeyDown() {
+    if (focusNodes['newPassword'].hasFocus) {
+      submit();
+    } else if (FocusScope.of(context).hasFocus) {
+      FocusScope.of(context).nextFocus();
+    } else {
+      submit();
+    }
+  }
+
   void submit() async {
     var form = formKey.currentState;
     if (form.validate()) {

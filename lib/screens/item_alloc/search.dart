@@ -6,14 +6,14 @@ import '../../widgets/data_list.dart';
 import '../../api/http_api.dart';
 import 'list_tile.dart';
 
-class PackageItemOpRecordSearchScreen extends Screen {
-  PackageItemOpRecordSearchScreen() : super(title: '集包快件操作记录', autoKeyboardFocus: false);
+class PackageItemAllocSearchScreen extends Screen {
+  PackageItemAllocSearchScreen() : super(title: '集包快件操作记录', autoKeyboardFocus: false);
 
   @override
-  State<StatefulWidget> createState() => PackageItemOpRecordSearchScreenState();
+  State<StatefulWidget> createState() => PackageItemAllocSearchScreenState();
 }
 
-class PackageItemOpRecordSearchScreenState extends ScreenState<PackageItemOpRecordSearchScreen> {
+class PackageItemAllocSearchScreenState extends ScreenState<PackageItemAllocSearchScreen> {
   GlobalKey<DataListViewState> dataListKey = GlobalKey();
 
   @override

@@ -9,7 +9,9 @@ import 'package:sorting/input/bindings/key_combination.dart';
 import 'package:sorting/session.dart';
 import 'package:sorting/widgets/message.dart';
 import 'item/search.dart';
+import 'item_alloc/item_alloc.dart';
 import 'item_alloc/item_alloc_menu.dart';
+import 'item_alloc/search.dart';
 import 'menu/main_menu.dart';
 import 'package/create.dart';
 import 'package/delete.dart';
@@ -157,6 +159,15 @@ abstract class ScreenState<T extends Screen> extends State<T> {
         break;
       case GlobalAction.ItemSearch:
         push(ItemSearchScreen());
+        break;
+      case GlobalAction.ItemAllocDelete:
+        push(PackageItemAllocScreen(opType: 2));
+        break;
+      case GlobalAction.ItemAllocAdd:
+        push(PackageItemAllocScreen(opType: 1));
+        break;
+      case GlobalAction.ItemAllocSearch:
+        push(PackageItemAllocSearchScreen());
         break;
     }
   }
