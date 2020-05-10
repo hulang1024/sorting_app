@@ -12,7 +12,7 @@ import 'details.dart';
 import 'list_tile.dart';
 
 class PackageCreateScreen extends Screen {
-  PackageCreateScreen({this.smartCreate = false}) : super(title: smartCreate ? '智能建包' : '手动建包');
+  PackageCreateScreen({this.smartCreate = false}) : super(title: smartCreate ? '智能建包' : '手动建包', autoKeyboardFocus: false);
 
   final bool smartCreate;
 
@@ -27,7 +27,6 @@ class PackageCreateScreenState extends ScreenState<PackageCreateScreen> {
   var focusNodes = {
     'code': FocusNode(),
     'destCode': FocusNode(),
-    'destCodeKeyboard': FocusNode(),
   };
   Map<String, dynamic> formData = {};
   String address = '';
@@ -44,7 +43,7 @@ class PackageCreateScreenState extends ScreenState<PackageCreateScreen> {
               focusNode: focusNodes['code'],
               labelText: '集包编号',
               onDone: (code) {
-                FocusScope.of(context).requestFocus(focusNodes['destCode']);
+                FocusScope.of(context).nextFocus();
               },
             ),
             TextField(
@@ -68,7 +67,6 @@ class PackageCreateScreenState extends ScreenState<PackageCreateScreen> {
           color: Theme.of(context).primaryColor,
           textColor: Colors.white,
           onPressed: () {
-            FocusScope.of(context).requestFocus(FocusNode());
             submit();
           },
           child: Text('建包'),
@@ -115,23 +113,47 @@ class PackageCreateScreenState extends ScreenState<PackageCreateScreen> {
   }
 
   void queryAddress() async {
+    String destCode = destCodeController.text;
+    if (destCode.isEmpty) {
+      setState(() {
+        this.address = '';
+      });
+      return;
+    }
     setState(() {
       querying = true;
     });
-    String address = await CodedAddressService().query(code: destCodeController.text);
+    String address = await CodedAddressService().query(code: destCode);
     setState(() {
       this.address = address ?? '';
       querying = false;
     });
   }
 
+  @protected
+  void onOKKeyDown() {
+    if (focusNodes['destCode'].hasFocus) {
+      submit();
+    } else if (FocusScope.of(context).hasFocus) {
+      FocusScope.of(context).nextFocus();
+    } else {
+      submit();
+    }
+  }
+
   void submit() async {
-    //queryAddress();
+    FocusScope.of(context).unfocus();
+
     formData['code'] = codeInputKey.currentState.controller.text;
     formData['destCode'] = destCodeController.text;
-    if (!(formData['code'].isNotEmpty && formData['destCode'].isNotEmpty)) {
-      return;
+
+    for (var field in formData.keys) {
+      if (formData[field].isEmpty) {
+        focusNodes[field].requestFocus();
+        return;
+      }
     }
+
 
     Result result = await PackageService().add(
       formData,

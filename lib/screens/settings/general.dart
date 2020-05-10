@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../config.dart';
+import '../../config/config.dart';
 import '../screen.dart';
 import '../../api/http_api.dart';
 import '../../widgets/message.dart';
@@ -18,7 +18,7 @@ enum ServerConfigureState {
 }
 
 class GeneralSettingsScreenState extends ScreenState<GeneralSettingsScreen> {
-  final Map<String, TextEditingController> fieldControllers = {};
+  Map<String, TextEditingController> fieldControllers = {};
   ServerConfigureState serverConfigureState = ServerConfigureState.untested;
   List schemes = [];  // 可选择的"模式"的列表
   int schemeId;       // 记录已选择的"模式"
@@ -28,7 +28,7 @@ class GeneralSettingsScreenState extends ScreenState<GeneralSettingsScreen> {
   void initState() {
     super.initState();
 
-    ['branch.name', 'branch.code', 'server.hostname', 'server.port'].forEach((field) {
+    ['server.hostname', 'server.port', 'branch.name', 'branch.code'].forEach((field) {
       fieldControllers[field] = TextEditingController();
     });
 
@@ -99,26 +99,24 @@ class GeneralSettingsScreenState extends ScreenState<GeneralSettingsScreen> {
             ),
           ),
         ]),
-        Container(
-          margin: EdgeInsets.only(bottom: 8),
-          child: RaisedButton(
-            color: [
-              Colors.orange,
-              Colors.orangeAccent,
-              Colors.redAccent,
-              Colors.lightGreen,
-              Colors.green
-            ][serverConfigureState.index],
-            textColor: Colors.white,
-            onPressed: onServerConfigurePressed,
-            child: Text([
-              '连接测试',
-              '连接测试中，请稍等',
-              '连接测试失败，请重试',
-              '连接测试成功，点击使用新配置',
-              '已设置成功'
-            ][serverConfigureState.index]),
-          ),
+        RaisedButton(
+          focusNode: FocusNode(skipTraversal: true),
+          color: [
+            Colors.orange,
+            Colors.orangeAccent,
+            Colors.redAccent,
+            Colors.lightGreen,
+            Colors.green
+          ][serverConfigureState.index],
+          textColor: Colors.white,
+          onPressed: onServerConfigurePressed,
+          child: Text([
+            '连接测试',
+            '连接测试中，请稍等',
+            '连接测试失败，请重试',
+            '连接测试成功，点击使用新配置',
+            '已设置成功'
+          ][serverConfigureState.index]),
         ),
         TextField(
           controller: fieldControllers['branch.name'],
@@ -143,14 +141,12 @@ class GeneralSettingsScreenState extends ScreenState<GeneralSettingsScreen> {
             labelText: '网点编码',
           ),
         ),
-        Container(
-          margin: EdgeInsets.only(top: 0),
-          child: RaisedButton(
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
-            onPressed: onSaveBranchPressed,
-            child: Text('设置网点'),
-          ),
+        RaisedButton(
+          focusNode: FocusNode(skipTraversal: true),
+          color: Theme.of(context).primaryColor,
+          textColor: Colors.white,
+          onPressed: onSaveBranchPressed,
+          child: Text('设置网点'),
         ),
         ListTile(
           title: Text('模式', style: TextStyle(fontSize: 14)),
@@ -159,23 +155,23 @@ class GeneralSettingsScreenState extends ScreenState<GeneralSettingsScreen> {
           trailing: Container(
             margin: EdgeInsets.zero,
             child: schemes.length == 0
-                ? SizedBox()
-                : DropdownButtonHideUnderline(child:
-            DropdownButton(
-              items: schemes.map((item) => DropdownMenuItem(
-                value: item['id'],
-                child: Text(item['company']),
-              )).toList(),
-              hint: Text('请选择'),
-              onChanged: onSchemeChanged,
-              value: schemeId,
-              style: TextStyle(
-                color: Color(0xff4a4a4a),
-                fontSize: 14,
-              ),
-              isDense: false,
-            ),
-            ),
+              ? SizedBox()
+              : DropdownButtonHideUnderline(
+                  child: DropdownButton(
+                    items: schemes.map((item) => DropdownMenuItem(
+                      value: item['id'],
+                      child: Text(item['company']),
+                    )).toList(),
+                    hint: Text('请选择'),
+                    onChanged: onSchemeChanged,
+                    value: schemeId,
+                    style: TextStyle(
+                      color: Color(0xff4a4a4a),
+                      fontSize: 14,
+                    ),
+                    isDense: false,
+                  ),
+                ),
           ),
         ),
         ListTile(
@@ -193,19 +189,23 @@ class GeneralSettingsScreenState extends ScreenState<GeneralSettingsScreen> {
             },
           ),
         ),
-        Container(
-          child: RaisedButton(
-            color: Colors.redAccent,
-            textColor: Colors.white,
-            onPressed: () {
-              Messager.warning('请长按按钮以确认');
-            },
-            onLongPress: onResetPressed,
-            child: Text('重置设置'),
-          ),
+        RaisedButton(
+          focusNode: FocusNode(skipTraversal: true),
+          color: Colors.redAccent,
+          textColor: Colors.white,
+          onPressed: () {
+            Messager.warning('请长按按钮以确认');
+          },
+          onLongPress: onResetPressed,
+          child: Text('重置设置'),
         ),
       ],
     );
+  }
+
+  @protected
+  void onOKKeyDown() {
+    FocusScope.of(context).nextFocus();
   }
 
   Future fetchSchemes() async {
@@ -226,9 +226,9 @@ class GeneralSettingsScreenState extends ScreenState<GeneralSettingsScreen> {
       }
     });
     if (validateOkCnt == 2) {
-      Messager.ok('保存成功');
+      Messager.ok('网点保存成功');
     } else {
-      Messager.error('保存失败');
+      Messager.error('网点保存失败');
     }
   }
 
@@ -316,17 +316,18 @@ class GeneralSettingsScreenState extends ScreenState<GeneralSettingsScreen> {
     });
   }
 
-  void onResetPressed() {
+  void onResetPressed() async {
     fieldControllers.forEach((key, ctrl) => ctrl.text = '');
-    ConfigurationManager.clear();
-    ConfigurationManager.configuration().then((config) {
-      config.remove('schemeId');
+    var config = await ConfigurationManager.configuration();
+    ['server.hostname', 'server.port', 'branch.name', 'branch.code', 'schemeId', 'rememberUsername'].forEach((key) {
+      config.remove(key);
     });
     api.prepare(reload: true);
     Messager.ok('重置设置成功');
     setState(() {
       serverConfigureState = ServerConfigureState.untested;
       schemeId = null;
+      rememberUsername = false;
     });
   }
 }

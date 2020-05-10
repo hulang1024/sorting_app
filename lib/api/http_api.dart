@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:cookie_jar/cookie_jar.dart';
-import '../config.dart';
+import '../config/config.dart';
 import '../widgets/message.dart';
 part 'model/result.dart';
 part '../entity/page.dart';

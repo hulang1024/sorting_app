@@ -4,7 +4,7 @@ import '../../api/http_api.dart';
 import '../../widgets/message.dart';
 
 class PasswordModifyScreen extends Screen {
-  PasswordModifyScreen() : super(title: '修改密码');
+  PasswordModifyScreen() : super(title: '修改密码', autoKeyboardFocus: false);
   @override
   State<StatefulWidget> createState() => PasswordModifyScreenState();
 }

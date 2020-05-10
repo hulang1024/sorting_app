@@ -8,7 +8,7 @@ import '../../login.dart';
 import '../../api/http_api.dart';
 
 class ProfileScreen extends Screen {
-  ProfileScreen() : super(title: '我的', homeAction: false);
+  ProfileScreen() : super(title: '我的', homeAction: false, isRootScreen: true);
   @override
   State<StatefulWidget> createState() => ProfileScreenState();
 }
@@ -54,7 +54,20 @@ class ProfileScreenState extends ScreenState<ProfileScreen> {
         ]),
         Padding(padding: EdgeInsets.only(top: 90)),
         RaisedButton(
-          color: Colors.orange,
+          color: Color(0xffbbbbbb),
+          textColor: Colors.white,
+          onPressed: () {
+            push(SettingsScreen());
+          },
+          child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.settings, size: 16,),
+                Text('设置')
+              ]),
+        ),
+        RaisedButton(
+          color: Theme.of(context).primaryColor,
           textColor: Colors.white,
           onPressed: () {
             push(PasswordModifyScreen());
@@ -70,17 +83,6 @@ class ProfileScreenState extends ScreenState<ProfileScreen> {
             api.post('/user/logout');
           },
           child: Text('退出用户'),
-        ),
-        RaisedButton(
-          onPressed: () {
-            push(SettingsScreen());
-          },
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.settings, size: 16,),
-              Text('设置')
-            ]),
         ),
       ],
     );

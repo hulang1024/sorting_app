@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dio/dio.dart';
 import 'package:sorting/entity/user_entity.dart';
+import 'package:sorting/screens/screen.dart';
 import 'package:sorting/screens/settings/general.dart';
 import 'package:sorting/session.dart';
-import 'config.dart';
+import 'config/config.dart';
+import 'input/bindings/key_bindings_manager.dart';
 import 'screens/settings/version.dart';
 import 'widgets/message.dart';
 import 'api/http_api.dart';
@@ -12,15 +14,16 @@ import 'home.dart';
 import 'screens/user/register.dart';
 import 'screens/settings/settings.dart';
 
-class Login extends StatefulWidget {
+class Login extends Screen {
+  Login() : super(title: "欢迎登陆", hasAppBar: false, autoKeyboardFocus: false);
   @override
   State<StatefulWidget> createState() => LoginState();
 }
 
-class LoginState extends State<Login> with SingleTickerProviderStateMixin {
+class LoginState extends ScreenState<Login> with SingleTickerProviderStateMixin {
   Map<String, TextEditingController> controllers = {};
   Map<String, FocusNode> focusNodes = {};
-  GlobalKey akey = GlobalKey();
+  GlobalKey captchaContainerKey = GlobalKey();
   Image captchaImage;
   bool captchaLoading = true;
   bool logging = false;
@@ -28,6 +31,7 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+
     ['username', 'password', 'captcha'].forEach((key) {
       controllers[key] = TextEditingController();
       focusNodes[key] = FocusNode();
@@ -47,6 +51,8 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
         Messager.warning('请先进行初始设置');
         Navigator.of(context).push(MaterialPageRoute(builder: (_) => GeneralSettingsScreen()));
       }
+
+      await KeyBindingManager.load();
     })();
   }
 
@@ -61,10 +67,10 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget render(BuildContext context) {
     return Material(
       child: Container(
-        padding: EdgeInsets.fromLTRB(24, 32, 24, 0),
+        padding: EdgeInsets.fromLTRB(16, 32, 16, 0),
         child: ListView(
           children: [
             Text('欢迎登陆', style: TextStyle(color: Colors.black87.withOpacity(0.8), fontSize: 21, fontWeight: FontWeight.bold)),
@@ -73,7 +79,7 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
                 Container(
                   margin: EdgeInsets.only(top: 32),
                   decoration: BoxDecoration(
-                    color: Color(0xfff2f0f4),
+                    color: Color(0xffe9e7ef),
                     borderRadius: BorderRadius.all(Radius.circular(4)),
                   ),
                   child: TextField(
@@ -98,7 +104,7 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
                 Container(
                   margin: EdgeInsets.only(top: 16),
                   decoration: BoxDecoration(
-                    color: Color(0xfff2f0f4),
+                    color: Color(0xffe9e7ef),
                     borderRadius: BorderRadius.all(Radius.circular(4)),
                   ),
                   child: TextField(
@@ -126,7 +132,7 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
                     Container(
                       margin: EdgeInsets.fromLTRB(0, 16, 8, 0),
                       decoration: BoxDecoration(
-                        color: Color(0xfff2f0f4),
+                        color: Color(0xffe9e7ef),
                         borderRadius: BorderRadius.all(Radius.circular(4)),
                       ),
                       width: 124,
@@ -146,9 +152,8 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
                       ),
                     ),
                     Expanded(
-                      key: akey,
-                      child: AnimatedContainer(
-                        duration: Duration(milliseconds: 400),
+                      key: captchaContainerKey,
+                      child: Container(
                         height: 50,
                         child: InkWell(
                           onTap: onCaptchaPressed,
@@ -166,7 +171,7 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
               ],
             ),
             Container(
-              margin: EdgeInsets.fromLTRB(0, 24, 0, 48),
+              margin: EdgeInsets.fromLTRB(0, 24, 0, 24),
               child: SizedBox(
                 width: double.infinity,
                 height: 40,
@@ -179,11 +184,11 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
               ),
             ),
             ButtonBar(
-              alignment: MainAxisAlignment.spaceEvenly,
+              alignment: MainAxisAlignment.center,
               children: [
                 FlatButton(
                   onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(builder: (_) => SettingsScreen(homeAction: false)));
+                    push(SettingsScreen(homeAction: false));
                   },
                   child: Text('应用设置'),
                 ),
@@ -195,7 +200,7 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
                 ),
                 FlatButton(
                   onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(builder: (_) => RegisterScreen()));
+                    push(RegisterScreen());
                   },
                   child: Text('用户注册'),
                 ),
@@ -205,6 +210,17 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
         ),
       ),
     );
+  }
+
+  @override
+  void onOKKeyDown() {
+    if (focusNodes['captcha'].hasFocus) {
+      onLoginPressed();
+    } else if (FocusScope.of(context).hasFocus) {
+      FocusScope.of(context).nextFocus();
+    } else {
+      onLoginPressed();
+    }
   }
 
   void onCaptchaPressed() async {
@@ -223,7 +239,7 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
     });
     // 不能直接使用NetworkImage，因为NetworkImage和dio将产生不同的session
     return api.get(
-      '/user/login_captcha?width=${(akey.currentContext.findRenderObject() as RenderBox).size.width.toInt()}&height=50&v=${DateTime.now().millisecondsSinceEpoch}',
+      '/user/login_captcha?width=${(captchaContainerKey.currentContext.findRenderObject() as RenderBox).size.width.toInt()}&height=50&v=${DateTime.now().millisecondsSinceEpoch}',
       options: Options(responseType: ResponseType.bytes),
     ).then((resp) {
       setState(() {
@@ -234,6 +250,8 @@ class LoginState extends State<Login> with SingleTickerProviderStateMixin {
   }
 
   void onLoginPressed() async {
+    FocusScope.of(context).unfocus();
+
     if(!await api.prepare()) {
       Messager.warning('无法登陆，请先设置服务器');
       return;

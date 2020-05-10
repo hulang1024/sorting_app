@@ -8,24 +8,26 @@ import 'details.dart';
 import 'list_tile.dart';
 
 class ItemSearchScreen extends Screen {
-  ItemSearchScreen() : super(title: '查询快件');
+  ItemSearchScreen() : super(title: '查询快件', autoKeyboardFocus: false);
 
   @override
   State<StatefulWidget> createState() => ItemSearchScreenState();
 }
 
 class ItemSearchScreenState extends ScreenState<ItemSearchScreen> {
-  final GlobalKey<DataListViewState> dataListKey = GlobalKey();
+  GlobalKey<DataListViewState> dataListKey = GlobalKey();
+  GlobalKey<CodeInputState> codeInputKey = GlobalKey();
 
   @override
   Widget render(BuildContext context) {
     return ListView(
       children: [
         CodeInput(
+          key: codeInputKey,
           labelText: '快件编号',
+          suffixIcon: Icons.search,
           onDone: (code) {
-            FocusScope.of(context).requestFocus(FocusNode());
-            dataListKey.currentState.query({'code': code});
+            search();
           },
         ),
         DataListView(
@@ -45,5 +47,15 @@ class ItemSearchScreenState extends ScreenState<ItemSearchScreen> {
         ),
       ],
     );
+  }
+
+  @override
+  void onOKKeyDown() {
+    search();
+  }
+
+  void search() {
+    FocusScope.of(context).unfocus();
+    dataListKey.currentState.query({'code': codeInputKey.currentState.controller.text});
   }
 }

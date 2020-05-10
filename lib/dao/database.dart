@@ -14,6 +14,12 @@ class SortingDatabase {
       version: 1,
       onCreate: (Database db, int version) async {
         await db.execute('''
+          create table if not exists `key_binding`(
+            `action`           int             not null,
+            `keyCombination`   varchar(20)     not null
+          );
+        ''');
+        await db.execute('''
           create table if not exists `package`(
             `code`            varchar(20)   primary key not null,
             `destCode`        varchar(30)               not null,
@@ -67,6 +73,13 @@ class SortingDatabase {
   static void delete() async {
     deleteDatabase(join(await getDatabasesPath(), DB_FILENAME));
     _db = null;
+  }
+
+  static void deleteOfflineData() async {
+    var db = await instance();
+    for (String table in ['package', 'package_delete_op', 'package_item_op', 'package_item_rel']) {
+      await db.delete(table);
+    }
   }
 
   static void deleteBasicData() async {

@@ -10,7 +10,7 @@ import '../../widgets/message.dart';
 import 'list_tile.dart';
 
 class PackageItemAllocScreen extends Screen {
-  PackageItemAllocScreen({this.opType}) : super(title: opType == 1 ? '集包加件' : '集包减件');
+  PackageItemAllocScreen({this.opType}) : super(title: opType == 1 ? '集包加件' : '集包减件', autoKeyboardFocus: false);
   final int opType;
 
   @override
@@ -19,11 +19,11 @@ class PackageItemAllocScreen extends Screen {
 
 class PackageItemAllocScreenState extends ScreenState<PackageItemAllocScreen> {
   GlobalKey<DataListViewState> dataListKey = GlobalKey();
-  Map<String, GlobalKey<CodeInputState>> codeInputKeys = {
+  Map<String, GlobalKey<CodeInputState>> codeInputKey = {
     'packageCode': GlobalKey(),
     'itemCode': GlobalKey(),
   };
-  var focusNodes = {
+  final focusNodes = {
     'packageCode': FocusNode(),
     'itemCode': FocusNode(),
   };
@@ -35,19 +35,19 @@ class PackageItemAllocScreenState extends ScreenState<PackageItemAllocScreen> {
         Column(
           children: [
             CodeInput(
-              key: codeInputKeys['packageCode'],
+              key: codeInputKey['packageCode'],
               focusNode: focusNodes['packageCode'],
               labelText: '集包编号',
               onDone: (code) {
-                FocusScope.of(context).requestFocus(focusNodes['itemCode']);
+                FocusScope.of(context).nextFocus();
               },
             ),
             CodeInput(
-              key: codeInputKeys['itemCode'],
+              key: codeInputKey['itemCode'],
               focusNode: focusNodes['itemCode'],
               labelText: '快件编号',
               onDone: (code) {
-                focusNodes['itemCode'].unfocus();
+                FocusScope.of(context).unfocus();
               },
             ),
           ],
@@ -83,7 +83,19 @@ class PackageItemAllocScreenState extends ScreenState<PackageItemAllocScreen> {
     return ItemAllocService().queryPage(queryParams);
   }
 
+  @protected
+  void onOKKeyDown() {
+    if (focusNodes['itemCode'].hasFocus) {
+      submit();
+    } else if (FocusScope.of(context).hasFocus) {
+      FocusScope.of(context).nextFocus();
+    } else {
+      submit();
+    }
+  }
+
   void submit() async {
+    FocusScope.of(context).unfocus();
     int opType = widget.opType;
     Map<String, dynamic> formData = {};
     if (opType == 1) {
@@ -95,14 +107,14 @@ class PackageItemAllocScreenState extends ScreenState<PackageItemAllocScreen> {
         return;
       }
     }
-    codeInputKeys.forEach((k, key) => formData[k] = key.currentState.controller.text);
+    codeInputKey.forEach((k, key) => formData[k] = key.currentState.controller.text);
     if (formData['packageCode'].isNotEmpty && formData['itemCode'].isNotEmpty) {
       Result ret = await ItemAllocService().operate(opType, formData);
       if (ret.isOk) {
         Messager.ok('${opType == 1 ? '加件' : '减件'}成功');
         // 只清空快件号
         formData['itemCode'] = '';
-        codeInputKeys['itemCode'].currentState.controller.text = '';
+        codeInputKey['itemCode'].currentState.controller.text = '';
         FocusScope.of(context).requestFocus(focusNodes['itemCode']);
         dataListKey.currentState.query();
       } else {

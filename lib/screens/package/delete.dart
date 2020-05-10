@@ -10,15 +10,15 @@ import '../../api/http_api.dart';
 import 'details.dart';
 
 class PackageDeleteScreen extends Screen {
-  PackageDeleteScreen() : super(title: '删除集包');
+  PackageDeleteScreen() : super(title: '删除集包', autoKeyboardFocus: false);
 
   @override
   State<StatefulWidget> createState() => PackageDeleteScreenState();
 }
 
 class PackageDeleteScreenState extends ScreenState<PackageDeleteScreen> {
-  final GlobalKey<DataListViewState> dataListKey = GlobalKey();
-  final GlobalKey<CodeInputState> codeInputKey = GlobalKey();
+  GlobalKey<DataListViewState> dataListKey = GlobalKey();
+  GlobalKey<CodeInputState> codeInputKey = GlobalKey();
 
   @override
   Widget render(BuildContext context) {
@@ -27,9 +27,9 @@ class PackageDeleteScreenState extends ScreenState<PackageDeleteScreen> {
         CodeInput(
           key: codeInputKey,
           labelText: '集包编号',
+          suffixIcon: Icons.delete_forever,
           onDone: (code) async {
-            FocusScope.of(context).requestFocus(FocusNode());
-            submit(code);
+            submit();
           },
         ),
         DataListView(
@@ -66,8 +66,19 @@ class PackageDeleteScreenState extends ScreenState<PackageDeleteScreen> {
     return PackageDeleteService().queryPage(queryParams);
   }
 
-  void submit(code) async {
-    if (code.isEmpty) return;
+  @override
+  void onOKKeyDown() {
+    submit();
+  }
+
+  void submit() async {
+    FocusScope.of(context).unfocus();
+
+    String code = codeInputKey.currentState.controller.text;
+    if (code.isEmpty) {
+      return;
+    }
+
     Result ret = await PackageDeleteService().delete(code);
     if (ret.isOk) {
       Messager.ok('删除成功');
@@ -77,6 +88,7 @@ class PackageDeleteScreenState extends ScreenState<PackageDeleteScreen> {
       Messager.error(ret.msg);
     }
   }
+
 }
 
 Status deleteOpStatus(code) => [

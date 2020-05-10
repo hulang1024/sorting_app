@@ -4,11 +4,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 class CodeInput extends StatefulWidget {
-  CodeInput({Key key, this.labelText, this.focusNode, this.onDone, this.autofocus = true}) : super(key: key);
+  CodeInput({Key key, this.labelText, this.focusNode, this.onDone, this.autofocus = true, this.suffixIcon}) : super(key: key);
 
   final String labelText;
   final CodeInputDoneCallback onDone;
   final bool autofocus;
+  final IconData suffixIcon;
   final FocusNode focusNode;
 
   @override
@@ -50,6 +51,13 @@ class CodeInputState extends State<CodeInput> {
         labelStyle: TextStyle(fontWeight: FontWeight.normal, letterSpacing: 0),
         counterText: '',
         contentPadding: EdgeInsets.symmetric(vertical: 0),
+        suffix: widget.suffixIcon == null ? null : InkWell(
+          borderRadius: BorderRadius.all(Radius.circular(24)),
+          onTap: () {
+            widget.onDone(controller.text);
+          },
+          child: Icon(widget.suffixIcon, color: Theme.of(context).primaryColor,),
+        ),
       ),
       style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 2),
       onEditingComplete: () {

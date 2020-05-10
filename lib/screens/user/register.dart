@@ -1,12 +1,17 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:sorting/config.dart';
+import 'package:sorting/config/config.dart';
 import '../screen.dart';
 import '../../api/http_api.dart';
 import '../../widgets/message.dart';
 
 class RegisterScreen extends Screen {
-  RegisterScreen() : super(title: '注册', homeAction: false, addPadding: EdgeInsets.only(top: -8, left: 24, right: 24));
+  RegisterScreen() : super(
+    title: '注册',
+    homeAction: false,
+    addPadding: EdgeInsets.only(top: -8, left: 24, right: 24),
+    autoKeyboardFocus: false,
+  );
   @override
   State<StatefulWidget> createState() => RegisterScreenState();
 }
@@ -17,7 +22,7 @@ class RegisterScreenState extends ScreenState<RegisterScreen> {
   var focusNodes = {
     'name': FocusNode(),
     'phone': FocusNode(),
-    'code': FocusNode(),
+    'code': FocusNode(skipTraversal: true),
     'password': FocusNode(),
   };
   Map<String, dynamic> formData = {};
@@ -139,7 +144,19 @@ class RegisterScreenState extends ScreenState<RegisterScreen> {
     );
   }
 
+  @override
+  void onOKKeyDown() {
+    if (focusNodes['password'].hasFocus) {
+      submit();
+    } else if (FocusScope.of(context).hasFocus) {
+      FocusScope.of(context).nextFocus();
+    } else {
+      submit();
+    }
+  }
+
   void submit() async {
+    FocusScope.of(context).unfocus();
     if(!await dependentSettingsOk()) {
       return;
     }

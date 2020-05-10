@@ -7,14 +7,14 @@ import '../../api/http_api.dart';
 import 'list_tile.dart';
 
 class PackageItemOpRecordSearchScreen extends Screen {
-  PackageItemOpRecordSearchScreen() : super(title: '集包快件操作记录');
+  PackageItemOpRecordSearchScreen() : super(title: '集包快件操作记录', autoKeyboardFocus: false);
 
   @override
   State<StatefulWidget> createState() => PackageItemOpRecordSearchScreenState();
 }
 
 class PackageItemOpRecordSearchScreenState extends ScreenState<PackageItemOpRecordSearchScreen> {
-  final GlobalKey<DataListViewState> dataListKey = GlobalKey();
+  GlobalKey<DataListViewState> dataListKey = GlobalKey();
 
   @override
   Widget render(BuildContext context) {
