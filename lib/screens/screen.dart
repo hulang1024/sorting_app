@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:sorting/input/bindings/key_binding.dart';
@@ -65,8 +65,6 @@ abstract class ScreenState<T extends Screen> extends State<T> {
       onKey: (RawKeyEvent event) {
         KeyCombination keyCombination = KeyCombination.fromRawKeyEvent(event);
         if(event is RawKeyDownEvent) {
-          print('keyDOwn');
-
           onKeyDown(keyCombination);
         } else {
           onKeyUp(keyCombination);
@@ -119,7 +117,7 @@ abstract class ScreenState<T extends Screen> extends State<T> {
     }
     KeyBinding binding = KeyBindingManager.getByKeyCombination(keyCombination);
     if (binding != null) {
-      //onKeyBindingAction(binding.action, rootRouteReplace: !widget.isRootScreen);
+      onKeyBindingAction(binding.action, rootRouteReplace: !widget.isRootScreen);
     }
   }
 
