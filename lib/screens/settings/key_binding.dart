@@ -1,7 +1,7 @@
 import 'dart:core';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:sorting/input/bindings/action.dart';
+import 'package:sorting/input/bindings/key_combination.dart';
 import '../screen.dart';
 import 'key_binding/key_binding_section.dart';
 
@@ -40,10 +40,10 @@ class KeyBindingScreenState extends ScreenState<KeyBindingScreen> {
   }
 
   @override
-  void onKeyDown(RawKeyEvent event) {
+  void onKeyDown(KeyCombination keyCombination) {
     _sectionKeys.forEach((key) {
       key.currentState.keyBindingRowKeys.forEach((key) {
-        key.currentState.onKeyDown(event);
+        key.currentState.onKeyDown(keyCombination);
       });
     });
   }

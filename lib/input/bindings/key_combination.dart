@@ -87,7 +87,7 @@ class KeyCombination {
   }
 
   static InputKey fromLogicalKey(LogicalKeyboardKey key) {
-    if (49 <= key.keyId && key.keyId <= 57) {
+    if (48 <= key.keyId && key.keyId <= 57) {
       return InputKey.values[InputKey.Num0.index + (key.keyId - 48)];
     } else if (LogicalKeyboardKey.enter.keyId == key.keyId) {
       return InputKey.Enter;

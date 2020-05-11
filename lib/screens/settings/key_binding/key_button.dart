@@ -18,6 +18,8 @@ class KeyButtonState extends State<KeyButton> {
   bool _isBinding = false;
   KeyBinding _keyBinding;
 
+  KeyCombination get keyCombination => _keyBinding.keyCombination;
+
   bool get isBinding => _isBinding;
   set isBinding(bool value) {
     setState(() {

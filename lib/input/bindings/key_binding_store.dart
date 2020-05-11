@@ -3,6 +3,7 @@ import 'package:sorting/input/bindings/action.dart';
 import 'package:sorting/input/bindings/inputkey.dart';
 import 'package:sorting/input/bindings/key_combination.dart';
 import 'package:sqflite/sqflite.dart';
+import 'database_key_binding.dart';
 import 'key_binding.dart';
 
 class KeyBindingStore {
@@ -23,16 +24,17 @@ class KeyBindingStore {
     return records.map((record) {
       BindingAction action = GLOBAL_ACTIONS.firstWhere((action) => action.code == record['action']);
       List<InputKey> keys = record['keyCombination'].toString().split(' ').map(KeyCombination.fromKeyString).toList();
-      return KeyBinding(KeyCombination(keys), action);
+      return DatabaseKeyBinding(KeyCombination(keys), action, record['id']);
     }).toList();
   }
 
-  Future<void> update(KeyBinding binding) async {
-    assert (binding.action is BindingAction);
+  Future<void> update(KeyBinding keyBinding) async {
+    assert (keyBinding.action is BindingAction);
+    var dbKeyBinding = keyBinding as DatabaseKeyBinding;
     var db = await getDB();
     await db.update('key_binding',
-      {'keyCombination': binding.keyCombination.toString()},
-      where: 'action = ${binding.action.code}',
+      {'keyCombination': keyBinding.keyCombination.toString()},
+      where: 'id = ${dbKeyBinding.id}',
     );
   }
 

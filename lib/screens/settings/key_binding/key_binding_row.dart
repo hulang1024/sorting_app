@@ -32,9 +32,8 @@ class KeyBindingRowState extends State<KeyBindingRow> {
   static KeyBindingStore _keyBindingStore = KeyBindingStore();
   List<KeyButton> _keyButtons;
   KeyButton _bindTarget;
-  KeyButtonState _bindTargetState([KeyButton button]) {
-    return (((button ?? _bindTarget).key) as GlobalKey).currentState as KeyButtonState;
-  }
+  KeyButtonState _keyButtonState([KeyButton button]) => ((button.key) as GlobalKey).currentState as KeyButtonState;
+  KeyButtonState get _bindTargetState => _keyButtonState(_bindTarget);
 
   @override
   void initState() {
@@ -49,16 +48,16 @@ class KeyBindingRowState extends State<KeyBindingRow> {
               return;
             }
             if (widget.hasFocus) {
-              if (_bindTarget == target && _bindTargetState().isBinding) {
+              if (_bindTarget == target && _bindTargetState.isBinding) {
                 widget.onChangeFocus(false);
                 return;
               }
-              _bindTargetState().isBinding = false;
+              _bindTargetState.isBinding = false;
               _bindTarget = target;
-              _bindTargetState().isBinding = true;
+              _bindTargetState.isBinding = true;
             } else {
               _bindTarget = target;
-              _bindTargetState().isBinding = true;
+              _bindTargetState.isBinding = true;
               widget.onChangeFocus(true);
             }
           },
@@ -149,27 +148,26 @@ class KeyBindingRowState extends State<KeyBindingRow> {
     if (widget.hasFocus) {
       if (_bindTarget == null) {
         _bindTarget = _keyButtons[0];
-        _bindTargetState().isBinding = true;
+        _bindTargetState.isBinding = true;
       }
     } else {
       if(_bindTarget != null) {
-        _bindTargetState().isBinding = false;
+        _bindTargetState.isBinding = false;
         _bindTarget = null;
       }
     }
   }
 
-  void onKeyDown(RawKeyEvent event) {
+  void onKeyDown(KeyCombination keyCombination) {
     if (!widget.hasFocus || _bindTarget == null) {
       return;
     }
 
-    KeyCombination keyCombination = KeyCombination.fromRawKeyEvent(event);
     if (keyCombination.keys[0] == InputKey.None) {
       Messager.ok('不支持的按键');
       return;
     }
-    _bindTargetState().updateKeyCombination(keyCombination);
+    _bindTargetState.updateKeyCombination(keyCombination);
     _keyBindingStore.update(_bindTarget.keyBinding);
     widget.onChangeFocus(false);
   }
@@ -181,7 +179,8 @@ class KeyBindingRowState extends State<KeyBindingRow> {
   void onClearPressed() {
     widget.onChangeFocus(false);
 
-    _bindTargetState().updateKeyCombination(KeyCombination([InputKey.None]));
+    _bindTargetState.updateKeyCombination(KeyCombination([InputKey.None]));
+    _keyBindingStore.update(_bindTarget.keyBinding);
   }
 
   void restoreDefaults() async {
@@ -189,7 +188,7 @@ class KeyBindingRowState extends State<KeyBindingRow> {
     int i = 0;
     for (KeyBinding d in defaults) {
       KeyButton button = _keyButtons[i++];
-      _bindTargetState(button).updateKeyCombination(d.keyCombination);
+      _keyButtonState(button).updateKeyCombination(d.keyCombination);
       _keyBindingStore.update(button.keyBinding);
     }
   }

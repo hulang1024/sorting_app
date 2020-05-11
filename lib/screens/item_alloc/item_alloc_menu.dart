@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:sorting/input/bindings/action.dart';
 import 'package:sorting/input/bindings/inputkey.dart';
 import 'package:sorting/input/bindings/key_binding.dart';
@@ -53,13 +52,12 @@ class _PackageItemAllocMenuScreenState extends ScreenState<PackageItemAllocMenuS
   }
 
   @override
-  void onKeyUp(RawKeyEvent event) {
-    KeyCombination keyCombination = KeyCombination.fromRawKeyEvent(event);
+  void onKeyUp(KeyCombination keyCombination) {
     KeyBinding binding = KeyBindingManager.getByKeyCombination(keyCombination);
     if (binding != null) {
       _enterScreen(binding.action);
     }
-    super.onKeyUp(event);
+    super.onKeyUp(keyCombination);
   }
 
   Widget _optionButton({GlobalAction action, IconData icon, String text, Color color}) {

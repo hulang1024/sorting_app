@@ -252,6 +252,10 @@ class LoginState extends ScreenState<Login> with SingleTickerProviderStateMixin 
   void onLoginPressed() async {
     FocusScope.of(context).unfocus();
 
+    if (!KeyBindingManager.isLoaded()) {
+      Messager.warning('未加载成功按键配置数据');
+    }
+
     if(!await api.prepare()) {
       Messager.warning('无法登陆，请先设置服务器');
       return;

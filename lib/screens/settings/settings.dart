@@ -152,8 +152,7 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
   }
 
   @override
-  void onKeyDown(RawKeyEvent event) {
-    KeyCombination keyCombination = KeyCombination.fromRawKeyEvent(event);
+  void onKeyDown(KeyCombination keyCombination) {
     for (var binding in keyBindings) {
       if (binding.keyCombination.isPressed(keyCombination, KeyCombinationMatchingMode.Any)) {
         RaisedButton button = buttonKeys[binding.action].currentContext?.widget as RaisedButton;
@@ -166,6 +165,6 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
         return;
       }
     }
-    super.onKeyUp(event);
+    super.onKeyUp(keyCombination);
   }
 }

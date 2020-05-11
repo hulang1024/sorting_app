@@ -63,10 +63,13 @@ abstract class ScreenState<T extends Screen> extends State<T> {
       focusNode: _keyFocusNode,
       autofocus: widget.autoKeyboardFocus,
       onKey: (RawKeyEvent event) {
+        KeyCombination keyCombination = KeyCombination.fromRawKeyEvent(event);
         if(event is RawKeyDownEvent) {
-          onKeyDown(event);
+          print('keyDOwn');
+
+          onKeyDown(keyCombination);
         } else {
-          onKeyUp(event);
+          onKeyUp(keyCombination);
         }
         // 观察到 有时正好是打断点的时候，会导致重复触发，所以在调试按键监听功能时，不要打断点
       },
@@ -104,9 +107,7 @@ abstract class ScreenState<T extends Screen> extends State<T> {
   Widget render(BuildContext context);
 
   @protected
-  void onKeyDown(RawKeyEvent event) async {
-    KeyCombination keyCombination = KeyCombination.fromRawKeyEvent(event);
-
+  void onKeyDown(KeyCombination keyCombination) async {
     if (KeyCombination([InputKey.Enter, InputKey.OK]).isPressed(keyCombination, KeyCombinationMatchingMode.Any)) {
       onOKKeyDown();
     }
@@ -118,12 +119,12 @@ abstract class ScreenState<T extends Screen> extends State<T> {
     }
     KeyBinding binding = KeyBindingManager.getByKeyCombination(keyCombination);
     if (binding != null) {
-      onKeyBindingAction(binding.action, rootRouteReplace: !widget.isRootScreen);
+      //onKeyBindingAction(binding.action, rootRouteReplace: !widget.isRootScreen);
     }
   }
 
   @protected
-  void onKeyUp(RawKeyEvent event) {}
+  void onKeyUp(KeyCombination keyCombination) {}
 
   @protected
   void onOKKeyDown() {}

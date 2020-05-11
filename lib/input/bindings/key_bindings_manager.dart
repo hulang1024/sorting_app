@@ -32,21 +32,17 @@ abstract class KeyBindingManager {
   static List<KeyBinding> _keyBindings;
   static KeyBindingStore keyBindingStore = KeyBindingStore();
 
-  static Future<List<KeyBinding>> getKeyBindings() async {
-    if (_keyBindings == null) {
-      await load();
-    }
-
-    return _keyBindings;
-  }
+  static isLoaded() => _keyBindings != null && _keyBindings.isNotEmpty;
+  static List<KeyBinding> getKeyBindings() => _keyBindings;
 
   static Future load() async {
     List<KeyBinding> keyBindings = await keyBindingStore.query();
     if (keyBindings.length > 0) {
       _keyBindings = keyBindings;
     } else {
-      _keyBindings = getDefaultGlobalKeyBindings();
-      await keyBindingStore.saveDefaults(_keyBindings);
+      await keyBindingStore.saveDefaults(getDefaultGlobalKeyBindings());
+      // 重新查询以返回DatabaseKeyBinding
+      _keyBindings = await keyBindingStore.query();
     }
   }
 

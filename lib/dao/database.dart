@@ -15,6 +15,7 @@ class SortingDatabase {
       onCreate: (Database db, int version) async {
         await db.execute('''
           create table if not exists `key_binding`(
+            `id`               integer   primary key autoincrement not null,
             `action`           int             not null,
             `keyCombination`   varchar(20)     not null
           );
