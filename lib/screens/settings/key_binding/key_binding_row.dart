@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+﻿import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:sorting/input/bindings/action.dart';
 import 'package:sorting/input/bindings/inputkey.dart';
@@ -78,18 +78,12 @@ class KeyBindingRowState extends State<KeyBindingRow> {
       child: AnimatedContainer(
         duration: Duration(milliseconds: 500),
         curve: Curves.easeOutQuint,
-        height: widget.hasFocus ? 70 : 38,
+        height: widget.hasFocus ? 70 : 36,
         margin: EdgeInsets.only(bottom: 2),
         padding: EdgeInsets.symmetric(vertical: 4, horizontal: 4),
         decoration: BoxDecoration(
           color: Colors.black26,
           borderRadius: BorderRadius.all(Radius.circular(4)),
-          border: Border.all(
-            color: widget.hasFocus
-                ? Colors.orangeAccent
-                : Colors.white.withOpacity(0),
-            width: 2,
-          ),
         ),
         child: SingleChildScrollView(
           child: Column(
@@ -102,9 +96,12 @@ class KeyBindingRowState extends State<KeyBindingRow> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: <Widget>[
-                        ..._keyButtons.map((btn) => Padding(
-                          padding: EdgeInsets.only(left: 4),
-                          child: btn,)),
+                        ..._keyButtons.map((btn) =>
+                            Padding(
+                              padding: EdgeInsets.only(left: 8),
+                              child: btn,
+                            )
+                        ),
                       ],
                     ),
                   )
@@ -112,24 +109,23 @@ class KeyBindingRowState extends State<KeyBindingRow> {
               ),
               if (widget.hasFocus)
                 Container(
-                  height: 30,
-                  margin: EdgeInsets.only(top: 4),
-                  padding: EdgeInsets.symmetric(vertical: 2),
+                  height: 28,
+                  margin: EdgeInsets.only(top: 6),
                   child: ButtonBar(
                     buttonPadding: EdgeInsets.zero,
                     buttonHeight: 26,
                     buttonMinWidth: 70,
                     children: [
                       if (widget.hasFocus)
-                        Text('按下新按键以修改', style: TextStyle(fontSize: 12),),
-                      Padding(padding: EdgeInsets.symmetric(horizontal: 4),),
+                        Text('按下按键以修改', style: TextStyle(fontSize: 12),),
+                      Padding(padding: EdgeInsets.symmetric(horizontal: 6),),
                       FlatButton(
                         color: Theme.of(context).primaryColor,
                         textColor: Colors.white,
                         child: Text('取消'),
                         onPressed: onCancelPressed,
                       ),
-                      Padding(padding: EdgeInsets.symmetric(horizontal: 2),),
+                      Padding(padding: EdgeInsets.symmetric(horizontal: 4),),
                       FlatButton(
                         color: Colors.redAccent,
                         textColor: Colors.white,
@@ -169,8 +165,8 @@ class KeyBindingRowState extends State<KeyBindingRow> {
     }
 
     KeyCombination keyCombination = KeyCombination.fromRawKeyEvent(event);
-    if (keyCombination == null) {
-      Messager.ok('无效按键');
+    if (keyCombination.keys[0] == InputKey.None) {
+      Messager.ok('不支持的按键');
       return;
     }
     _bindTargetState().updateKeyCombination(keyCombination);

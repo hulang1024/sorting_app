@@ -25,6 +25,7 @@
 ![](doc/screenshots/settings_general.png)
 ![](doc/screenshots/key_binding.png)
 
-## 适配
-已适配 `kaicom-w571`
+
+## 兼容适配设备
+*kaicom-w571*  
 ![](doc/screenshots/kaicomw571.png)

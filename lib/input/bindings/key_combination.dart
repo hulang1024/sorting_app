@@ -92,7 +92,7 @@ class KeyCombination {
     } else if (LogicalKeyboardKey.enter.keyId == key.keyId) {
       return InputKey.Enter;
     } else {
-      return KAICOM_W571_KEY_MAP[key.keyId];
+      return KAICOM_W571_KEY_MAP[key.keyId] ?? InputKey.None;
     }
   }
 }

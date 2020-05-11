@@ -12,10 +12,10 @@ class GlobalAction extends BindingAction {
   static const ItemAlloc = GlobalAction(4, '加包减包');
   static const PackageSearch = GlobalAction(5, '查询集包');
   static const ItemSearch = GlobalAction(6, '查询快件');
-  static const ItemAllocDelete = GlobalAction(4, '集包减件');
-  static const ItemAllocAdd = GlobalAction(5, '集包加件');
-  static const ItemAllocSearch = GlobalAction(6, '查询集包快件操作记录');
-  static const OK = GlobalAction(7, '确定/执行操作/下一个输入');
+  static const ItemAllocDelete = GlobalAction(7, '集包减件');
+  static const ItemAllocAdd = GlobalAction(8, '集包加件');
+  static const ItemAllocSearch = GlobalAction(9, '查询集包快件操作记录');
+  static const OK = GlobalAction(100, '确定/执行操作/下一个输入');
 
   const GlobalAction(int code, String text) : super(code, text);
 }

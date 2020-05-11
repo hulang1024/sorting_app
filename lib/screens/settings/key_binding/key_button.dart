@@ -34,6 +34,7 @@ class KeyButtonState extends State<KeyButton> {
 
   @override
   Widget build(BuildContext context) {
+    //与kaicom w571的实体按键颜色相同
     Color backgroundColor = Colors.black87;
     Color textColor = Colors.white.withOpacity(0.9);
     InputKey key = _keyBinding.keyCombination.keys[0]; // 目前只支持单个键
@@ -63,7 +64,7 @@ class KeyButtonState extends State<KeyButton> {
       duration: Duration(milliseconds: 150),
       curve: Curves.easeOutQuint,
       width: 70,
-      height: 26,
+      height: 28,
       decoration: BoxDecoration(
         color: _isBinding ? Colors.white : backgroundColor,
         borderRadius: BorderRadius.all(Radius.circular(4)),
