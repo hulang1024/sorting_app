@@ -48,7 +48,7 @@ class PackageItemAllocScreenState extends ScreenState<PackageItemAllocScreen> {
               focusNode: focusNodes['itemCode'],
               labelText: '快件编号',
               onDone: (code) {
-                FocusScope.of(context).unfocus();
+                FocusScope.of(context).unfocus(focusPrevious: true);
               },
             ),
           ],
@@ -60,7 +60,7 @@ class PackageItemAllocScreenState extends ScreenState<PackageItemAllocScreen> {
               color: widget.opType == 1 ? Colors.blueAccent : Colors.redAccent,
               textColor: Colors.white,
               onPressed: () {
-                FocusScope.of(context).requestFocus(FocusNode());
+                FocusScope.of(context).unfocus(focusPrevious: true);
                 submit();
               },
               child: Text(widget.opType == 1 ? '加件' : '减件'),
@@ -96,7 +96,7 @@ class PackageItemAllocScreenState extends ScreenState<PackageItemAllocScreen> {
   }
 
   void submit() async {
-    FocusScope.of(context).unfocus();
+    FocusScope.of(context).unfocus(focusPrevious: true);
     int opType = widget.opType;
     Map<String, dynamic> formData = {};
     if (opType == 1) {

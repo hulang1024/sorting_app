@@ -56,7 +56,7 @@ class PackageSearchScreenState extends ScreenState<PackageSearchScreen> {
   }
 
   void search() {
-    FocusScope.of(context).unfocus();
+    FocusScope.of(context).unfocus(focusPrevious: true);
     dataListViewStateKey.currentState.query({'code': codeInputKey.currentState.controller.text});
   }
 }

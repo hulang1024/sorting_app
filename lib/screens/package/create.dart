@@ -137,7 +137,7 @@ class PackageCreateScreenState extends ScreenState<PackageCreateScreen> {
   }
 
   void submit() async {
-    FocusScope.of(context).unfocus();
+    FocusScope.of(context).unfocus(focusPrevious: true);
 
     formData['code'] = codeInputKey.currentState.controller.text;
     formData['destCode'] = destCodeController.text;

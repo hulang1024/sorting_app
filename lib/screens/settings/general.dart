@@ -241,7 +241,7 @@ class GeneralSettingsScreenState extends ScreenState<GeneralSettingsScreen> {
   }
 
   void onServerConfigurePressed() async {
-    FocusScope.of(context).requestFocus(FocusNode());
+    FocusScope.of(context).unfocus(focusPrevious: true);
 
     switch (serverConfigureState) {
       case ServerConfigureState.testing:

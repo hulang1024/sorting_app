@@ -73,7 +73,7 @@ class PackageDeleteScreenState extends ScreenState<PackageDeleteScreen> {
   }
 
   void submit() async {
-    FocusScope.of(context).unfocus();
+    FocusScope.of(context).unfocus(focusPrevious: true);
 
     String code = codeInputKey.currentState.controller.text;
     if (code.isEmpty) {

@@ -56,7 +56,7 @@ class ItemSearchScreenState extends ScreenState<ItemSearchScreen> {
   }
 
   void search() {
-    FocusScope.of(context).unfocus();
+    FocusScope.of(context).unfocus(focusPrevious: true);
     dataListKey.currentState.query({'code': codeInputKey.currentState.controller.text});
   }
 }

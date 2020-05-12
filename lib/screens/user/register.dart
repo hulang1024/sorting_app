@@ -156,7 +156,7 @@ class RegisterScreenState extends ScreenState<RegisterScreen> {
   }
 
   void submit() async {
-    FocusScope.of(context).unfocus();
+    FocusScope.of(context).unfocus(focusPrevious: true);
     if(!await dependentSettingsOk()) {
       return;
     }

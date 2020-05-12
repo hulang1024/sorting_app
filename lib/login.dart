@@ -250,7 +250,7 @@ class LoginState extends ScreenState<Login> with SingleTickerProviderStateMixin 
   }
 
   void onLoginPressed() async {
-    FocusScope.of(context).unfocus();
+    FocusScope.of(context).unfocus(focusPrevious: true);
 
     if (!KeyBindingManager.isLoaded()) {
       Messager.warning('未加载成功按键配置数据');

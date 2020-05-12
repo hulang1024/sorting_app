@@ -44,6 +44,7 @@ class HomeState extends State<Home> {
           ),
         ],
         onTap: (index) {
+          if (index == _screenIndex) return;
           setState(() {
             _screenIndex = index;
           });

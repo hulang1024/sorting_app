@@ -52,6 +52,8 @@ abstract class Screen extends StatefulWidget {
   /// 默认值为true，该属性会去设置Screen内部[RawKeyboardListener]的[autofocus]属性。
   /// 在一些表单Screen需要设置TextField的焦点，但由于[RawKeyboardListener]的[autofocus]也为true，
   /// TextField的焦点将会失效，除非将此属性设置为false（键盘监听依旧可用）
+  /// 注意在其它Screen里使用 `FocusScope.of(context).unfocus()` 会导致所有Screen里的[RawKeyboardListener]也失去焦点，
+  /// 应使用 FocusScope.of(context).unfocus(focusPrevious: true)
   final bool autoKeyboardFocus;
 
   /// 是否有应用程序栏。
