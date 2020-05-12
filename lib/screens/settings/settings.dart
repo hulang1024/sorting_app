@@ -166,6 +166,6 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
         return;
       }
     }
-    super.onKeyUp(keyCombination);
+    super.onKeyDown(keyCombination);
   }
 }

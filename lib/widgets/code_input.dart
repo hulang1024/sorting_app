@@ -52,6 +52,12 @@ class CodeInputState extends State<CodeInput> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    _messageChannel.setMessageHandler(null);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return TextField(
       controller: controller,

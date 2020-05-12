@@ -114,6 +114,6 @@ class ProfileScreenState extends ScreenState<ProfileScreen> {
         return;
       }
     }
-    super.onKeyUp(keyCombination);
+    super.onKeyDown(keyCombination);
   }
 }

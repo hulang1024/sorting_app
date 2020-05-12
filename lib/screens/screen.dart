@@ -132,16 +132,21 @@ abstract class ScreenState<T extends Screen> extends State<T> {
   @protected
   void onKeyDown(KeyCombination keyCombination) async {
     // 判断是否按下了OK键
-    bool isPressedOk = KeyCombination([InputKey.Enter, InputKey.OK]).isPressed(keyCombination);
-    if (isPressedOk) {
+    if (KeyCombination([InputKey.Enter, InputKey.OK]).isPressed(keyCombination)) {
       onOKKeyDown();
+      // 如果不是主菜单界面按的OK，结束流程
+      if (widget.runtimeType != MainMenu) {
+        return;
+      }
+    } else {
+      // 如果是正在文本输入，结束流程
+      if (FocusScope.of(context).focusedChild.hasFocus &&
+          FocusScope.of(context).focusedChild.context.widget.runtimeType == EditableText) {
+        return;
+      }
     }
 
-    // 如果是数字键或者OK键，但不是在主界面按的，则直接返回
-    // 因为其它界面才包含TextField并且有可能会在TextField上输入数字时出现冲突
-    if ((KeyCombination.isNumberKey(keyCombination.keys[0]) || isPressedOk) && widget.runtimeType != MainMenu) {
-      return;
-    }
+    // 查询按键的按键绑定
     KeyBinding binding = KeyBindingManager.getByKeyCombination(keyCombination);
     if (binding != null) {
       onKeyBindingAction(binding.action, rootRouteReplace: !widget.isNavigationScreen);

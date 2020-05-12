@@ -52,12 +52,15 @@ class _PackageItemAllocMenuScreenState extends ScreenState<PackageItemAllocMenuS
   }
 
   @override
-  void onKeyUp(KeyCombination keyCombination) {
+  void onKeyDown(KeyCombination keyCombination) {
     KeyBinding binding = KeyBindingManager.getByKeyCombination(keyCombination);
     if (binding != null) {
-      _enterScreen(binding.action);
+      if (_enterScreen(binding.action)) {
+        return;
+      }
     }
-    super.onKeyUp(keyCombination);
+
+    super.onKeyDown(keyCombination);
   }
 
   Widget _optionButton({GlobalAction action, IconData icon, String text, Color color}) {
@@ -109,17 +112,19 @@ class _PackageItemAllocMenuScreenState extends ScreenState<PackageItemAllocMenuS
     );
   }
 
-  void _enterScreen(GlobalAction action) {
+  bool _enterScreen(GlobalAction action) {
     switch (action) {
       case GlobalAction.ItemAllocDelete:
         push(PackageItemAllocScreen(opType: 2));
-        break;
+        return true;
       case GlobalAction.ItemAllocAdd:
         push(PackageItemAllocScreen(opType: 1));
-        break;
+        return true;
       case GlobalAction.ItemAllocSearch:
         push(PackageItemAllocSearchScreen());
-        break;
+        return true;
+      default:
+        return false;
     }
   }
 }
