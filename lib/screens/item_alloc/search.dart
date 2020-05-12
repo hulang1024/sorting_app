@@ -7,7 +7,7 @@ import 'list_tile.dart';
 
 /// 快件分配查询。
 class PackageItemAllocSearchScreen extends Screen {
-  PackageItemAllocSearchScreen() : super(title: '集包快件操作记录', autoKeyboardFocus: false);
+  PackageItemAllocSearchScreen() : super(title: '集包快件操作记录');
 
   @override
   State<StatefulWidget> createState() => PackageItemAllocSearchScreenState();
