@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:sorting/input/bindings/inputkey.dart';
 import 'package:sorting/input/bindings/key_bindings_manager.dart';
 import 'package:sorting/input/bindings/action.dart';
 import '../screen.dart';
@@ -70,7 +69,7 @@ class MainMenuState extends ScreenState<MainMenu> {
     @required String text,
   }) {
     String keysText = KeyBindingManager.getByAction(action)
-        .where((binding) => binding.keyCombination.keys[0] != InputKey.None)
+        .where((binding) => !binding.keyCombination.isNone)
         .map((binding) => binding.keyCombination.readableString())
         .join(' / ');
     return Card(

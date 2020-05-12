@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:sorting/input/bindings/action.dart';
-import 'package:sorting/input/bindings/inputkey.dart';
 import 'package:sorting/input/bindings/key_binding.dart';
 import 'package:sorting/input/bindings/key_bindings_manager.dart';
 import 'package:sorting/input/bindings/key_combination.dart';
@@ -62,7 +61,7 @@ class _PackageItemAllocMenuScreenState extends ScreenState<PackageItemAllocMenuS
 
   Widget _optionButton({GlobalAction action, IconData icon, String text, Color color}) {
     String keysText = KeyBindingManager.getByAction(action)
-        .where((binding) => binding.keyCombination.keys[0] != InputKey.None)
+        .where((binding) => !binding.keyCombination.isNone)
         .map((binding) => binding.keyCombination.readableString())
         .join(' / ');
     return Container(
@@ -92,13 +91,15 @@ class _PackageItemAllocMenuScreenState extends ScreenState<PackageItemAllocMenuS
                     ),
                   ],
                 ),
-                Padding(padding: EdgeInsets.symmetric(vertical: 4),),
-                Text(keysText,
-                  style: TextStyle(
-                    color: Colors.white38,
-                    fontSize: 11,
+                if (keysText.isNotEmpty) ...[
+                  Padding(padding: EdgeInsets.symmetric(vertical: 4),),
+                  Text(keysText,
+                    style: TextStyle(
+                      color: Colors.white38,
+                      fontSize: 11,
+                    ),
                   ),
-                ),
+                ]
               ],
             ),
           ),

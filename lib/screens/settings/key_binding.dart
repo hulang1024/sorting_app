@@ -14,6 +14,7 @@ class KeyBindingScreen extends Screen {
 class KeyBindingScreenState extends ScreenState<KeyBindingScreen> {
   List<GlobalKey<KeyBindingSectionState>> _sectionKeys = [GlobalKey(), GlobalKey()];
   BindingAction _focusAction;
+
   @override
   Widget render(BuildContext context) {
     return Container(

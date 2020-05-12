@@ -106,13 +106,14 @@ abstract class ScreenState<T extends Screen> extends State<T> {
 
   @protected
   void onKeyDown(KeyCombination keyCombination) async {
-    if (KeyCombination([InputKey.Enter, InputKey.OK]).isPressed(keyCombination, KeyCombinationMatchingMode.Any)) {
+    bool isPressedOk = KeyCombination([InputKey.Enter, InputKey.OK]).isPressed(keyCombination);
+    if (isPressedOk) {
       onOKKeyDown();
     }
 
-    // 如果是数字键，但不是在主界面按的，则直接返回
+    // 如果是数字键或者OK键，但不是在主界面按的，则直接返回
     // 因为其它界面才包含TextField并且有可能会在TextField上输入数字时出现冲突
-    if (KeyCombination.isNumberKey(keyCombination.keys[0]) && widget.runtimeType != MainMenu) {
+    if ((KeyCombination.isNumberKey(keyCombination.keys[0]) || isPressedOk) && widget.runtimeType != MainMenu) {
       return;
     }
     KeyBinding binding = KeyBindingManager.getByKeyCombination(keyCombination);

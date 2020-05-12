@@ -154,7 +154,7 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
   @override
   void onKeyDown(KeyCombination keyCombination) {
     for (var binding in keyBindings) {
-      if (binding.keyCombination.isPressed(keyCombination, KeyCombinationMatchingMode.Any)) {
+      if (binding.keyCombination.isPressed(keyCombination)) {
         RaisedButton button = buttonKeys[binding.action].currentContext?.widget as RaisedButton;
         if (button == null) return;
         if (button.onLongPress != null) {

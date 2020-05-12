@@ -3,9 +3,15 @@ import 'package:sorting/input/bindings/inputkey.dart';
 import 'package:sorting/input/bindings/keyboard_model/kaicomw571.dart';
 
 class KeyCombination {
-  KeyCombination(this.keys);
+  KeyCombination(keys) {
+    if (keys is List) {
+      this.keys = keys;
+    } else {
+      this.keys = [keys];
+    }
+  }
 
-  final List<InputKey> keys;
+  List<InputKey> keys;
 
   @override
   String toString() {
@@ -16,7 +22,7 @@ class KeyCombination {
     return keys.map(getReadableKey).join(separator);
   }
 
-  bool isPressed(KeyCombination pressedKeys, KeyCombinationMatchingMode matchingMode) {
+  bool isPressed(KeyCombination pressedKeys, [KeyCombinationMatchingMode matchingMode = KeyCombinationMatchingMode.Any]) {
     switch (matchingMode) {
       case KeyCombinationMatchingMode.Any:
         for (var key in pressedKeys.keys) {
@@ -39,6 +45,8 @@ class KeyCombination {
         return false;
     }
   }
+
+  bool get isNone => keys.length == 1 && keys[0] == InputKey.None;
 
   // ignore: hash_and_equals
   bool operator == (other) {

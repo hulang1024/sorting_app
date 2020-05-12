@@ -163,8 +163,8 @@ class KeyBindingRowState extends State<KeyBindingRow> {
       return;
     }
 
-    if (keyCombination.keys[0] == InputKey.None) {
-      Messager.ok('不支持的按键');
+    if (keyCombination.isNone) {
+      Messager.warning('不支持的按键');
       return;
     }
     _bindTargetState.updateKeyCombination(keyCombination);
@@ -179,7 +179,7 @@ class KeyBindingRowState extends State<KeyBindingRow> {
   void onClearPressed() {
     widget.onChangeFocus(false);
 
-    _bindTargetState.updateKeyCombination(KeyCombination([InputKey.None]));
+    _bindTargetState.updateKeyCombination(KeyCombination(InputKey.None));
     _keyBindingStore.update(_bindTarget.keyBinding);
   }
 

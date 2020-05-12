@@ -8,7 +8,7 @@ class KeyBinding {
     if (key is KeyCombination) {
       this.keyCombination = key;
     } else {
-      this.keyCombination = KeyCombination(key is List ? key : [key]);
+      this.keyCombination = KeyCombination(key);
     }
     this.action = action;
   }
