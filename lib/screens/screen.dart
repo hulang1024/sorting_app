@@ -134,13 +134,14 @@ abstract class ScreenState<T extends Screen> extends State<T> {
     // 判断是否按下了OK键
     if (KeyCombination([InputKey.Enter, InputKey.OK]).isPressed(keyCombination)) {
       onOKKeyDown();
-      // 如果不是主菜单界面按的OK，结束流程
+      // 如果不是主菜单界面按的OK，那么结束流程
       if (widget.runtimeType != MainMenu) {
         return;
       }
     } else {
-      // 如果是正在文本输入，结束流程
-      if (FocusScope.of(context).focusedChild.hasFocus &&
+      // 如果是按下非功能键，并且正在文本输入，那么结束流程
+      if (!KeyCombination.isFunctionKey(keyCombination.keys[0]) &&
+          FocusScope.of(context).focusedChild.hasFocus &&
           FocusScope.of(context).focusedChild.context.widget.runtimeType == EditableText) {
         return;
       }
@@ -162,7 +163,6 @@ abstract class ScreenState<T extends Screen> extends State<T> {
   @protected
   void onKeyBindingAction(BindingAction action, {bool rootRouteReplace = false}) {
     if (getCurrentUser() == null) {
-      Messager.error('未登录');
       return;
     }
 

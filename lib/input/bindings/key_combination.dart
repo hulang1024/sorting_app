@@ -89,12 +89,15 @@ class KeyCombination {
   /// 返回[key]是否数字按键。
   static bool isNumberKey(InputKey key) => InputKey.Num0.index <= key.index && key.index <= InputKey.Num9.index;
 
+  /// 返回[key]是否功能按键。
+  static bool isFunctionKey(InputKey key) => InputKey.F1.index <= key.index && key.index <= InputKey.F12.index;
+
   /// 返回[key]的字符串表示。
   static String toKeyString(InputKey key) {
     return key.toString().substring('InputKey'.length + 1);
   }
 
-  /// 根据一个[InputKey]的字符串表示返回[InputKey]。
+  /// 根据[InputKey]的字符串表示返回[InputKey]。
   static InputKey fromKeyString(String keyString) {
     return InputKey.values.firstWhere((key) => toKeyString(key) == keyString, orElse: () => null);
   }
