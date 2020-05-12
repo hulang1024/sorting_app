@@ -4,9 +4,9 @@ import 'package:sorting/input/bindings/action.dart';
 import 'package:sorting/input/bindings/inputkey.dart';
 import 'package:sorting/input/bindings/key_binding.dart';
 import 'package:sorting/input/bindings/key_bindings_manager.dart';
-
 import 'key_binding_row.dart';
 
+/// 一组按键绑定。
 class KeyBindingSection extends StatefulWidget {
   KeyBindingSection({
     Key key,

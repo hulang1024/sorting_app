@@ -1,9 +1,9 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
-Database _db;
-
+/// 应用数据库。
 class SortingDatabase {
+  static Database _db;
   static const DB_FILENAME = 'sorting.db';
 
   static Future<Database> instance() async {
@@ -13,6 +13,7 @@ class SortingDatabase {
       dbPath,
       version: 1,
       onCreate: (Database db, int version) async {
+        // 按键绑定
         await db.execute('''
           create table if not exists `key_binding`(
             `id`               integer   primary key autoincrement not null,
@@ -20,6 +21,8 @@ class SortingDatabase {
             `keyCombination`   varchar(20)     not null
           );
         ''');
+
+        // 集包创建记录
         await db.execute('''
           create table if not exists `package`(
             `code`            varchar(20)   primary key not null,
@@ -31,6 +34,8 @@ class SortingDatabase {
             `lastUpdate`      char(19)
           );
         ''');
+
+        // 集包删除记录
         await db.execute('''
           create table if not exists `package_delete_op`(
             `code`            varchar(20)   primary key not null,
@@ -39,6 +44,8 @@ class SortingDatabase {
             `status`          int                       not null
           );
         ''');
+
+        // 集包快件分配记录
         await db.execute(''' 
           create table if not exists `package_item_op`(
             `id`              integer   primary key autoincrement not null,
@@ -50,6 +57,8 @@ class SortingDatabase {
             `status`          int                     not null
           );
         ''');
+
+        // 集包快件关联
         await db.execute('''
           create table if not exists `package_item_rel`(
             `id`              integer   primary key autoincrement not null,
@@ -60,6 +69,8 @@ class SortingDatabase {
             `status`          int                  not null
           );
         ''');
+
+        // 目的地地址
         await db.execute('''
           create table if not exists `coded_address`(
             `code`     varchar(30)  primary key  not null,
@@ -71,11 +82,13 @@ class SortingDatabase {
     return _db;
   }
 
+  /// 删除数据库
   static void delete() async {
     deleteDatabase(join(await getDatabasesPath(), DB_FILENAME));
     _db = null;
   }
 
+  /// 删除离线操作数据
   static void deleteOfflineData() async {
     var db = await instance();
     for (String table in ['package', 'package_delete_op', 'package_item_op', 'package_item_rel']) {
@@ -83,6 +96,7 @@ class SortingDatabase {
     }
   }
 
+  /// 删除基础数据
   static void deleteBasicData() async {
     var db = await instance();
     await db.delete('coded_address');

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:sorting/entity/package_item_op_entity.dart';
 import 'package:sorting/widgets/status.dart';
-
 import 'details.dart';
 
+/// 显示在列表上的快件分配操作记录项目。
 class ItemOpRecordListTile extends ListTile {
   ItemOpRecordListTile(PackageItemOpEntity op, context, {showType: false}) : super(
     title: Row(

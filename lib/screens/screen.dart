@@ -16,26 +16,50 @@ import 'menu/main_menu.dart';
 import 'package/create.dart';
 import 'package/delete.dart';
 import 'package/search.dart';
+
+/// 屏幕（页面）抽象类。
+///
+/// 其它类继承该类，可复用一些代码，比如 可以获得一致的外观、键盘监听、路由方法的封装等。
 abstract class Screen extends StatefulWidget {
   Screen({
+    Key key,
     this.hasAppBar = true,
     this.title,
     this.homeAction = true,
     this.addPadding,
-    this.isRootScreen = false,
+    this.isNavigationScreen = false,
     this.autoKeyboardFocus = true
-  });
+  }) : super(key: key);
 
+  /// 在应用程序栏显示的标题。
   final String title;
+
+  /// 是否在程序栏上显示 返回主页 的图标按钮，用以快速返回主页。
   final bool homeAction;
+
+  /// 增加边距。
+  ///
+  /// Screen有一个默认内边距，如果这个属性不为空，则会加上该属性的值，
+  /// 如果你不想让一个Screen有内边距，可以设置值如[EdgeInsets.add(-8)]，
+  /// 为了外观一致性，尽量不要设置该属性。
   final EdgeInsets addPadding;
-  final bool isRootScreen;
+
+  /// 是否是导航屏幕。
+  final bool isNavigationScreen;
+
+  /// 设置键盘焦点
+  ///
+  /// 默认值为true，该属性会去设置Screen内部[RawKeyboardListener]的[autofocus]属性。
+  /// 在一些表单Screen需要设置TextField的焦点，但由于[RawKeyboardListener]的[autofocus]也为true，
+  /// TextField的焦点将会失效，除非将此属性设置为false（键盘监听依旧可用）
   final bool autoKeyboardFocus;
+
+  /// 是否有应用程序栏。
   final bool hasAppBar;
 }
 
 abstract class ScreenState<T extends Screen> extends State<T> {
-  FocusNode _keyFocusNode = FocusNode(skipTraversal: true);
+  FocusNode keyFocusNode = FocusNode(skipTraversal: true);
   String _title = '';
   get title => _title;
   set title(str) {
@@ -60,7 +84,7 @@ abstract class ScreenState<T extends Screen> extends State<T> {
   @override
   Widget build(BuildContext context) {
     return RawKeyboardListener(
-      focusNode: _keyFocusNode,
+      focusNode: keyFocusNode,
       autofocus: widget.autoKeyboardFocus,
       onKey: (RawKeyEvent event) {
         KeyCombination keyCombination = KeyCombination.fromRawKeyEvent(event);
@@ -69,7 +93,6 @@ abstract class ScreenState<T extends Screen> extends State<T> {
         } else {
           onKeyUp(keyCombination);
         }
-        // 观察到 有时正好是打断点的时候，会导致重复触发，所以在调试按键监听功能时，不要打断点
       },
       child: Scaffold(
         appBar: !widget.hasAppBar ? null : AppBar(
@@ -100,12 +123,13 @@ abstract class ScreenState<T extends Screen> extends State<T> {
     );
   }
 
-  // 屏幕内容
+  /// 屏幕内容
   @protected
   Widget render(BuildContext context);
 
   @protected
   void onKeyDown(KeyCombination keyCombination) async {
+    // 判断是否按下了OK键
     bool isPressedOk = KeyCombination([InputKey.Enter, InputKey.OK]).isPressed(keyCombination);
     if (isPressedOk) {
       onOKKeyDown();
@@ -118,7 +142,7 @@ abstract class ScreenState<T extends Screen> extends State<T> {
     }
     KeyBinding binding = KeyBindingManager.getByKeyCombination(keyCombination);
     if (binding != null) {
-      onKeyBindingAction(binding.action, rootRouteReplace: !widget.isRootScreen);
+      onKeyBindingAction(binding.action, rootRouteReplace: !widget.isNavigationScreen);
     }
   }
 

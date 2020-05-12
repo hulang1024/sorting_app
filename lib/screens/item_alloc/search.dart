@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:sorting/entity/package_item_op_entity.dart';
 import 'package:sorting/service/item_alloc.dart';
 import '../screen.dart';
 import '../../widgets/data_list.dart';
 import '../../api/http_api.dart';
 import 'list_tile.dart';
 
+/// 快件分配查询。
 class PackageItemAllocSearchScreen extends Screen {
   PackageItemAllocSearchScreen() : super(title: '集包快件操作记录', autoKeyboardFocus: false);
 
@@ -24,7 +24,6 @@ class PackageItemAllocSearchScreenState extends ScreenState<PackageItemAllocSear
           key: dataListKey,
           height: 382,
           loadData: loadData,
-          convert: () => PackageItemOpEntity(),
           noDataText: '未查询到记录',
           rowBuilder: (item, index, context) {
             return ItemOpRecordListTile(item, context, showType: true);

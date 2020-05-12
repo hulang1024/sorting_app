@@ -14,6 +14,7 @@ import '../../screens/settings/about.dart';
 import '../screen.dart';
 import '../../widgets/message.dart';
 
+/// 设置首屏。
 class SettingsScreen extends Screen {
   SettingsScreen({homeAction: true}) : super(title: '设置', homeAction: homeAction, addPadding: EdgeInsets.only(top: -8));
   @override

@@ -8,6 +8,7 @@ import '../package/details.dart';
 import '../screen.dart';
 import 'list_tile.dart';
 
+/// 集包快件分配记录的详情。
 class ItemAllocOpDetailsScreen extends Screen {
   ItemAllocOpDetailsScreen(this.op) : super(title: '集包${op.opType == 1 ? '增件' : '减件'}详情');
 

@@ -8,6 +8,7 @@ import '../screen.dart';
 import '../../api/http_api.dart';
 import 'list_tile.dart';
 
+/// 快件详情。
 class ItemDetailsScreen extends Screen {
   ItemDetailsScreen(this.item) : super(title: '快件详情');
 

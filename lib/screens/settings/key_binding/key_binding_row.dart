@@ -7,9 +7,9 @@ import 'package:sorting/input/bindings/key_binding_store.dart';
 import 'package:sorting/input/bindings/key_bindings_manager.dart';
 import 'package:sorting/input/bindings/key_combination.dart';
 import 'package:sorting/widgets/message.dart';
-
 import 'key_button.dart';
 
+/// 按键绑定行。
 class KeyBindingRow extends StatefulWidget {
   KeyBindingRow({
     Key key,

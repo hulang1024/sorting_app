@@ -4,6 +4,7 @@ import 'package:sorting/input/bindings/inputkey.dart';
 import 'package:sorting/input/bindings/key_binding.dart';
 import 'package:sorting/input/bindings/key_combination.dart';
 
+/// 显示在一个按键绑定行上的按键按钮。
 class KeyButton extends StatefulWidget {
   KeyButton({Key key, this.keyBinding, this.onTap}) : super(key: key);
 

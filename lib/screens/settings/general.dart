@@ -7,6 +7,7 @@ import '../screen.dart';
 import '../../api/http_api.dart';
 import '../../widgets/message.dart';
 
+/// 通用设置。
 class GeneralSettingsScreen extends Screen {
   GeneralSettingsScreen({homeAction: true}) : super(title: '通用设置', homeAction: homeAction, addPadding: EdgeInsets.only(top: -8));
   @override

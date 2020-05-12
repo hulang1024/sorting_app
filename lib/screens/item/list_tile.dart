@@ -4,6 +4,7 @@ import 'package:sorting/widgets/message.dart';
 import 'package:sorting/widgets/status.dart';
 import 'details.dart';
 
+/// 显示在列表上的快件项目。
 class ItemListTile extends ListTile {
   ItemListTile(ItemEntity item, verbose, context) : super(
     title: Row(

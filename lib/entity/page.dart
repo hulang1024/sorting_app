@@ -1,6 +1,6 @@
 part of api;
 
-/// 分页数据
+/// 分页数据。
 class Page {
   /// 记录总数 total >= content.length
   int total;

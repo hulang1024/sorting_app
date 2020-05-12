@@ -1,3 +1,4 @@
+/// 按键绑定的动作。
 class BindingAction {
   final int code;
   final String text;
@@ -5,6 +6,7 @@ class BindingAction {
   const BindingAction(this.code, this.text);
 }
 
+/// 全局动作集。
 class GlobalAction extends BindingAction {
   static const PackageCreateSmart = GlobalAction(1, '智能建包');
   static const PackageCreate = GlobalAction(2, '手动建包');

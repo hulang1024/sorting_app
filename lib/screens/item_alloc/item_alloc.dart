@@ -9,6 +9,7 @@ import '../../widgets/code_input.dart';
 import '../../widgets/message.dart';
 import 'list_tile.dart';
 
+/// 集包加减件。
 class PackageItemAllocScreen extends Screen {
   PackageItemAllocScreen({this.opType}) : super(title: opType == 1 ? '集包加件' : '集包减件', autoKeyboardFocus: false);
   final int opType;

@@ -9,7 +9,10 @@ Future<Database> getDB() {
   return SortingDatabase.instance();
 }
 
+/// 应用数据库操作封装类。
 class DBUtils {
+
+  /// 查询一个实体。
   static Future<T> findOne<T>(String table, {
     List<String> columns,
     where,
@@ -24,6 +27,7 @@ class DBUtils {
     return result.length > 0 ? (convert != null ? convert().fromJson(result[0]) : result[0]) : null;
   }
 
+  /// 查询一个[Page]。
   static Future<Page> fetchPage(String table,
       {
         Map<String, dynamic> pageParams,

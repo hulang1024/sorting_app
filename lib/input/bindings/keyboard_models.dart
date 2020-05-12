@@ -1,5 +1,6 @@
 import 'package:sorting/input/bindings/inputkey.dart';
 
+/// 凯立W571型号巴枪的 [RawKeyEvent] 键码。
 const Map<int, InputKey> KAICOM_W571_KEY_MAP = {
   4295426167: InputKey.OK,
   4295426106: InputKey.F1,

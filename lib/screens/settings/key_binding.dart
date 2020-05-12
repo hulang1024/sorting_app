@@ -5,6 +5,7 @@ import 'package:sorting/input/bindings/key_combination.dart';
 import '../screen.dart';
 import 'key_binding/key_binding_section.dart';
 
+/// 按键绑定。
 class KeyBindingScreen extends Screen {
   KeyBindingScreen() : super(title: '按键配置', homeAction: false, addPadding: EdgeInsets.all(-8));
   @override

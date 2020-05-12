@@ -1,7 +1,11 @@
 import 'package:sorting/input/bindings/key_combination.dart';
 
+/// 按键绑定。
 class KeyBinding {
+  /// 按键组合。
   KeyCombination keyCombination;
+
+  /// 按键绑定的动作。
   var action;
 
   KeyBinding(key, action) {

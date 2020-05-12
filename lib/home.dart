@@ -10,9 +10,9 @@ class Home extends StatefulWidget {
 }
 
 class HomeState extends State<Home> {
-  final List<Screen> screens = [
-    MainMenu(),
-    ProfileScreen(),
+  List<Screen> _screens = [
+    MainMenu(key: GlobalKey()),
+    ProfileScreen(key: GlobalKey()),
   ];
   int _screenIndex = 0;
 
@@ -25,7 +25,7 @@ class HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: screens[_screenIndex],
+      body: _screens[_screenIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _screenIndex,
         elevation: 4,
@@ -47,6 +47,12 @@ class HomeState extends State<Home> {
           setState(() {
             _screenIndex = index;
           });
+          // 解决根页面的RawKeyboardListener的焦点冲突
+          for (int i = 0; i < _screens.length; i++) {
+            if (i != index) {
+              ((_screens[i].key as GlobalKey).currentState as ScreenState).keyFocusNode.unfocus();
+            }
+          }
         },
       ),
     );

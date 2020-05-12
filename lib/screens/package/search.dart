@@ -7,6 +7,7 @@ import '../../api/http_api.dart';
 import 'details.dart';
 import 'list_tile.dart';
 
+/// 查询集包。
 class PackageSearchScreen extends Screen {
   PackageSearchScreen() : super(title: '查询集包', autoKeyboardFocus: false);
   @override

@@ -8,9 +8,9 @@ import '../../api/http_api.dart';
 import '../screen.dart';
 import '../../widgets/code_input.dart';
 import '../../widgets/message.dart';
-import 'details.dart';
 import 'list_tile.dart';
 
+/// 建包屏。
 class PackageCreateScreen extends Screen {
   PackageCreateScreen({this.smartCreate = false}) : super(title: smartCreate ? '智能建包' : '手动建包', autoKeyboardFocus: false);
 
@@ -78,11 +78,6 @@ class PackageCreateScreenState extends ScreenState<PackageCreateScreen> {
           noDataText: '没有集包创建记录',
           rowBuilder: (package, [index, context]) {
             return PackageListTile(package, context);
-          },
-          onData: (Page page) {
-            if (page.content.length == 1) {
-              push(PackageDetailsScreen(page.content[0]));
-            }
           },
         ),
       ],

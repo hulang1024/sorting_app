@@ -11,6 +11,7 @@ import '../../api/http_api.dart';
 import 'delete.dart';
 import 'list_tile.dart';
 
+/// 集包详情。
 class PackageDetailsScreen extends Screen {
   PackageDetailsScreen(this.package) : super(title: '集包详情');
 
@@ -129,11 +130,6 @@ class PackageDetailsScreenState extends ScreenState<PackageDetailsScreen> {
           showPagination: false,
           rowBuilder: (item, index, context) {
             return ItemListTile(item, false, context);
-          },
-          onData: (Page page) {
-            setState(() {
-              itemTotal = page.total;
-            });
           },
         ),
       ],

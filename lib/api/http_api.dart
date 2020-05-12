@@ -9,6 +9,7 @@ import '../widgets/message.dart';
 part 'model/result.dart';
 part '../entity/page.dart';
 
+/// http api.
 class HttpApi {
   Dio _dio;
   bool _prepared = false;

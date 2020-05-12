@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../screen.dart';
 import 'version.dart';
 
+/// 关于。
 class AboutScreen extends Screen {
   AboutScreen() : super(title: '关于', homeAction: false, addPadding: EdgeInsets.all(-8));
   @override

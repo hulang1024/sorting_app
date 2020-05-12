@@ -7,10 +7,12 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sorting/widgets/message.dart';
 import '../../api/http_api.dart';
 
+/// 版本检查状态枚举。
 enum VersionCheckingState {
   checking, currentIsLatest, needUpdated
 }
 
+/// 版本管理
 class VersionManager {
   static bool _initialized = false;
   static Completer<String> _currentVersionCompleter;

@@ -7,6 +7,7 @@ import '../../api/http_api.dart';
 import 'details.dart';
 import 'list_tile.dart';
 
+/// 快件查询。
 class ItemSearchScreen extends Screen {
   ItemSearchScreen() : super(title: '查询快件', autoKeyboardFocus: false);
 

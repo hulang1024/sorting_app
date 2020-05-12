@@ -8,6 +8,7 @@ import 'package:sorting/screens/screen.dart';
 import 'item_alloc.dart';
 import 'search.dart';
 
+/// 集包快件分配操作菜单屏。
 class PackageItemAllocMenuScreen extends Screen {
   PackageItemAllocMenuScreen() : super(title: '选择操作', );
 

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
+/// 一个弹出消息工具类。
+///
+/// 它封装并统一了弹出消息的样式，如果要弹出消息，请使用该类。
 class Messager {
   static Future ok(msg) {
     return _showMsg(msg, Colors.lightGreen);

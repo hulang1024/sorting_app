@@ -9,6 +9,7 @@ import '../../widgets/code_input.dart';
 import '../../api/http_api.dart';
 import 'details.dart';
 
+/// 删除集包。
 class PackageDeleteScreen extends Screen {
   PackageDeleteScreen() : super(title: '删除集包', autoKeyboardFocus: false);
 

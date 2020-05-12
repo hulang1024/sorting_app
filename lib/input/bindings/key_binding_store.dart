@@ -6,6 +6,7 @@ import 'package:sqflite/sqflite.dart';
 import 'database_key_binding.dart';
 import 'key_binding.dart';
 
+/// 按键绑定的存储
 class KeyBindingStore {
   Future<void> saveDefaults(List<KeyBinding> defaults) async {
     var db = await getDB();

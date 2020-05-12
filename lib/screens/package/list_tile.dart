@@ -4,6 +4,7 @@ import 'package:sorting/entity/package_entity.dart';
 import 'package:sorting/widgets/status.dart';
 import 'details.dart';
 
+/// 显示在列表上的集包项目。
 class PackageListTile extends ListTile {
   PackageListTile(PackageEntity package, context) : super(
     title: Row(
@@ -25,6 +26,7 @@ class PackageListTile extends ListTile {
     },
   );
 }
+
 Status packageStatus(code) => [
   Status(text: '创建成功', color: Colors.black87),
   Status(text: '未上传到服务器', color: Colors.orange),

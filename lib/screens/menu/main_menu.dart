@@ -3,8 +3,9 @@ import 'package:sorting/input/bindings/key_bindings_manager.dart';
 import 'package:sorting/input/bindings/action.dart';
 import '../screen.dart';
 
+/// 主功能菜单屏。
 class MainMenu extends Screen {
-  MainMenu() : super(title: '首页', homeAction: false, isRootScreen: true);
+  MainMenu({Key key}) : super(key: key, title: '首页', homeAction: false, isNavigationScreen: true);
 
   @override
   State<StatefulWidget> createState() => MainMenuState();
