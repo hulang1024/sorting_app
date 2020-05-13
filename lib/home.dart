@@ -29,7 +29,7 @@ class HomeState extends State<Home> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _screenIndex,
         elevation: 4,
-        backgroundColor: Colors.white,
+        //backgroundColor: Colors.white,
         selectedFontSize: 12,
         unselectedFontSize: 12,
         items: [

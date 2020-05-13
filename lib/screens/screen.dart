@@ -7,7 +7,6 @@ import 'package:sorting/input/bindings/action.dart';
 import 'package:sorting/input/bindings/inputkey.dart';
 import 'package:sorting/input/bindings/key_combination.dart';
 import 'package:sorting/session.dart';
-import 'package:sorting/widgets/message.dart';
 import 'item/search.dart';
 import 'item_alloc/item_alloc.dart';
 import 'item_alloc/item_alloc_menu.dart';
