@@ -36,11 +36,11 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
     ]);
     keyBindings = [
       'general-settings',
+      if (getCurrentUser() != null) 'key-configuration',
       if (getCurrentUser() != null) 'upload-offline-data',
       if (getCurrentUser() != null) 'pull-basic-data',
       if (getCurrentUser() != null) 'delete-offline-data',
       if (getCurrentUser() != null) 'delete-basic-data',
-      if (getCurrentUser() != null) 'key-configuration',
       'about',
       'exit',
     ].map((action) => KeyBinding(inputKeys.removeFirst(), action)).toList();
