@@ -1,4 +1,4 @@
-import 'dart:collection';
+﻿import 'dart:collection';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -36,7 +36,7 @@ class SettingsScreenState extends ScreenState<SettingsScreen> {
     ]);
     keyBindings = [
       'general-settings',
-      if (getCurrentUser() != null) 'key-configuration',
+      'key-configuration',
       if (getCurrentUser() != null) 'upload-offline-data',
       if (getCurrentUser() != null) 'pull-basic-data',
       if (getCurrentUser() != null) 'delete-offline-data',

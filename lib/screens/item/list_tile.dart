@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:sorting/entity/item_entity.dart';
 import 'package:sorting/widgets/message.dart';
-import 'package:sorting/widgets/status.dart';
 import 'details.dart';
+import 'status.dart';
 
 /// 显示在列表上的快件项目。
 class ItemListTile extends ListTile {
@@ -36,7 +36,3 @@ class ItemListTile extends ListTile {
     },
   );
 }
-
-Status itemStatus(alreadyAlloc) => alreadyAlloc
-  ? Status(text: '已分配', color: Colors.green)
-  : Status(text: '未分配', color: Colors.grey);

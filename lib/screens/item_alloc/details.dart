@@ -6,7 +6,7 @@ import 'package:sorting/entity/package_item_op_entity.dart';
 import 'package:sorting/service/item_alloc.dart';
 import '../package/details.dart';
 import '../screen.dart';
-import 'list_tile.dart';
+import 'status.dart';
 
 /// 集包快件分配记录的详情。
 class ItemAllocOpDetailsScreen extends Screen {

@@ -29,7 +29,7 @@ class DataSyncService {
   Future<int> uploadOfflineData() async {
     int uploadRows = 0;
     uploadRows += await _uploadPackages(isSmartCreate: false);
-    uploadRows += await _uploadPackageItemRelations();
+    uploadRows += await _uploadPackageItemOperations();
     uploadRows += await _uploadPackages(isSmartCreate: true);
     uploadRows += await _requestDeletePackages();
     return uploadRows;
@@ -107,7 +107,7 @@ class DataSyncService {
   }
 
 
-  Future<int> _uploadPackageItemRelations() async {
+  Future<int> _uploadPackageItemOperations() async {
     const PAGE_SIZE = 24;
     int pageNo = 0;
     List<Map<String, dynamic>> rows;
@@ -122,8 +122,8 @@ class DataSyncService {
     do {
       ++pageNo;
       rows = await db.rawQuery('''
-        select r.* from package_item_rel r
-        where r.status = 1
+        select * from package_item_op
+        where status = 1
         limit ${(pageNo - 1) * PAGE_SIZE}, $PAGE_SIZE
       ''');
       if (rows.isEmpty) {
@@ -134,10 +134,13 @@ class DataSyncService {
         break;
       }
       Batch batch = db.batch();
-      ret.data.forEach((status, itemCodes) {
-        itemCodes.forEach((code) {
-          batch.update('package_item_rel', {'status': status}, where: 'itemCode = "$code"');
-          batch.update('package_item_op',  {'status': status}, where: 'itemCode = "$code"');
+      ret.data.forEach((status, ids) {
+        ids.forEach((id) {
+          batch.rawUpdate('''
+            update package_item_rel set status = $status
+            where itemCode = (select itemCode from package_item_op where id=$id)
+          ''');
+          batch.update('package_item_op',  {'status': status}, where: 'id = $id');
         });
       });
       batch.commit();

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:sorting/entity/package_entity.dart';
 import 'package:sorting/service/package_delete.dart';
-import 'package:sorting/widgets/status.dart';
 import '../screen.dart';
 import '../../widgets/message.dart';
 import '../../widgets/data_list.dart';
 import '../../widgets/code_input.dart';
 import '../../api/http_api.dart';
 import 'details.dart';
+import 'status.dart';
 
 /// 删除集包。
 class PackageDeleteScreen extends Screen {
@@ -89,12 +89,4 @@ class PackageDeleteScreenState extends ScreenState<PackageDeleteScreen> {
       Messager.error(ret.msg);
     }
   }
-
 }
-
-Status deleteOpStatus(code) => [
-  Status(text: '删除成功', color: Colors.green),
-  Status(text: '等待上传', color: Colors.orange),
-  Status(text: '删除失败，集包包含快件', color: Colors.red),
-  Status(text: '删除失败，集包不存在', color: Colors.red),
-][code];

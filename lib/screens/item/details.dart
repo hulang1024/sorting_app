@@ -6,7 +6,7 @@ import 'package:sorting/entity/package_entity.dart';
 import '../package/details.dart';
 import '../screen.dart';
 import '../../api/http_api.dart';
-import 'list_tile.dart';
+import 'status.dart';
 
 /// 快件详情。
 class ItemDetailsScreen extends Screen {
