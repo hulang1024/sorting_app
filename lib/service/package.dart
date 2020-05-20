@@ -51,12 +51,13 @@ class PackageService {
   // 查询集包详情
   Future<Map<String, dynamic>> details(PackageEntity package) async {
     Map<String, dynamic> details = {};
-    // 如果是服务器集包数据，就从服务器查询
-    // 如果是本地集包数据且是上传成功状态并且可连接服务器，也从服务器查询；否则从本地库查询
-    if ((package.status == null || (package.status == 0 && api.isAvailable)) && package.status != 4) {
+    // 如果是服务器集包数据（根据status为null为空判断），就从服务器查询
+    if (package.status == null) {
       details = await api.get('/package/details', queryParameters: {'code': package.code});
       package = PackageEntity().fromJson(details['package']);
-    } else {
+    }
+    // 如果是本地集包数据，从本地库查询
+    else {
       if (package.status == 4) {
         Map<String, dynamic> deleteInfo = {};
         deleteInfo.addAll(await DBUtils.findOne('package_delete_op', where: 'code = "${package.code}"'));
