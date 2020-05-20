@@ -71,5 +71,5 @@ class DBUtils {
 }
 
 String getNowDateTimeString() {
-  return DateFormat('yyyy-MM-dd hh:mm:ss').format(DateTime.now());
+  return DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
 }
