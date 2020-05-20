@@ -1,4 +1,4 @@
-import 'package:quiver/strings.dart';
+﻿import 'package:quiver/strings.dart';
 import 'package:sorting/api/http_api.dart';
 import 'package:sorting/dao/db_utils.dart';
 import 'package:sorting/dao/package.dart';
@@ -64,7 +64,7 @@ class ItemAllocService {
 
   Future<Result> _addItem(String packageCode, String itemCode, int status) async {
     var db = await getDB();
-    var packageItemRel = await DBUtils.findOne('package_item_rel', where: 'itemCode = $itemCode', convert: () => PackageItemRelEntity());
+    var packageItemRel = await DBUtils.findOne('package_item_rel', where: 'itemCode = "$itemCode"', convert: () => PackageItemRelEntity());
     if (packageItemRel != null) {
       if (packageItemRel.packageCode == packageCode) {
         return Result.fail(code: 5, msg: '快件早已加到集包');
